@@ -1,0 +1,104 @@
+{% raw %}
+<script>
+//zoom
+$(function(){
+  $.fn.zoom = function () {
+    return this.each(function (i, target) {
+      var $target = $(target);
+      var $parent = $target.parent();
+      var zoom_src = $target.attr("data-zoom-src");
+      var zoom_width = parseInt($target.attr("data-zoom-width"), 10);
+      var zoom_height = parseInt($target.attr("data-zoom-height"), 10);
+      if (zoom_width <= $target.width()) return;
+      $parent.css({ position: "relative", overflow: "hidden", "cursor": "zoom-in" });
+      $target.on("reset.zoom", function () {
+        $parent.css("cursor", "zoom-in").find(".zoom-img").css({ opacity: 0, transform: "none"});
+      })
+      if ("ontouchstart" in document.body) {
+        var isTouchstart = false;
+        var startDistance = 0, startPoint = { x: 0, y: 0 }, startTranslate = { x: 0, y: 0 }, startScale = 1,
+          clamp = function (v, min, max) {
+            return v < min ? min : (v > max ? max : v);
+          },
+          distance = function (a) {
+            var zw = a.touches[0].pageX - a.touches[1].pageX,
+              zh = a.touches[0].pageY - a.touches[1].pageY;
+            return Math.sqrt(zw * zw + zh * zh);
+          },
+          center = function (e) {
+            return { x: (e.touches[1].pageX + e.touches[0].pageX) / 2, y: (e.touches[0].pageY + e.touches[1].pageY) / 2 };
+          };
+        $parent
+          .on("touchstart.zoom", function (e) {
+            isTouchstart = false;
+            if (e.originalEvent.touches.length > 1) {
+              e.preventDefault();
+              isTouchstart = true;
+              startDistance = distance(e.originalEvent);
+              startPoint = center(e.originalEvent);
+              var $img = $parent.find(".zoom-img");
+              if (!$img.length) {
+                $img = $("<img class='zoom-img' src='" + zoom_src + "'/>").css({ position: "absolute", width: $parent.outerWidth(), left: 0, top: 0, zIndex: 3, right: 0, bottom: 0, margin: 'auto' }).appendTo($parent);
+              }
+              var transform = $img.css("transform").split(/\(|,|\)/);
+              startScale = parseFloat(transform[1]) || 1;
+              startTranslate = { x: (transform[5] || 0) / startScale, y: (transform[6] || 0) / startScale };
+              $target.trigger("before.zoom");
+            }
+          })
+          .on("touchmove.zoom", function (e) {
+            var $img = $parent.find(".zoom-img");
+            if (isTouchstart && e.originalEvent.touches.length > 1) {
+              e.preventDefault();
+              var curDistance = distance(e.originalEvent);
+              var point = center(e.originalEvent);
+              var maxScale = zoom_width / $parent.outerWidth();
+              var scale = clamp(startScale * (curDistance / startDistance), 1, maxScale);
+              var maxTranslateX = ($parent.outerWidth() * (scale - 1)) / 2 / maxScale;
+              var maxTranslateY = ($parent.outerHeight() * (scale - 1)) / 2 / maxScale;
+              var translateX = clamp(startTranslate.x + point.x - startPoint.x, 0 - maxTranslateX, maxTranslateX);
+              var translateY = clamp(startTranslate.y + point.y - startPoint.y, 0 - maxTranslateY, maxTranslateY);
+              $img.css({
+                'transform': scale == 1 ? 'none' : ('scale(' + scale + ') translate(' + translateX + 'px,' + translateY + 'px)'),
+                opacity: scale == 1 ? 0 : 1
+              });
+            }
+          })
+          .on('touchend', function(e){
+            if (isTouchstart && e.originalEvent.touches.length > 1) {
+              isTouchstart = false;
+            }
+            !isTouchstart && $target.trigger("reset.zoom");
+          })
+      } else {
+        $parent.on("click.zoom mousemove.zoom", function (e) {
+          e.type == "click" && ($target.data("zoom-toggle", !$target.data("zoom-toggle")));
+          var $img = $parent.find(".zoom-img");
+          if (!$img.length) {
+            $img = $("<img class='tw-transition-transform tw-duration-500 zoom-img' src='" + zoom_src + "'/>").css({ position: "absolute", left: 0, top: 0, bottom: 0, right: 0, margin: 'auto', zIndex: 3, opacity: 0, transform: "none", width: $target.outerWidth(), height: $target.outerHeight() }).appendTo($parent);
+          }
+          if (!$target.data("zoom-toggle")) {
+            e.type == "click" && $target.trigger("reset.zoom");
+          } else {
+            e.type == "click" && $img.css({width: $target.outerWidth(), height: $target.outerHeight()});
+            var offset = $target.offset();
+            var scale = $target.outerWidth(true) / $target.outerWidth();
+            var translateX = (e.pageX - offset.left) / $target.outerWidth() * 100;
+            var translateY = (e.pageY - offset.top) / $target.outerHeight() * 100;
+            $img.css({
+              'transform': 'scale(' + scale + ')',
+              'transform-origin': '' + translateX + '% ' + translateY + "%",
+              opacity: 1
+            });
+            $parent.css("cursor", "zoom-out");
+            e.type == "click" && $target.trigger("before.zoom");
+          }
+        }).on("mouseleave.zoom", function (e) {
+          $target.data("zoom-toggle", false).trigger("reset.zoom");
+        });
+      }
+    })
+  }
+})
+</script>
+{% endraw %}

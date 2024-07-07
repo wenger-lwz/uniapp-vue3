@@ -1,0 +1,682 @@
+<footer id="section_{{section.id}}" data-section-id="{{ section.id }}">
+  {% comment %} footer区域 {% endcomment %}
+  <style>
+    [data-section-id="footer_plus"] .xf-mce-view > p {  margin-top: 0.75rem; margin-bottom: 0.75rem; line-height: 1.3; }
+    [data-section-id="footer_plus"] .newsletter_sub_title > p,
+    [data-section-id="footer_plus"] .xf-mce-view > p:first-child,
+    [data-section-id="footer_plus"] .footer-copyright-content > p {margin-top: 0; margin-bottom: 0;}
+    [data-section-id="footer_plus"] a{text-decoration: none; color:inherit;}
+    [data-section-id="footer_plus"] a:hover{opacity: 0.7;}
+    [data-section-id="footer_plus"] #input_email_footer_newsletter::-webkit-input-placeholder { opacity: 0.4; color: {{ settings.color_footer_newsletter_text }}; font-size: {{ settings.type_text_font_size }}px; }
+    [data-section-id="footer_plus"] #input_email_footer_newsletter::-moz-placeholder { opacity: 0.4; color: {{ settings.color_footer_newsletter_text }}; font-size: {{ settings.type_text_font_size }}px; }
+    [data-section-id="footer_plus"] #input_email_footer_newsletter:-ms-input-placeholder  { opacity: 0.4; color: {{ settings.color_footer_newsletter_text }}; font-size: {{ settings.type_text_font_size }}px; }
+    [data-section-id="footer_plus"] .icon_turn { transform: rotate(0deg);}
+  </style>
+  <div class="footer-widget tw-border-solid tw-border-0 tw-border-t"
+    style="border-color: {{ settings.color_footer_widget_border }}; background-color: {{ settings.color_footer_widget_bg }}">
+    <div class="tw-max-w-page tw-mx-auto tw-px-5 lg:tw-px-general-layout-spacing tw-py-6 lg:tw-py-20 tw-mt-4 lg:tw-mt-0">
+      <div class="footer-content footer-content-{{ section.blocks.size }} tw-flex tw-flex-col lg:tw-flex-row tw-flex-wrap lg:tw--ml-10 lg:tw--mb-10">
+        {% for block in section.blocks %}
+          {% case block.type %}
+            {% when 'menu' %}
+              <div class="footer__item tw-text-center lg:tw-text-left tw-pb-1 lg:tw-pb-10 tw-box-border lg:tw-pl-10" style="flex:0 0 {{ block.settings.col_width }}%;">
+                {% assign menu_item = block.settings %}
+                  {% if menu_item.title %}
+                    <p class="font-title tw-mb-5 tw-mt-0 tw-text-light-text-color tw-hidden lg:tw-block tw-leading-none tw-text-widget-font-size tw-tracking-widget-letter-spacing type-heading-font-family {% if settings.type_widget_text_uppercase_on %} tw-uppercase {% endif %}"
+                      style="color: {{ settings.color_footer_widget_title_text }};"
+                    >
+                      {{ menu_item.title | escape }}</p>
+                    <button type="button" class="tw-flex tw-items-center collapsible-trigger tw-pr-2 tw-pl-0 tw-outline-none tw-bg-transparent tw-border-none tw-text-left tw-relative tw-py-3 tw-text-light-text-color lg:tw-hidden tw-w-full tw-leading-none tw-text-widget-font-size tw-tracking-widget-letter-spacing type-heading-font-family {% if settings.type_widget_text_uppercase_on %} tw-uppercase {% endif %}"
+                      style="color: {{ settings.color_footer_widget_title_text }};">
+                      {{ menu_item.title | escape }}
+                      {% include 'icon_more',icon_class: "tw-absolute tw-right-0 tw-transform tw--rotate-90" %}
+                    </button>
+                  {% endif %}
+				{% assign  myblock = linklists[section.settings.menu.id].links %}
+                  <div class="collapsible-content tw-text-left tw-hidden lg:tw-block tw-leading-tight tw-my-2 lg:tw-my-0 lg:tw-text-text-font-size">
+                    {% for mblock in myblock %}
+					
+					{% assign links = mblock.son %} {% for link in links %}
+                      <a
+                        class="tw-text-current tw-no-underline tw-block tw-mb-4 {% if link.url %} last:tw-mb-0 tw-cursor-pointer {% endif %}"
+                        href="{% if link.url %}{{ link.url }}{% else %}javascript:;{% endif %}"
+                        {% unless link.type != 'web' or link.url contains shop.domain %}
+                          target="_blank"
+                        {% endunless %}
+                        data-track-event="jumpAddress"
+                        data-track-href= "{{ link.url }}"
+                        style="color: {{ settings.color_footer_widget_text }};"
+                      >
+                        {{ link.name | escape }}
+                      </a>
+                    {% endfor %}
+                    {% endfor %}
+                  </div>
+              </div>
+            {% when 'info' %}
+              <div class="footer__item tw-text-center lg:tw-text-left tw-pb-1 lg:tw-pb-10 tw-box-border lg:tw-pl-10" style="flex:0 0 {{ block.settings.col_width }}%">
+                {% assign content =  block.settings.content %}
+                {% assign title =  block.settings.title %}
+                {% unless title == blank %}
+                  <p class="font-title tw-mb-5 tw-mt-0 tw-text-light-text-color tw-hidden lg:tw-block tw-leading-none tw-text-widget-font-size tw-tracking-widget-letter-spacing type-heading-font-family {% if settings.type_widget_text_uppercase_on %} tw-uppercase {% endif %}"
+                    style="color: {{ settings.color_footer_widget_title_text }};">
+                    {{ title | escape }}
+                  </p>
+                  <button type="button" class="tw-flex tw-items-center collapsible-trigger tw-pr-2 tw-pl-0 tw-outline-none tw-bg-transparent tw-border-none tw-text-left tw-relative tw-py-3 tw-text-light-text-color lg:tw-hidden tw-w-full tw-leading-none tw-text-widget-font-size tw-tracking-widget-letter-spacing type-heading-font-family {% if settings.type_widget_text_uppercase_on %} tw-uppercase {% endif %}"
+                    style="color: {{ settings.color_footer_widget_title_text }};">
+                    {{ title | escape }}
+                    {% include 'icon_more',icon_class: "tw-absolute tw-right-0 tw-transform tw--rotate-90" %}
+                  </button>
+                {% endunless %}
+                <div class="collapsible-content tw-text-left tw-hidden lg:tw-block tw-my-2 lg:tw-my-0">
+                  {% unless content == blank %}
+                    <div class="xf-mce-view lg:tw-text-text-font-size"
+                      style="color: {{ settings.color_footer_widget_text }};" >{{ content }}</div>
+                  {% endunless %}
+                </div>
+              </div>
+            {% when 'newsletter' %}
+              <div class="footer__item tw-text-center lg:tw-text-left tw-pb-5 lg:tw-pb-10 tw-box-border lg:tw-pl-10 tw-order-first lg:tw-order-none" style="flex:0 0 {{ block.settings.col_width }}%;">
+                <div id="footer-newsletter" class="footer-newsletter">
+                  <h5 class="newsletter_title tw-text-base tw-mb-3 tw-mt-0 tw-leading-tight type-heading-font-family" style="color: {{ settings.color_footer_widget_text }};">
+                    {{ block.settings.title | escape }}
+                  </h5>
+                  <div class="newsletter_sub_title tw-leading-5 lg:tw-text-text-font-size" style="color: {{ settings.color_footer_widget_text }};">
+                    {{ block.settings.sub_title }}
+                  </div>
+                    <div class="footer-newsletter__input-wrap tw-relative tw-flex tw-items-center tw-border-solid tw-border tw-px-4 tw-mt-4 {%if settings.general_style == 'round'%}tw-rounded{%endif%} " style="border-color: {{ settings.color_footer_newsletter_border }}; background-color: {{ settings.color_footer_newsletter_bg }};">
+                      <input id="input_email_footer_newsletter"
+                        type="email"
+                        class="tw-h-9 tw-pr-4 tw-outline-none tw-border-none tw-flex-grow tw-bg-transparent lg:tw-text-text-font-size footer-newsletter__input"
+                        placeholder="{{ langs.general.footer.email_placeholder | t }}"
+                        style="color: {{ settings.color_footer_newsletter_text }}; min-width: 6rem; line-height: {{ settings.type_text_line_height }};"
+                      >
+                      <div id="submit_footer_newsletter"
+                        style="color: {{ settings.color_footer_newsletter_text }};"
+                        class="tw-cursor-pointer tw-text-right tw-flex-shrink-0 tw-text-base type-heading-font-family">
+                        {{ langs.general.footer.sign_up | t }}
+                      </div>
+                      <div class="{%if settings.general_style == 'round'%}tw-rounded{%endif%} tw-text-text-font-size type-text-font-family tw-hidden tw-w-full tw-box-border tw-text-base tw-text-center tw-leading-4 tw-py-3 tw-px-2 tw-mt-1 tw-shadow-3 tw-absolute tw-inset-x-0 tw-top-full tw-text-toast-text-error-color tw-bg-toast-bg-error-color invalid-feedback"></div>
+                      <div class="{%if settings.general_style == 'round'%}tw-rounded{%endif%} tw-text-text-font-size type-text-font-family tw-hidden tw-w-full tw-box-border tw-text-base tw-text-left lg:tw-text-center tw-leading-4 tw-py-3 tw-px-2 tw-mt-1 tw-bg-white tw-shadow-3 tw-absolute tw-inset-x-0 tw-top-full tw-text-toast-text-success-color tw-bg-toast-bg-success-color valid-feedback"></div>
+                    </div>
+                </div>
+                <div id="footer-social" class="footer-social">
+                  {% assign facebook_url = block.settings.facebook_url %}
+                  {% assign twitter_url = block.settings.twitter_url %}
+                  {% assign instagram_url = block.settings.instagram_url %}
+                  {% assign pinterest_url = block.settings.pinterest_url %}
+                  {% assign youtube_url = block.settings.youtube_url %}
+                  {% assign icon_placeholder = true %}
+                  {% if facebook_url or twitter_url or instagram_url or pinterest_url youtube_url %}
+                    {% assign icon_placeholder = false %}
+                  {% endif %}
+                  <div class="footer-social-icons tw-flex tw-mt-4 tw-justify-center lg:tw-justify-start {% if icon_placeholder %} tw-pb-2 {% endif %} ">
+                    {% comment %} 修改icon rbga {% endcomment %}
+                    {% assign icon_color = settings.color_footer_widget_text %}
+                    {% assign icon_bg_color = settings.color_footer_widget_text | default: '#000000' %}
+                    {% unless icon_bg_color contains '#' %}
+                      {% assign icon_bg_color = icon_bg_color | color_to_hex %}
+                    {% endunless %}
+                    {% if facebook_url %}
+                      <a
+                        class="tw-h-8 tw-w-8 tw-flex tw-justify-center tw-items-center tw-mr-4 tw-no-underline tw-leading-none tw-rounded footer-social-icon"
+                        href="{{ facebook_url }}"
+                        target="_blank"
+                        data-track-href= "{{ facebook_url }}"
+                        data-track-event="jumpAddress"
+                        style="color: {{icon_color}}; background-color: {{ icon_bg_color | color_modify: 'alpha', 0.05 }};"
+                      >
+                        {% include 'icon_facebook',  icon_class: '' %}
+                      </a>
+                    {% endif %}
+                    {% if twitter_url %}
+                      <a
+                        class="tw-h-8 tw-w-8 tw-flex tw-justify-center tw-items-center tw-mr-4 tw-no-underline tw-leading-none tw-rounded footer-social-icon"
+                        href="{{ twitter_url }}"
+                        target="_blank"
+                        data-track-href= "{{ twitter_url }}"
+                        data-track-event="jumpAddress"
+                        style="color: {{icon_color}}; background-color: {{ icon_bg_color | color_modify: 'alpha', 0.05 }};"
+                      >
+                        {% include 'icon_twitter',  icon_class: '' %}
+                      </a>
+                    {% endif %}
+                    {% if instagram_url %}
+                      <a
+                        class="tw-h-8 tw-w-8 tw-flex tw-justify-center tw-items-center tw-mr-4 tw-no-underline tw-leading-none tw-rounded footer-social-icon"
+                        href="{{ instagram_url }}"
+                        target="_blank"
+                        data-track-href= "{{ instagram_url }}"
+                        data-track-event="jumpAddress"
+                        style="color: {{icon_color}}; background-color: {{ icon_bg_color | color_modify: 'alpha', 0.05 }};"
+                      >
+                        {% include 'icon_instagram',  icon_class: '' %}
+                      </a>
+                    {% endif %}
+                    {% if pinterest_url %}
+                      <a
+                        class="tw-h-8 tw-w-8 tw-flex tw-justify-center tw-items-center tw-mr-4 tw-no-underline tw-leading-none tw-rounded footer-social-icon"
+                        href="{{ pinterest_url }}"
+                        target="_blank"
+                        data-track-href= "{{ pinterest_url }}"
+                        data-track-event="jumpAddress"
+                        style="color: {{icon_color}}; background-color: {{ icon_bg_color | color_modify: 'alpha', 0.05 }};"
+                      >
+                        {% include 'icon_pinterest',  icon_class: '' %}
+                      </a>
+                    {% endif %}
+                    {% if youtube_url %}
+                      <a
+                        class="tw-h-8 tw-w-8 tw-flex tw-justify-center tw-items-center tw-mr-4 tw-no-underline tw-leading-none tw-rounded footer-social-icon"
+                        href="{{ youtube_url }}"
+                        target="_blank"
+                        data-track-href= "{{ youtube_url }}"
+                        data-track-event="jumpAddress"
+                        style="color: {{icon_color}}; background-color: {{ icon_bg_color | color_modify: 'alpha', 0.05 }};"
+                      >
+                        {% include 'icon_youtube', icon_class: '' %}
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            {% when 'placeholder' %}
+              <div class="tw-hidden lg:tw-block" style="padding-right: {{ block.settings.col_width }}%;"></div>
+          {% endcase %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% comment %} copyright区域 {% endcomment %}
+  {% assign layout = section.settings.layout %}
+  {% assign pay_icon_src = section.settings.pay_icon_src %}
+  {% if section.settings.copyright or pages[section.settings.page1.id].title or pages[section.settings.page2.id].title or pages[section.settings.page3.id].title or pay_icon_src %}
+    <div class="tw-text-footer-font-size tw-tracking-footer-letter-spacing {%if settings.type_footer_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_footer_text_uppercase_on%}tw-uppercase{%endif%}
+      tw-leading-none tw-text-center tw-border-solid tw-border-0 tw-border-t footer-copyright "
+      style="border-color: {{ settings.color_footer_border }}; background-color: {{ settings.color_footer_bg }}; color: {{ settings.color_footer_text }};">
+      <div class="tw-py-5 tw-flex tw-items-center tw-flex-col {% if layout == 'between' %} lg:tw-flex-row tw-justify-between {% endif %} tw-max-w-page tw-mx-auto tw-px-5 lg:tw-px-general-layout-spacing footer-copyright-inner">
+        {% if section.settings.copyright %}
+          <div class="{% if layout == 'between' %} lg:tw-mr-6 {% else %} tw-order-last {% if section.settings.pay_icon_src %} tw-mt-3 {% endif %} {% endif %} footer-copyright-content">
+            {{ section.settings.copyright }}
+          </div>
+        {% endif %}
+        {% if pages[section.settings.page1.id].title or pages[section.settings.page2.id].title or pages[section.settings.page3.id].title %}
+          <div class="{% if layout == 'between' %} lg:tw-mr-auto tw-mt-3 lg:tw-mt-0 {% else %}tw-mb-3 {% endif %}tw-flex tw-flex-row tw-justify-center tw-flex-wrap tw-space-x-6 footer-copyright-links">
+            {% if pages[section.settings.page1.id].title %}
+              <a class="tw-text-current tw-no-underline tw-block tw-cursor-pointer"
+                target="_blank"
+                href="{{ shop.url | append: pages[section.settings.page1.id].url }}"
+              >
+                {{ pages[section.settings.page1.id].title }}
+              </a>
+            {% endif %}
+            {% if pages[section.settings.page2.id].title %}
+              <a class="tw-text-current tw-no-underline tw-block tw-cursor-pointer"
+                target="_blank"
+                href="{{ shop.url | append: pages[section.settings.page2.id].url }}"
+              >
+                {{ pages[section.settings.page2.id].title }}
+              </a>
+            {% endif %}
+            {% if pages[section.settings.page3.id].title %}
+              <a class="tw-text-current tw-no-underline tw-block tw-cursor-pointer"
+                target="_blank"
+                href="{{ shop.url | append: pages[section.settings.page3.id].url }}"
+              >
+                {{ pages[section.settings.page3.id].title }}
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+        {% if pay_icon_src %}
+          {% assign icon_width = images[section.settings.pay_icon_src].width | divided_by: 2 %}
+          {% if section.settings.pay_icon_width %}
+            {% assign icon_width = section.settings.pay_icon_width %}
+          {% endif %}
+          <div class="{% if layout == 'between' %} md:tw-mt-3 {% endif %} footer-copyright-icon">
+            <div class="tw-relative" style="padding-bottom:{{100 | divided_by: images[pay_icon_src].aspect_ratio}}%; width: {{ icon_width }}px;">
+              <img
+                src="{{shop.default_img}}"
+                class="tw-absolute tw-w-full tw-h-full tw-inset-0 lazyload imglazy"
+                data-src="{{ pay_icon_src | img_url }}"
+                data-sizes="auto"
+                alt="{{ images[payment.icon].alt | escape }}"
+              >
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</footer>
+
+{% javascript %}
+  $(function () {
+    $('[data-section-id="{{section.id}}"] .collapsible-trigger').on('click', function () {
+      $(this).siblings('.collapsible-content').slideToggle();
+      $(this).find('svg').toggleClass('icon_turn');
+    });
+    $("#section_footer").on('click', '#submit_footer_newsletter', function () {
+      var emailExp = /^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,4})$/g;
+      var emailObj = $('#input_email_footer_newsletter');
+      var email = emailObj.val();
+      var invalidFeedback = $('#footer-newsletter .invalid-feedback');
+      var validFeedback = $('#footer-newsletter .valid-feedback');
+      var feedbacks = {
+        'is_empty': {{ langs.general.footer.email_address_empty_warning | t | json }},
+        'not_formatted': {{ langs.general.footer.email_address_invalid_warning | t | json }},
+        'is_successful': {{ langs.general.footer.confirmation | t | json }}
+      };
+      emailObj.removeClass('is-valid is-invalid');
+      invalidFeedback.html('').hide();
+      validFeedback.html('').hide();
+
+      if (email === '') {
+        invalidFeedback.html(feedbacks['is_empty']).show();
+        emailObj.addClass('is-invalid');
+        setTimeout(function() {
+          invalidFeedback.html('').hide()
+        },2000)
+        return;
+      }
+      if (!emailExp.test(email)) {
+        invalidFeedback.html(feedbacks['not_formatted']).show();
+        emailObj.addClass('is-invalid');
+        setTimeout(function() {
+          invalidFeedback.html('').hide()
+        },2000)
+        return;
+      }
+      $('#submit_footer_newsletter').attr("disabled", "");
+      $.ajax({
+        url: shop_url+'/index/subscribe',
+        type: 'post',
+        dataType: 'text',
+        data: {
+          email: email
+        },
+        success: function (data, textStatus, jqXHR) {
+          if (jqXHR.status === 200) {
+            emailObj.addClass('is-valid');
+            validFeedback.html(feedbacks['is_successful']).show();
+            setTimeout(function() {
+             validFeedback.html('').hide()
+            },2000)
+          }
+        },
+        error: function (jqXHR) {
+          emailObj.addClass('is-invalid');
+          invalidFeedback.html(JSON.parse(jqXHR.responseText).errors).show();
+          setTimeout(function() {
+            invalidFeedback.html('').hide()
+          },2000)
+        },
+        complete: function () {
+          $('#submit_footer_newsletter').removeAttr("disabled");
+        }
+      });
+    }).on('keyup', '#input_email_footer_newsletter', function (e) {
+      if (e.keyCode === 13) {
+        $('#submit_footer_newsletter').trigger('click');
+      }
+    });
+    var $content = $('[data-section-id="footer_plus"] .collapsible-content')
+    $(window).on('resize', function() {
+      $(window).width() > window.breakpoint ? $content.css('display', 'block') : $content.css('display', 'none');
+    })
+  });
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "footer_plus",
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Bottom settings",
+        "zh-CN": "底部设置"
+      }
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": {
+        "en-US": "Layout",
+        "zh-CN": "布局"
+      },
+      "default": "between",
+      "options": [
+        {
+          "value": "center",
+          "label": {
+            "en-US": "Center",
+            "zh-CN": "居中"
+          }
+        },
+        {
+          "value": "between",
+          "label": {
+            "en-US": "Both sides",
+            "zh-CN": "两端"
+          }
+        }
+      ]
+    },
+    {
+      "type": "richtext",
+      "id": "copyright",
+      "label": {
+        "en-US": "Copyright",
+        "zh-CN": "版权"
+      },
+      "default": ""
+    },
+    {
+      "type": "page",
+      "label": {
+        "en-US": "Custom Page",
+        "zh-CN": "自定义页面"
+      },
+      "id": "page1"
+    },
+    {
+      "type": "page",
+      "label": {
+        "en-US": "Custom Page",
+        "zh-CN": "自定义页面"
+      },
+      "id": "page2"
+    },
+    {
+      "type": "page",
+      "label": {
+        "en-US": "Custom Page",
+        "zh-CN": "自定义页面"
+      },
+      "id": "page3"
+    },
+    {
+      "type": "image_picker",
+      "id": "pay_icon_src",
+      "label": {
+        "zh-CN": "支付图标",
+        "en-US": "Payment icons"
+      },
+      "info": {
+        "en-US": "To ensure high definition, please upload 2x image",
+        "zh-CN": "为保障高清，图片请上传2倍图"
+      },
+      "default": ""
+    },
+    {
+      "type": "text",
+      "id": "pay_icon_width",
+      "placeholder": {
+        "en-US": "Max width of payment icon",
+        "zh-CN": "支付图标最大宽度"
+      },
+      "label": {
+        "en-US": "Max width of payment icon",
+        "zh-CN": "支付图标最大宽度"
+      },
+      "info": {
+        "en-US": "The maximum width of payment icon is px",
+        "zh-CN": "支付图标最大宽度单位为px"
+      },
+      "props": {
+        "type": "number"
+      },
+      "default": ""
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Widgets",
+        "zh-CN": "小工具"
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": {
+        "zh-CN": "自定义菜单",
+        "en-US": "Custom menu"
+      },
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "zh-CN": "标题",
+            "en-US": "Title"
+          },
+          "default": "SUPPORT"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": {
+            "en-US": "Footer menu",
+            "zh-CN": "页尾菜单"
+          },
+          "default": {
+            "id": "footer",
+            "type": "menu",
+            "title": {
+              "en-US": "Footer menu",
+              "zh-CN": "页尾菜单"
+            }
+          }
+        },
+        {
+          "type": "range",
+          "id": "col_width",
+          "label": {
+            "en-US": "Column width",
+            "zh-CN": "列宽"
+          },
+          "default": 25,
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "type": "info",
+      "name": {
+        "en-US": "Custom text",
+        "zh-CN": "自定义文本"
+      },
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "en-US": "Heading",
+            "zh-CN": "标题"
+          },
+          "default": "Large image with text box"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": {
+            "en-US": "Text",
+            "zh-CN": "文本"
+          },
+          "default": "<p>Use this text to share information about your brand with your customers.</p>"
+        },
+        {
+          "type": "range",
+          "id": "col_width",
+          "label": {
+            "en-US": "Column width",
+            "zh-CN": "列宽"
+          },
+          "default": 25,
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "type": "newsletter",
+      "name": {
+        "en-US": "Newsletter",
+        "zh-CN": "邮件订阅"
+      },
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "zh-CN": "标题",
+            "en-US": "Heading"
+          },
+          "default": "Newsletter"
+        },
+        {
+          "type": "richtext",
+          "id": "sub_title",
+          "label": {
+            "zh-CN": "副标题",
+            "en-US": "Subheading"
+          },
+          "default": "<p>Sub title Newsletter</p>"
+        },
+        {
+          "type": "range",
+          "id": "col_width",
+          "label": {
+            "en-US": "Column width",
+            "zh-CN": "列宽"
+          },
+          "default": 25,
+          "min": 15,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        },
+        {
+          "type": "text",
+          "id": "instagram_url",
+          "label": "Instagram link",
+          "placeholder": "https://instagram.com"
+        },
+        {
+          "type": "text",
+          "id": "facebook_url",
+          "label": "Facebook link",
+          "placeholder": "https://www.facebook.com"
+        },
+        {
+          "type": "text",
+          "id": "twitter_url",
+          "label": "Twitter link",
+          "placeholder": "https://twitter.com"
+        },
+        {
+          "type": "text",
+          "id": "pinterest_url",
+          "label": "Pinterest link",
+          "placeholder": "https://pinterest.com"
+        },
+        {
+          "type": "text",
+          "id": "youtube_url",
+          "label": "Youtube link",
+          "placeholder": "https://youtube.com"
+        }
+      ]
+    },
+    {
+      "type": "placeholder",
+      "name": {
+        "en-US": "Placeholder",
+        "zh-CN": "占位符"
+      },
+      "settings": [
+        {
+          "type": "range",
+          "id": "col_width",
+          "label": {
+            "en-US": "Column width",
+            "zh-CN": "列宽"
+          },
+          "default": 10,
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "footer",
+      "cname": {
+        "en-US": "Footer",
+        "zh-CN": "页尾"
+      },
+      "category": {
+        "en-US": "Navigation",
+        "zh-CN": "导航"
+      },
+      "ccategory": {
+        "en-US": "Navigation",
+        "zh-CN": "导航"
+      },
+      "display": false,
+      "blocks": [
+        {
+          "type": "menu",
+          "settings": {
+            "title": "SUPPORT",
+            "col_width": 25,
+            "menu": {
+              "id": "footer",
+              "type": "menu",
+              "title": {
+                "en-US": "Footer menu",
+                "zh-CN": "页尾菜单"
+              }
+            }
+          }
+        },
+        {
+          "type": "info",
+          "settings": {
+            "title": "Large image with text box",
+            "content": "<p>Use this text to share information about your brand with your customers.</p>",
+            "col_width": 25
+          }
+        },
+        {
+          "type": "newsletter",
+          "settings": {
+            "title": "Newsletter",
+            "sub_title": "<p>Sub title Newsletter</p>",
+            "col_width": 25
+          }
+        },
+        {
+          "type": "placeholder",
+          "settings": {
+            "title": "列宽",
+            "col_width": 25
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

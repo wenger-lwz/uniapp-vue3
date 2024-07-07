@@ -1,0 +1,35 @@
+{% assign src = image.settings.src %}
+{% assign defautlsrc = '/themes/theme25/assets/image/7a0993b32.webp' %}
+{% assign mobile_src = image.settings.mobile_src | default: image.settings.src %}
+{% assign btn_bg_color = image.settings.btn_bg_color | default: '#000' %}
+{% unless btn_bg_color contains '#' %}
+  {% assign btn_bg_color = btn_bg_color | color_to_hex %}
+{% endunless %}
+{% assign btn_bg_color_mixed = btn_bg_color | color_modify: 'alpha', 0.5 %}
+
+<div class="tw-relative tw-outline-none">
+  {% assign text_and_button_on = image.settings.text_and_button_on %}
+  {% if text_and_button_on == nil %}
+    {% assign text_and_button_on = true %}
+  {% endif %}
+  <a href="{% if image.settings.btn_href.url and text_and_button_on == false %}{{image.settings.btn_href.url}}{% else %}javascript:;{% endif %}" {% unless image.settings.btn_href.type != 'web' or image.settings.btn_href.url contains shop.domain %} target="_blank" {% endunless %} class="tw-relative tw-block slider-{{section.id}}-item slider-{{section.id}}-{{forloop.index0}} " data-color="{{image.settings.btn_text_color}}" data-bg="{{btn_bg_color_mixed}}">
+    {% if src %}
+      <img class="tw-absolute tw-inset-0 tw-m-auto {% if section.settings.is_full_screen %}tw-w-full{% else %}tw-w-full tw-h-full{%endif%} {% unless forloop.index0 == 0 %}lazy-{% endunless %}lazyload" src="{{shop.default_img}}" data-srcs="{{mobile_src | img_url: '{width}x' }},{{src | img_url: '{width}x' }}"  data-sizes="auto" alt="{{ item.alt | escape }}">
+    {% else %}
+      <img class="tw-absolute tw-inset-0 tw-m-auto {% if section.settings.is_full_screen %}tw-w-full{% else %}tw-w-full tw-h-full{%endif%} {% unless forloop.index0 == 0 %}lazy-{% endunless %}lazyload" src="{{shop.default_img}}" data-srcs="{{defautlsrc | img_url: '{width}x' }}"  data-sizes="auto" alt="{{ item.alt | escape }}">
+    {% endif %}
+  </a>
+  {% assign opacity = image.settings.overlay_opacity  | divided_by:100 %}
+  {% if text_and_button_on %}
+    <div class="tw-absolute tw-inset-0 tw-box-border tw-flex tw-items-center tw-justify-around {% if image.settings.layout == "center" %}lg:tw-justify-around lg:tw-text-center {%else %}{% if image.settings.layout == "left" %}lg:tw-justify-start{% else %}lg:tw-justify-end{% endif %}{% endif %} slider-{{section.id}}-content" style="background-color: {{ "#000000" | color_modify: 'alpha', opacity }};">
+
+      <div class="tw-text-center {% if image.settings.layout == "center" %}lg:tw-text-center{% else %}lg:tw-text-left{% endif %}" style="max-width:{{section.settings.max_width | default:"480" }}px">
+        <h3 class="tw-m-0 tw-text-xs lg:tw-text-sm tw-leading-none  {% if image.settings.sub_title_uppercase %}tw-uppercase{% endif %} type-heading-font-family tw-tracking-2 lg:tw-tracking-4 empty:tw-hidden slider-{{section.id}}-{{forloop.index0}}-sub_title">{{image.settings.sub_title}}</h3>
+        <h2 class="tw-text-2xl lg:tw-text-10 tw-leading-1.1 tw-mt-3 lg:tw-mt-4 tw-m-0 {% if image.settings.title_uppercase %}tw-uppercase{% endif %} type-heading-font-family slider-title  empty:tw-hidden slider-{{section.id}}-{{forloop.index0}}-title" >{{image.settings.title}}</h2>
+        <p class="tw-text-sm lg:tw-text-lg tw-mt-3  tw-m-0 lg:tw-mt-6 empty:tw-hidden slider-{{section.id}}-{{forloop.index0}}-desc">{{image.settings.desc}}</p>
+        <a class="tw-inline-block tw-leading-none tw-py-3 tw-px-8 lg:tw-px-10 tw-mt-6 tw-text-sm lg:tw-mt-12 tw-no-underline tw-outline-none tw-tracking-btn-letter-spacing {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.general_style == 'round'%}tw-rounded{%endif%} {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} empty:tw-hidden slider-{{section.id}}-{{forloop.index0}}-btn" href="{{image.settings.btn_href.url}}" {% unless image.settings.btn_href.type != 'web' or image.settings.btn_href.url contains shop.domain %} target="_blank" {% endunless %}>{{image.settings.btn_text}}</a>
+      </div>
+      
+    </div>
+  {% endif %}
+</div>

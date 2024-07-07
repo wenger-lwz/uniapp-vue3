@@ -1,0 +1,801 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "BlankWind",
+    "theme_author": "Underground",
+    "theme_version": "1.0"
+  },
+  {
+    "name": {
+      "en-US": "General Settings",
+      "zh-CN": "常规"
+    },
+    "settings": [
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Layout",
+          "zh-CN": "布局"
+        }
+      },
+      {
+        "type": "text",
+        "id": "general_layout_width",
+        "label": {
+          "en-US": "Content width",
+          "zh-CN": "内容宽度"
+        },
+        "info": {
+          "en-US": "Content width in px",
+          "zh-CN": "内容宽度单位为px"
+        },
+        "default": "1080",
+        "props": {
+          "type": "number"
+        }
+      },
+      {
+        "type": "text",
+        "id": "general_layout_spacing",
+        "label": {
+          "en-US": "Content space",
+          "zh-CN": "内容留白"
+        },
+        "default": "40",
+        "info": {
+          "en-US": "Content space in px",
+          "zh-CN": "内容留白单位为px"
+        }
+      }
+    ]
+  },
+  {
+    "name": {
+      "en-US": "Color",
+      "zh-CN": "颜色"
+    },
+    "settings": [
+      {
+        "type": "header",
+        "content": {
+          "en-US": "General",
+          "zh-CN": "通用"
+        }
+      },
+      {
+        "type": "color",
+        "id": "skin_bg",
+        "label": {
+          "en-US": "Background",
+          "zh-CN": "页面背景"
+        },
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "color",
+        "id": "skin_title_color",
+        "label": {
+          "en-US": "Heading",
+          "zh-CN": "标题"
+        },
+        "default": "#212121"
+      },
+      {
+        "type": "color",
+        "id": "skin_text_color",
+        "label": {
+          "en-US": "Text",
+          "zh-CN": "正文"
+        },
+        "default": "#666666"
+      },
+      {
+        "type": "color",
+        "id": "skin_price_color",
+        "label": {
+          "en-US": "Price",
+          "zh-CN": "现价"
+        },
+        "default": "#9B3C44"
+      },
+      {
+        "type": "color",
+        "id": "skin_compare_at_price_color",
+        "label": {
+          "en-US": "Original price",
+          "zh-CN": "原价"
+        },
+        "default": "#999999"
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Buttons",
+          "zh-CN": "按钮"
+        }
+      },
+      {
+        "type": "color",
+        "id": "skin_primary_btn_bg_color",
+        "label": {
+          "en-US": "Primary buttons",
+          "zh-CN": "主要按钮背景"
+        },
+        "default": "#212121"
+      },
+      {
+        "type": "color",
+        "id": "skin_primary_btn_text_color",
+        "label": {
+          "en-US": "Primary labels",
+          "zh-CN": "主要按钮字体"
+        },
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "color",
+        "id": "skin_primary_btn_border_color",
+        "label": {
+          "en-US": "Primary border",
+          "zh-CN": "主要按钮边框"
+        },
+        "default": "#212121"
+      },
+      {
+        "type": "color",
+        "id": "skin_secondary_btn_bg_color",
+        "label": {
+          "en-US": "Secondary buttons",
+          "zh-CN": "次要按钮背景"
+        },
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "color",
+        "id": "skin_secondary_btn_text_color",
+        "label": {
+          "en-US": "Secondary labels and borders",
+          "zh-CN": "次要按钮字体&边框"
+        },
+        "default": "#212121"
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Product views",
+          "zh-CN": "商品评论"
+        }
+      },
+      {
+        "type": "color",
+        "id": "product_reviews_star_color",
+        "label": {
+          "en-US": "Star color",
+          "zh-CN": "评分颜色"
+        },
+        "default": "#FFC700"
+      }
+    ]
+  },
+  {
+    "name": {
+      "en-US": "Font",
+      "zh-CN": "字体"
+    },
+    "settings": [
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Font type",
+          "zh-CN": "字体类型"
+        }
+      },
+      {
+        "type": "font_picker",
+        "id": "skin_title_font_family",
+        "label": {
+          "en-US": "Heading",
+          "zh-CN": "标题"
+        },
+        "default": "lato_n7"
+      },
+      {
+        "type": "font_picker",
+        "id": "skin_text_font_family",
+        "label": {
+          "en-US": "Text",
+          "zh-CN": "正文"
+        },
+        "default": "montserrat_n4"
+      },
+      {
+        "type": "font_picker",
+        "id": "skin_btn_font_family",
+        "label": {
+          "en-US": "Buttons",
+          "zh-CN": "按钮"
+        },
+        "default": "montserrat_n4"
+      },
+      {
+        "type": "font_picker",
+        "id": "skin_product_header_font_family",
+        "label": {
+          "en-US": "Product title",
+          "zh-CN": "商品标题"
+        },
+        "default": "montserrat_n4"
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Base size",
+          "zh-CN": "字号"
+        }
+      },
+      {
+        "type": "range",
+        "id": "skin_title_font_size",
+        "step": 1,
+        "max": 60,
+        "min": 16,
+        "unit": "px",
+        "label": {
+          "en-US": "Heading",
+          "zh-CN": "标题"
+        },
+        "default": 34
+      },
+      {
+        "type": "range",
+        "id": "skin_product_header_font_size",
+        "step": 1,
+        "max": 34,
+        "min": 12,
+        "unit": "px",
+        "label": {
+          "en-US": "Product title",
+          "zh-CN": "商品标题"
+        },
+        "default": 13
+      },
+      {
+        "type": "range",
+        "id": "skin_price_font_size",
+        "step": 1,
+        "max": 34,
+        "min": 12,
+        "unit": "px",
+        "label": {
+          "en-US": "Price",
+          "zh-CN": "现价"
+        },
+        "default": 16
+      },
+      {
+        "type": "range",
+        "id": "skin_compare_at_price_font_size",
+        "step": 1,
+        "max": 34,
+        "min": 12,
+        "unit": "px",
+        "label": {
+          "en-US": "Original price",
+          "zh-CN": "原价"
+        },
+        "default": 16
+      }
+    ]
+  },
+  {
+    "name": {
+      "en-US": "Product",
+      "zh-CN": "商品"
+    },
+    "settings": [
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Product information",
+          "zh-CN": "商品通用信息"
+        },
+        "info": {
+          "en-US": "The following Settings are global Settings, not limited to the current page, the changes will affect the list of products/product details /quickview popup information display for all pages of the theme",
+          "zh-CN": "以下设置皆为全局设置不仅限于对当前页面生效，改动之后将会影响该主题全部页面的商品列表/商品详情/quickview弹窗的信息展示"
+        }
+      },
+      {
+        "type": "checkbox",
+        "label": {
+          "en-US": "Original price",
+          "zh-CN": "原价"
+        },
+        "id": "is_compare_at_price_show",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "label": {
+          "en-US": "Discount Label",
+          "zh-CN": "折扣标签"
+        },
+        "id": "is_discount_show",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "vendor_enable",
+        "label": {
+          "en-US": "Show vendor",
+          "zh-CN": "供应商"
+        },
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "product_save_amount",
+        "label": {
+          "en-US": "Show saved amount",
+          "zh-CN": "优惠金额"
+        },
+        "default": false
+      },
+      {
+        "type": "custom_select",
+        "id": "label_style",
+        "label": {
+          "en-US": "Label style",
+          "zh-CN": "标签样式"
+        },
+        "options": [
+          {
+            "label": "/themes/theme1/assets/image/672c0b2f4.svg",
+            "value": "triangle"
+          },
+          {
+            "label": "/themes/theme1/assets/image/e3cbrf38fa.svg",
+            "value": "flag"
+          },
+          {
+            "label": "/themes/theme1/assets/image/c48a317751.svg",
+            "value": "badge"
+          }
+        ],
+        "default": "triangle"
+      },
+      {
+        "type": "color",
+        "id": "label_background_color",
+        "label": {
+          "en-US": "Label background color",
+          "zh-CN": "标签背景"
+        },
+        "default": "#9B3C44"
+      },
+      {
+        "type": "color",
+        "id": "label_color",
+        "label": {
+          "en-US": "Label text color",
+          "zh-CN": "标签文字"
+        },
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Product and quickview information",
+          "zh-CN": "商品详情与quickview信息"
+        },
+        "info": {
+          "en-US": "The following product information is located in the product details and Quick view pop-up window,The changes will not only take effect on the current page, they will take effect globally.",
+          "zh-CN": "以下商品信息位于商品详情与Quick view弹窗，改动后不仅限于对当前页面生效，将会对全局生效。"
+        }
+      },
+      {
+        "type": "checkbox",
+        "label": {
+          "en-US": "SKU",
+          "zh-CN": "SKU"
+        },
+        "id": "is_sku_show",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "label": {
+          "en-US": "Inventory",
+          "zh-CN": "库存"
+        },
+        "id": "is_stock_show",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "label": {
+          "en-US": "Sales volume",
+          "zh-CN": "销量"
+        },
+        "id": "is_sales_show",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "label": {
+          "en-US": "Product subheading",
+          "zh-CN": "副标题"
+        },
+        "id": "is_brief_show",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "label": {
+          "en-US": "Quantity selection box",
+          "zh-CN": "数量选择框"
+        },
+        "id": "is_quantity_box_show",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "label": {
+          "en-US": "Select the variants by default",
+          "zh-CN": "默认选中款式"
+        },
+        "id": "is_select_default_variants",
+        "default": false
+      },
+      {
+        "type": "select",
+        "id": "variant_type",
+        "label": {
+          "en-US": "Variant picker style",
+          "zh-CN": "款式选择形式"
+        },
+        "default": "button",
+        "options": [
+          {
+            "value": "button",
+            "label": {
+              "en-US": "Buttons",
+              "zh-CN": "按钮"
+            }
+          },
+          {
+            "value": "dropdown",
+            "label": {
+              "en-US": "Dropdown",
+              "zh-CN": "下拉列表"
+            }
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "label": {
+          "en-US": "Show \"Add To Cart\" button",
+          "zh-CN": "展示 Add To Cart 按钮"
+        },
+        "id": "is_add_to_cart_show",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "label": {
+          "en-US": "Show \"Buy Now\" button",
+          "zh-CN": "展示 Buy Now 按钮"
+        },
+        "id": "is_payment_btn_show",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "label": {
+          "zh-CN": "PayPal快捷支付",
+          "en-US": "Show 'PayPal' button"
+        },
+        "id": "is_paypal_btn_show",
+        "default": false,
+		"info": {
+          "en-US": "",
+          "zh-CN": "需要开启PP支付方式"
+        }
+      },
+      {
+        "type": "select",
+        "id": "add_to_cart_process",
+        "label": {
+          "en-US": "Click Add to Cart",
+          "zh-CN": "点击 Add to Cart"
+        },
+        "default": "to_toast",
+        "options": [
+          {
+            "value": "to_toast",
+            "label": {
+              "en-US": "Pop up message",
+              "zh-CN": "弹提示框，页面不跳转"
+            }
+          },
+          {
+            "value": "to_cart",
+            "label": {
+              "en-US": "Go to the shopping cart",
+              "zh-CN": "跳到购物车"
+            }
+          },
+          {
+            "value": "to_checkout",
+            "label": {
+              "en-US": "Go to the payment page",
+              "zh-CN": "跳到支付页"
+            }
+          }
+        ]
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Product list",
+          "zh-CN": "商品列表"
+        }
+      },
+      {
+        "type": "checkbox",
+        "label": {
+          "en-US": "Enable quick shop feature",
+          "zh-CN": "是否展示 Quick View 按钮"
+        },
+        "id": "is_quick_view_btn_show",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "quick_view_btn_text",
+        "label": {
+          "en-US": "Quick View button text",
+          "zh-CN": "Quick View 按钮文案"
+        },
+        "default": "Quick View",
+        "placeholder": "Quick View"
+      },
+      {
+        "type": "select",
+        "id": "quick_view_process",
+        "label": {
+          "en-US": "Click Quick View",
+          "zh-CN": "点击按钮流程"
+        },
+        "default": "to_quick_view",
+        "options": [
+          {
+            "value": "to_quick_view",
+            "label": {
+              "en-US": "Open the \"buy now\" pop-up",
+              "zh-CN": "打开快速购买弹窗"
+            }
+          },
+          {
+            "value": "to_toast",
+            "label": {
+              "en-US": "Pop up message",
+              "zh-CN": "弹提示框，页面不跳转"
+            }
+          },
+          {
+            "value": "to_cart",
+            "label": {
+              "en-US": "Go to the shopping cart",
+              "zh-CN": "跳到购物车"
+            }
+          },
+          {
+            "value": "to_product_detail",
+            "label": {
+              "en-US": "Go to the product detail page",
+              "zh-CN": "跳到商品详情页"
+            }
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "product_grid_image_size",
+        "label": {
+          "en-US": "Grid image size",
+          "zh-CN": "商品列表图片尺寸"
+        },
+        "default": "100%",
+        "options": [
+          {
+            "value": "100%",
+            "label": {
+              "en-US": "Square (small)",
+              "zh-CN": "小"
+            }
+          },
+          {
+            "value": "121%",
+            "label": {
+              "en-US": "Center",
+              "zh-CN": "中"
+            }
+          },
+          {
+            "value": "150%",
+            "label": {
+              "en-US": "Square (large)",
+              "zh-CN": "大"
+            }
+          },
+          {
+            "value": "natural",
+            "label": {
+              "en-US": "Original scale",
+              "zh-CN": "原始比例"
+            }
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "label": {
+          "en-US": "Shopping cart recommended product",
+          "zh-CN": "购物车推荐商品"
+        },
+        "id": "is_cart_recommended_products_show",
+        "default": false
+      },
+      {
+        "type": "range",
+        "id": "cart_recommended_products_number",
+        "step": 1,
+        "max": 5,
+        "min": 1,
+        "label": {
+          "en-US": " ",
+          "zh-CN": " "
+        },
+        "default": 3,
+        "unit": ""
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Color swatches",
+          "zh-CN": "色卡"
+        },
+        "info": {
+          "en-US": "The color card function is only effective when the variants name contains 'color' or 'colour' (not case sensitive).",
+          "zh-CN": "色卡功能仅在款式名称包含“color”或“colour”（不区分大小写）的情况下生效。"
+        }
+      },
+      {
+        "type": "checkbox",
+        "id": "product_color_swatches",
+        "label": {
+          "en-US": "Enable color swatches on product page",
+          "zh-CN": "允许商品详情页显示色卡"
+        },
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "collection_color_swatches",
+        "label": {
+          "en-US": "Enable color swatches on collection page",
+          "zh-CN": "允许专辑商品显示色卡"
+        },
+        "default": false
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Complete order info here",
+          "zh-CN": "加购信息补充区域"
+        },
+        "info": {
+          "en-US": " Add images/text below buy button to showcase more service info, product features and build trust with your customers",
+          "zh-CN": "可在购买按钮下方添加文字和图片，来增强网站安全感，展示更多服务信息或产品特性等。"
+        }
+      },
+      {
+        "type": "richtext",
+        "id": "additional_text",
+        "placeholder": {
+          "en-US": "Input text content",
+          "zh-CN": "输入文本内容"
+        },
+        "label": {
+          "en-US": "Text",
+          "zh-CN": "文本"
+        },
+        "default": ""
+      },
+      {
+        "type": "image_picker",
+        "id": "additional_image_pc",
+        "label": {
+          "en-US": "Desktop image",
+          "zh-CN": "PC端图片"
+        },
+        "info": {
+          "en-US": "Recommended resolution (width * height): 570*110px",
+          "zh-CN": "建议尺寸（宽*高）：570*110px"
+        },
+        "default": ""
+      },
+      {
+        "type": "image_picker",
+        "id": "additional_image_mobile",
+        "label": {
+          "en-US": "Mobile image",
+          "zh-CN": "移动端图片"
+        },
+        "info": {
+          "en-US": "Recommended resolution (width * height): 720*220px",
+          "zh-CN": "建议尺寸（宽*高）：720*220px"
+        },
+        "default": ""
+      }
+    ]
+  },
+  {
+    "name": {
+      "en-US": "Social media",
+      "zh-CN": "社交媒体"
+    },
+    "settings": [
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Social media link",
+          "zh-CN": "社媒链接"
+        }
+      },
+      {
+        "type": "text",
+        "id": "instagram_url",
+        "label": "Instagram link",
+        "placeholder": "https://instagram.com"
+      },
+      {
+        "type": "text",
+        "id": "facebook_url",
+        "label": "Facebook link",
+        "placeholder": "https://www.facebook.com"
+      },
+      {
+        "type": "text",
+        "id": "twitter_url",
+        "label": "Twitter link",
+        "placeholder": "https://twitter.com"
+      },
+      {
+        "type": "text",
+        "id": "pinterest_url",
+        "label": "Pinterest link",
+        "placeholder": "https://pinterest.com"
+      },
+      {
+        "type": "text",
+        "id": "youtube_url",
+        "label": "Youtube link",
+        "placeholder": "https://youtube.com"
+      },
+      {
+        "type": "image_picker",
+        "id": "homepage_social_image",
+        "label": {
+          "en-US": "Homepage image",
+          "zh-CN": "首页分享图片"
+        },
+        "info": {
+          "en-US": "Shown when your homepage is shared on Facebook or Twitter",
+          "zh-CN": "分享首页到 Facebook 或者 Twitter 时展示。"
+        }
+      }
+    ]
+  }
+]

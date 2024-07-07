@@ -1,0 +1,23 @@
+{% if arrangement == 'grid' %}
+  {% for i in (1..3) %}
+    <div class="common__product-gap product_item {{arrangement}} col-md-4">
+      <div class="product__wrapper two-thirds">
+        {% include 'product_plus', product: default_product, image_size: "80%" %}
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <div class="common__product-gap product_item {{arrangement}} col-md-8">
+    <div class="product__wrapper two-thirds">
+      {% include 'product_plus', product: default_product, image_size: "83%" %}
+    </div>
+  </div>
+  <div class="common__product-gap product_item {{arrangement}} col-md-4">
+    <div class="product__wrapper one-third">
+      {% include 'product_plus', product: default_product, image_size: "80%" %}
+    </div>
+    <div class="product__wrapper one-third">
+      {% include 'product_plus', product: default_product, image_size: "80%" %}
+    </div>
+  </div>
+{% endif %}

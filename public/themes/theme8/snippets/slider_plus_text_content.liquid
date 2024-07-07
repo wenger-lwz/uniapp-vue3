@@ -1,0 +1,47 @@
+<div class="hero__text-wrap slide_plus__overlay slide--{{id}}">
+  <div class="hero__text-align flex_{%if text_position != ''%}{{text_position}}{%else%}center{%endif%}">
+    <div class="hero__text-content">
+      {% unless sub_title == '' %}
+        {% comment %} PC max两行 {% endcomment %}
+        <span class="d-none d-md-block">
+          <p class="hero__subtitle two_line_text_truncate" {%if slide_text_color != ''%}style="color: {{ slide_text_color }}"{%endif%}>
+            {{ sub_title | escape }}
+          </p>
+        </span>
+        {% comment %} 移动 max三行 {% endcomment %}
+        <span class="d-md-none">
+          <p class="hero__subtitle three_line_text_truncate" {%if slide_text_color != ''%}style="color: {{ slide_text_color }}"{%endif%}>
+            {{ sub_title | escape }}
+          </p>
+        </span>
+      {% endunless %}
+      {% unless title == '' %}
+        <h2 class="hero__title two_line_text_truncate" {%if slide_text_color != ''%}style="color: {{ slide_text_color }}"{%endif%}>
+          {{ title | escape }}
+        </h2>
+      {% endunless %}
+      {% if url and  slide_cta%}
+        <a href="{{ url }}"
+          {% if link_type == 'web' %}
+            target="_blank"
+          {% endif %}
+          style="{%if slide_button_label_color != ''%}color:{{slide_button_label_color}}{%endif%};
+            {%if slide_button_background_color != '' %}background-color: {{ slide_button_background_color }}{%endif%}"
+          class="btn hero__cta text-truncate">{{ slide_cta | escape }}</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<style>
+  #xfcart-section-{{section.id}} .slide--{{id}}.slide_plus__overlay:before {
+    background-color: {{ image_overlay_color }};
+    opacity: {{ image_overlay_opacity | divided_by: 100.00 }};
+  }
+  #xfcart-section-{{section.id}} .banner__color {
+    color: {{section.settings.slide_text_color}} !important;
+  }
+  .navigation-pc__menu-item_on::after,
+  .navigation-pc__menu-item:hover::after {
+    background-color: {{section.settings.slide_text_color}} !important;
+  }
+</style>

@@ -1,0 +1,58 @@
+{% comment %}商品详情页商品推荐{% endcomment %}
+{% if section.settings.relative_products %}
+  <div id="relative_product__container" class="tw-col-span-12 tw-row-span-1 tw-overflow-hidden tw-relative  tw-px-5 lg:tw-px-0 hide-scrollbar relative_product lazyload" ></div>
+  <script id="relative-product-art-tpl" type="text/html">
+
+    <div class="tw-text-base tw-mt-15 lg:tw-mt-20 tw-mb-6 lg:tw-mb-9 tw-leading-tight tw-text-title-color type-heading-font-family relative_product__title ">
+    {{ langs.product.product_detail.recommend_title | t}}
+    </div>
+    <div class="tw-group tw-flex tw-relative tw--mx-1.5 lg:tw--mx-2.5">
+      <% if( products.length > 4 ) { %>
+        <div class="tw-w-full tw-absolute" style="padding-bottom: <%= $imports.image_padding_bottom(products[0].image.width*4, products[0].image.height,'unlimit') %>;">
+          <div class="tw-hidden lg:tw-block tw-opacity-0 lg:group-hover:tw-opacity-100 tw-absolute tw-z-10 tw-top-1/2 tw-left-6 lg:tw-left-7 tw-transform tw--translate-y-1/2 tw-cursor-pointer relative_product__pagination" data-direction="prev">{% include 'icon_bg_arrow', class: "tw-max-w-11 tw-max-h-11 tw-min-w-11 tw-min-h-11", icon_class: "tw-text-btn-bg-color" %}</div>
+          <div class="tw-hidden lg:tw-block tw-opacity-0 lg:group-hover:tw-opacity-100 tw-absolute tw-z-10 tw-top-1/2 tw-right-6 lg:tw-right-7 tw-transform tw--translate-y-1/2 tw-cursor-pointer relative_product__pagination" data-direction="next">{% include 'icon_bg_arrow', icon_class:"tw-transform tw-rotate-180 tw-text-btn-bg-color", class: "tw-max-w-11 tw-max-h-11 tw-min-w-11 tw-min-h-11" %}</div>
+        </div>
+      <% } %>
+      <div class="tw-flex tw-w-full tw-overflow-auto relative_product__content" data-track="relative_products">
+        <% for(var i = 0; i < products.length; i++) { %>
+          <div class="tw-w-38 lg:tw-w-1/4 tw-px-1.5 lg:tw-px-2.5 tw-flex-shrink-0 tw-box-border relative_product__item">
+          <% include ('product_art_tpl', {
+            product: products[i],
+          }) %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+  </script>
+{% endif %}
+
+{% javascript %}
+  $(function(){
+    $('#relative_product__container').lazy(function () {
+      var related_count = 4,render = function(){
+        var products =  $(document.body).data("relative_products")||[];
+        var page = $(document.body).data("relative_product_page") || 1;
+        var contents = window.template('relative-product-art-tpl', { products: products });
+        $("#relative_product__container")[products.length?"show":"hide"]().html(contents);
+        $(document).trigger('product_list.update');
+      };
+      $.get(shop_url+'products/tuijian?product_id=={{product.id}}&page=1&per_page=9', function(res) {
+		if (!(res.state == 'ok' && res.data)) { return ; }
+        var products = (res.data || []).filter(function(item) { return item.id != '{{product.id}}'; }).slice(0, 8);
+        $(document.body).data("relative_products",products);
+        render();
+      });
+      $(document).on("click", ".relative_product .relative_product__pagination", function () {
+        var $view = $('.relative_product')
+        var $list = $('.relative_product__content')
+        var distance = $view.find(".relative_product__content > .relative_product__item:first").outerWidth();
+        $list.stop().animate(
+          { scrollLeft: $list.scrollLeft() + { prev: -1, next: 1 }[$(this).data("direction")] * distance },
+          { duration: "150", easing: "linear" }
+        );
+      });
+      $(window).resize($.debounce(render,100));
+    });
+  });
+{% endjavascript %}

@@ -1,0 +1,90 @@
+{% comment %}
+  Description: 双端商品
+  Author: Pang
+  Params: product-商品 is_compare_at_price_show-是否展示原价
+
+  扩展tpl插入节点代码，兼容更多卡片的用法：
+  在include product时，给beforeTplId/contentTplId/afterTplId传卡片里对应的snippets文件名即可
+{% endcomment %}
+{% assign price = product.price %}
+{% assign title = product.title %}
+{% assign id = product.id %}
+{% assign type = product.type %}
+{% assign isMock = product.isMock %}
+{% assign imageHeight = "100%" %}
+
+{% if image_size %}
+  {% assign imageHeight = image_size %}
+{% endif %}
+
+{% comment %} 小图情况处理 {% endcomment %}
+{% assign img_size = 'width: 100%;' %}
+{% assign img_size2 = 'width: 100%;' %}
+{% assign rate = product.image.height | image_padding_bottom : product.image.width, origin: 'unlimit' | abs %}
+{% assign rate2 = product.images[1].height | image_padding_bottom : product.images[1].width, origin: 'unlimit' | abs %}
+{% assign wrapper_rate =  imageHeight | abs %}
+{% if rate > wrapper_rate %}
+  {% assign img_size = 'height: 100%;' %}
+{% endif %}
+{% if rate2 > wrapper_rate %}
+  {% assign img_size2 = 'height: 100%;' %}
+{% endif %}
+
+<!--遍历子产品list，找到第一个可用的子产品 -->
+{% if product.variants and product.available %}
+  {% for item in product.variants %}
+    {% if item.available %}
+      {% assign variantsId = item.id %}
+      {% assign variants = item | json %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+<div data-track="item" data-track-price="{{price}}" data-track-id="{{id}}"
+  data-track-type="{{type|escape}}" data-track-name="{{title|escape}}" class="product-snippet">
+
+  <a {% unless isMock %}href="{{product.url}}"{% endunless %} class="product-snippet__img-wrapper common__img-wrapper_lazy"
+    style="padding-bottom: {{imageHeight}}; width: 100%; {% if isMock %}background: #f7f7f7;{% endif %}">
+    {% comment %} hover效果第二张图 {% endcomment %}
+    {% assign style = 'opacity: 0;' | append: img_size2 %}
+    {% if product.images[1].src and product_hover_image %}
+      {% include 'lazyimg',        src: product.images[1].src,        style: style,        alt: product.images[1].alt|escape,      %}
+    {% endif %}
+    {% comment %} 第一张图 {% endcomment %}
+    {% include 'lazyimg',src: product.image.src,style: img_size,alt: product.image.alt|escape,%}
+    <div class="d-none d-md-block">
+      {% if product.available %}
+        <div class="product-snippet__mask">
+          {% if settings.quick_view_btn_text and settings.is_quick_view_btn_show %}
+            <button type="button" class="btn btn-primary product-snippet__btn text-truncate"
+              data-safe-href="prevent"
+              {% unless isMock %}data-product-id="{{id}}"{% else %}data-product-mock="true"{% endunless %}
+              data-product-url="{{ product.url }}"
+              data-product-variants-id="{{ variantsId }}"
+              data-product-variants='{{ variants }}'
+              data-product='{"title":{{title | escape  | json }},"type":{{type | json }},"id":{{id | json }},"url":{{product.url | json }} }'
+              >
+              {{ settings.quick_view_btn_text }}
+            </button>
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="product-snippet__mask" style="opacity: 1;">
+          <button type="button" disabled class="btn btn-primary product-snippet__btn text-truncate">{{ langs.general.product.sold_out }}</button>
+        </div>
+      {% endif %}
+    </div>
+
+    {% include 'product_label', product: product %}
+    
+    {% unless product.available %}
+    <div class="d-md-none product-snippet__soldout">{{ langs.general.product.sold_out }}</div>
+    {% endunless %}
+  </a>
+  <a {% unless isMock %}href="{{product.url}}"{% else %}data-product-mock="true"{% endunless %} class="product-snippet__title-plus xf_skin_product_list_title d-flex justify-content-center align-items-center">
+    <span class="text-truncate">{{title}}</span><span style="flex-shrink: 0;">&nbsp;--&nbsp;</span><span class="xf_skin_product_price money" style="flex-shrink: 0;">{{price | money_with_symbol}}</span>
+  </a>
+  <div class="product-info__vendor text-center xf_skin_product_list_title">{{ product.vendor }}</div>
+
+</div>

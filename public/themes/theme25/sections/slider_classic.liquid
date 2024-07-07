@@ -1,0 +1,561 @@
+{% assign default_ratio = 40.4 %}
+{% assign md_default_ratio = 100 %}
+<style type="text/css">
+  {% for block in section.blocks %}
+    .slider-{{section.id}}-{{forloop.index0}}-sub_title{color:{{block.settings.sub_title_color}}}
+    .slider-{{section.id}}-{{forloop.index0}}-title{color:{{block.settings.title_color}}}
+    .slider-{{section.id}}-{{forloop.index0}}-desc{color:{{block.settings.text_color}}}
+    .slider-{{section.id}}-{{forloop.index0}}-btn{background-color:{{block.settings.btn_bg_color}};color:{{block.settings.btn_text_color}}}
+    @media (max-width: {{settings.breakpoint}}px) {
+      .slider-{{section.id}}-{{forloop.index0}}-sub_title{color:{{block.settings.md_sub_title_color}}}
+      .slider-{{section.id}}-{{forloop.index0}}-title{color:{{block.settings.md_title_color}}}
+      .slider-{{section.id}}-{{forloop.index0}}-desc{color:{{block.settings.md_text_color}}}
+      .slider-{{section.id}}-{{forloop.index0}}-btn{background-color:{{block.settings.md_btn_bg_color}};color:{{block.settings.md_btn_text_color}}}
+    }
+  {% endfor %}
+  {% unless section.settings.is_full_screen %}
+    {% assign slider_pb = 0 %}
+    {% for block in section.blocks %}
+      {% assign src = block.settings.src %}
+      {% if src %}
+        {% assign ratio = 40.4 %}
+      {% else %}
+        {% assign ratio = default_ratio %}
+      {% endif %}
+      {% if ratio > slider_pb %}
+        {% assign slider_pb = ratio %}
+      {% endif %}
+      .slider-{{section.id}}-{{forloop.index0}}{ padding-bottom:{{ratio}}%; }
+    {% endfor %}
+    .slides-{{section.id}}{ padding-bottom: {{slider_pb}}%;}
+
+    @media (max-width: {{settings.breakpoint}}px) {
+      {% assign mobile_slider_pb = 0 %}
+      {% for block in section.blocks %}
+        {% assign src = block.settings.src %}
+        {% assign mobile_src = block.settings.mobile_src | default: block.settings.src %}
+        {% if mobile_src %}
+          {% assign mobile_ratio = 100 %}
+        {% else %}
+          {% assign mobile_ratio = md_default_ratio %}
+        {% endif %}
+        {% if mobile_ratio > mobile_slider_pb %}
+          {% assign mobile_slider_pb = mobile_ratio %}
+        {% endif %}
+        .slider-{{section.id}}-{{forloop.index0}}{ padding-bottom:{{mobile_ratio}}%; }
+      {% endfor %}
+      .slides-{{section.id}}{ padding-bottom: {{mobile_slider_pb}}%;}
+    }
+  {% endunless %}
+  .slider-{{section.id}}-content{padding:0 140px;}
+  @media (max-width: {{settings.breakpoint}}px) {
+    .slider-{{section.id}}-content{padding:0 80px;}
+  }
+
+  {% if section.settings.is_full_screen %}
+  .slider-{{section.id}}-item, .slides-{{section.id}}{
+    padding-bottom:calc( 100vh - var(--header-height,"0px") );
+  }
+  @media (max-width: {{settings.breakpoint}}px) {
+    .slider-{{section.id}}-item, .slides-{{section.id}}{
+      padding-bottom:calc( 100vh - var(--mobile-header-height,"0px") );
+    }
+  }
+  {% endif %}
+
+  {% if section.settings.enable_snowflake_effect %}
+    @keyframes lezadasnow {
+      0% {
+        transform: translate(-25%, -50%)
+      }
+      100% {
+        transform: translate(0, 0)
+      }
+    }
+    .snow_effect::before {
+      background-image: url(data:image/png;base64,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), url(data:image/png;base64,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);
+      animation: lezadasnow 18s linear infinite;
+      position: absolute;
+      width: 150%;
+      content: '';
+      height: 300%;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      pointer-events: none;
+      background-color: rgba(0, 0, 0, 0);
+    }
+  {% endif %}
+
+</style>
+<div class="tw-relative tw-group {% if section.settings.enable_snowflake_effect %}snow_effect tw-overflow-hidden{% endif %}">
+  {% include "slides", slide: 'slider_classic_slide', id: section.id, images: section.blocks%}
+  {% if section.blocks.size > 1 %}
+    {% assign btn_bg_color = section.blocks[0].settings.btn_bg_color | default: '#000' %}
+    {% unless btn_bg_color contains '#' %}
+      {% assign btn_bg_color = btn_bg_color | color_to_hex %}
+    {% endunless %}
+    {% assign btn_bg_color_mixed = btn_bg_color | color_modify: 'alpha', 0.5 %}
+    <a style="background:{{btn_bg_color_mixed}};color:{{section.blocks[0].settings.btn_text_color}}" href="javascript:;" class="tw-shadow-3 tw-absolute tw-rounded-full tw-inset-0 tw-right-auto tw-top-1/2 tw--mt-6 tw-ml-7 tw-text-btn-bg-color tw-no-underline tw-h-12 tw-w-12 tw-justify-center tw-items-center tw-hidden {%if section.settings.hover_transform %} lg:group-hover:tw-flex{% else %}lg:tw-flex{% endif %} tw-transform tw-transition-transform tw-duration-300 hover:tw-scale-110 slides-{{section.id}}-arrow" data-direction="prev">
+      {% include 'icon_arrow',icon_class:"tw-fill-current" %}
+    </a>
+    <a style="background:{{btn_bg_color_mixed}};color:{{section.blocks[0].settings.btn_text_color}}" href="javascript:;" class="tw-shadow-3 tw-absolute tw-rounded-full tw-inset-0 tw-left-auto tw-top-1/2 tw--mt-6 tw-mr-7 tw-text-btn-bg-color tw-no-underline tw-h-12 tw-w-12 tw-justify-center tw-items-center tw-hidden {%if section.settings.hover_transform %} lg:group-hover:tw-flex{% else %}lg:tw-flex{% endif %} tw-transform tw-transition-transform tw-duration-300 hover:tw-scale-110 slides-{{section.id}}-arrow" data-direction="next">
+      {% include 'icon_arrow',icon_class:"tw-transform tw-rotate-180 tw-fill-current"%}
+    </a>
+  {% endif %}
+</div>
+{% if section.blocks.size > 1 %}
+  {% javascript %}
+    $(function(){
+      $slides = $('.slides-{{section.id}}');
+      $slides.slides({
+        autoplay: '{{section.settings.is_auto_play}}',
+        autoplaySpeed: {{section.settings.interval | times : 1000}},
+      });
+      $slides.on('beforeChange', function(e, {nextSlide}){
+        var idx = nextSlide.index;
+        var $next = nextSlide.$slide;
+        $(".slides-{{section.id}}-arrow").css({
+          "color": $next.find('.slider-{{section.id}}-'+idx).data('color'),
+          "background": $next.find('.slider-{{section.id}}-'+idx).data('bg'),
+        });
+      })
+    })
+  {% endjavascript %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "slider_classic",
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "zh-CN": "设置",
+        "en-US": "Settings"
+      }
+    },
+    {
+      "type": "checkbox",
+      "id": "is_full_screen",
+      "label": {
+        "zh-CN": "开启全屏",
+        "en-US": "Enable full page"
+      },
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "is_auto_play",
+      "label": {
+        "en-US": "Enable autoplay",
+        "zh-CN": "开启自动播放"
+      },
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "interval",
+      "visibleOn": "is_auto_play",
+      "step": 1,
+      "max": 5,
+      "min": 2,
+      "label": {
+        "zh-CN": "轮播时间",
+        "en-US": "Carousel slideshow duration"
+      },
+      "default": 3,
+      "unit": "s"
+    },
+    {
+      "id": "hover_transform",
+      "type": "checkbox",
+      "info": {
+        "zh-CN": "开启此功能后，鼠标滑入轮播图时显示切换按钮",
+        "en-US": "Switch button will be displayed when cursor is hovering over carousel slideshow."
+      },
+      "label": {
+        "zh-CN": "开启隐藏切换按钮",
+        "en-US": "Enble hidden slider button"
+      },
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "max_width",
+      "label": {
+        "en-US": "Max content width",
+        "zh-CN": "最大内容宽度"
+      },
+      "info": {
+        "zh-CN": "最大内容宽度单位为px",
+        "en-US": "Max content width unit in px"
+      },
+      "default": "480",
+      "prop": {
+        "type": "text"
+      }
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_snowflake_effect",
+      "label": {
+        "en-US": "Enable snowflake effect",
+        "zh-CN": "开启雪花效果"
+      },
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Content",
+        "zh-CN": "幻灯内容"
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": {
+        "en-US": "Slidshow",
+        "zh-CN": "幻灯图"
+      },
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "src",
+          "label": {
+            "en-US": "Desktop image",
+            "zh-CN": "PC端图片"
+          }
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_src",
+          "label": {
+            "en-US": "Mobile image",
+            "zh-CN": "移动端图片"
+          }
+        },
+        {
+          "type": "checkbox",
+          "id": "text_and_button_on",
+          "label": {
+            "zh-CN": "开启文字和按钮",
+            "en-US": "Show text and button"
+          },
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "zh-CN": "标题",
+            "en-US": "Heading"
+          },
+          "placeholder": {
+            "zh-CN": "请输入标题",
+            "en-US": "Enter Heading"
+          },
+          "default": "Holiday Sales"
+        },
+        {
+          "type": "text",
+          "id": "sub_title",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "zh-CN": "副标题",
+            "en-US": "Subheading"
+          },
+          "placeholder": {
+            "zh-CN": "请输入副标题",
+            "en-US": "Input subheading"
+          },
+          "default": "New fashion"
+        },
+        {
+          "type": "textarea",
+          "id": "desc",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "en-US": "Description",
+            "zh-CN": "描述"
+          },
+          "placeholder": {
+            "zh-CN": "请输入描述",
+            "en-US": "Enter description"
+          },
+          "default": "Save up to 50% off of the selected products. Our rock-bottom price for this season."
+        },
+        {
+          "type": "text",
+          "id": "btn_text",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "en-US": "Button text",
+            "zh-CN": "按钮文案"
+          },
+          "placeholder": {
+            "en-US": "Input Button text",
+            "zh-CN": "请输入按钮文案"
+          },
+          "default": "Shop Now"
+        },
+        {
+          "type": "url",
+          "id": "btn_href",
+          "label": {
+            "zh-CN": "链接",
+            "en-US": "Link"
+          }
+        },
+        {
+          "type": "select",
+          "id": "layout",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "en-US": "Layout",
+            "zh-CN": "布局"
+          },
+          "default": "center",
+          "options": [
+            {
+              "value": "left",
+              "label": {
+                "en-US": "Left",
+                "zh-CN": "居左"
+              }
+            },
+            {
+              "value": "center",
+              "label": {
+                "en-US": "Center",
+                "zh-CN": "居中"
+              }
+            },
+            {
+              "value": "right",
+              "label": {
+                "en-US": "Right",
+                "zh-CN": "居右"
+              }
+            }
+          ]
+        },
+        {
+          "id": "title_uppercase",
+          "type": "checkbox",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "zh-CN": "开启标题全大写",
+            "en-US": "Uppercase heading"
+          },
+          "default": true
+        },
+        {
+          "id": "sub_title_uppercase",
+          "type": "checkbox",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "zh-CN": "开启副标题全大写",
+            "en-US": "Uppercase subheading"
+          },
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "overlay_opacity",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "en-US": "Image overlay transparency",
+            "zh-CN": "图片蒙层透明度"
+          },
+          "default": "0",
+          "step": 1,
+          "max": 100,
+          "min": 0,
+          "unit": "%"
+        },
+        {
+          "type": "color",
+          "id": "title_color",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "zh-CN": "标题颜色",
+            "en-US": "Heading color"
+          },
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "sub_title_color",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "zh-CN": "副标题颜色",
+            "en-US": "Subheading color"
+          },
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "en-US": "Description text color",
+            "zh-CN": "描述颜色"
+          },
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "btn_bg_color",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "en-US": "Button background color",
+            "zh-CN": "按钮背景色"
+          },
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "btn_text_color",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "en-US": "Button text color",
+            "zh-CN": "按钮文字色"
+          },
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "md_title_color",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "zh-CN": "移动端标题颜色",
+            "en-US": "Mobile heading color"
+          },
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "md_sub_title_color",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "zh-CN": "移动端副标题颜色",
+            "en-US": "Mobile Subheading color"
+          },
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "md_text_color",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "en-US": "Mobile Description text color",
+            "zh-CN": "移动端描述颜色"
+          },
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "md_btn_bg_color",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "en-US": "Mobile Button background color",
+            "zh-CN": "移动端按钮背景色"
+          },
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "md_btn_text_color",
+          "visibleOn": "text_and_button_on",
+          "label": {
+            "en-US": "Mobile Button text color",
+            "zh-CN": "移动端按钮文字色"
+          },
+          "default": "#ffffff"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "slider_classic",
+      "cname": {
+        "zh-CN": "经典幻灯",
+        "en-US": "Classic slideshow"
+      },
+      "category": {
+        "en-US": "Material",
+        "zh-CN": "素材"
+      },
+      "ccategory": {
+        "en-US": "Material",
+        "zh-CN": "素材"
+      },
+      "display": true,
+      "is_full_screen": false,
+      "is_auto_play": false,
+      "hover_transform": false,
+      "interval": 3,
+      "max_width": "480",
+      "blocks": [
+        {
+          "type": "item",
+          "name": {
+            "zh-CN": "幻灯片",
+            "en-US": "Slidshow"
+          },
+          "settings": {
+            "src": "",
+            "mobile_src": "",
+            "text_and_button_on": true,
+            "title": "Holiday Sales",
+            "sub_title": "New fashion",
+            "desc": "Save up to 50% off of the selected products. Our rock-bottom price for this season.",
+            "btn_text": "Shop Now",
+            "layout": "center",
+            "title_uppercase": true,
+            "sub_title_uppercase": true,
+            "overlay_opacity": 0,
+            "title_color": "#000000",
+            "sub_title_color": "#000000",
+            "text_color": "#000000",
+            "btn_bg_color": "#000000",
+            "btn_text_color": "#ffffff"
+          }
+        },
+        {
+          "type": "item",
+          "name": {
+            "zh-CN": "幻灯片",
+            "en-US": "Slidshow"
+          },
+          "settings": {
+            "src": "",
+            "mobile_src": "",
+            "text_and_button_on": true,
+            "title": "Holiday Sales",
+            "sub_title": "New fashion",
+            "desc": "Save up to 50% off of the selected products. Our rock-bottom price for this season.",
+            "btn_text": "Shop Now",
+            "layout": "center",
+            "title_uppercase": true,
+            "sub_title_uppercase": true,
+            "overlay_opacity": 0,
+            "title_color": "#000000",
+            "sub_title_color": "#000000",
+            "text_color": "#000000",
+            "btn_bg_color": "#000000",
+            "btn_text_color": "#ffffff"
+          }
+        }
+      ],
+      "icon": "oss/operation/1061c5cdb00c5382b09f2e8626304cee.svg"
+    }
+  ]
+}
+{% endschema %}

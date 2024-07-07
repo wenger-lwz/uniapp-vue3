@@ -1,0 +1,21 @@
+{% if template.name == 'index' %}
+  <h1 class="tw-m-0 tw-leading-none type-heading-font-family tw-text-xl tw-font-bold tw-uppercase header-title">
+{% else %}
+  <p class="tw-m-0 tw-leading-none type-heading-font-family tw-text-xl tw-font-bold tw-uppercase header-title">
+{% endif %}
+
+{% comment %} 图片和宽度同时存在才显示logo {% endcomment %}
+{% if logo_image and logo_width %}
+  {% assign width = logo_width | times: 2 %}
+  <a href="/" class="tw-relative tw-block" style="width:{{logo_width}}px;max-height: {{logo_h}}px;padding-bottom:{{ images[logo_image].height | image_padding_bottom : images[logo_image].width, 'unlimit' }};">
+    <img src="{{shop.default_img}}" data-src="{{logo_image | img_url: width }}" alt="{{ images[logo_image].alt | default: shop.name }}" class="tw-absolute tw-inset-0 tw-w-full tw-h-full tw-object-cover lazyload"/>
+  </a>
+{% else %}
+  <a href="/" class="tw-text-inherit tw-no-underline tw-flex lg:tw-transition-opacity lg:tw-duration-300 lg:hover:tw-opacity-60">{{ shop.name }}</a>
+{% endif %}
+
+{% if template.name == 'index' %}
+  </h1>
+{% else %}
+  </p>
+{% endif %}

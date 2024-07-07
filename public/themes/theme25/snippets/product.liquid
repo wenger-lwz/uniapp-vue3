@@ -1,0 +1,181 @@
+{% assign price = product.price %}
+{% assign compareAtPrice = product.compare_at_price %}
+{% assign title = product.title %}
+{% assign id = product.id %}
+{% assign type = product.type %}
+{% assign isMock = product.isMock %}
+{% assign wrapperHeight = "100%" %}
+{% assign status_label = '' %}
+{% assign product_image_hover_on = false %}
+{% assign from_on = false %}
+
+{% if settings.product_image_display == 'natural' %}
+  {% assign wrapperHeight = 100 | append: '%' %}
+{% elsif settings.product_image_display %}
+  {% assign wrapperHeight = settings.product_image_display %}
+{% endif %}
+
+{% if image_size %}
+  {% assign wrapperHeight = image_size %}
+{% endif %}
+
+{% if image_size == "auto" %}
+  {% assign wrapperHeight = product.image.height | image_padding_bottom : product.image.width, 'unlimit' %}
+{% endif %}
+
+
+{% comment %} 判断是否需要from {% endcomment %}
+{% if product.price_max != product.price_min %}
+  {% assign from_on = true %}
+{% endif %}
+
+{% comment %} 新品 {% endcomment %}
+{% assign new_collection_contains_product_on = false %}
+{% if settings.product_label_new_on %}
+  {% assign new_collection = collections[settings.product_label_new_collection.id] %}
+  {% unless collection.id == 0 %}
+    {% for new_collection_product in new_collection.products %}
+      {% if new_collection_product.id == product.id %}
+        {% assign new_collection_contains_product_on = true %}
+      {% endif %}
+    {% endfor %}
+  {% endunless %}
+{% endif %}
+{% comment %} 热卖 {% endcomment %}
+{% assign hot_collection_contains_product_on = false %}
+{% if settings.product_label_best_seller_on %}
+  {% assign hot_collection = collections[settings.product_label_best_seller_collection.id] %}
+  {% unless collection.id == 0 %}
+    {% for hot_collection_product in hot_collection.products %}
+      {% if hot_collection_product.id == product.id %}
+        {% assign hot_collection_contains_product_on = true %}
+      {% endif %}
+    {% endfor %}
+  {% endunless %}
+{% endif %}
+{% comment %} 状态标签 {% endcomment %}
+{% if settings.product_label_sold_out_on and product.available == false %}
+  {% assign status_label = langs.products.product.sold_out | t  %}
+{% elsif new_collection_contains_product_on %}
+  {% assign status_label = langs.products.general.new | t %}
+{% elsif hot_collection_contains_product_on %}
+  {% assign status_label = langs.products.general.best_seller | t %}
+{% elsif settings.product_label_sale_on and product.compare_at_price > product.price %}
+  {% assign status_label = langs.products.general.sale | t %}
+{% endif %}
+
+{% comment %} hover 第2张图 {% endcomment %}
+{% if settings.product_image_hover_on and product.images.size > 1 %}
+  {% assign second_image = product.images[1] %}
+  {% assign product_image_hover_on = true %}
+  {% if second_image.src contains 'video=' %}
+    {% if product.images.size > 2 %}
+      {% assign second_image = product.images[2] %}
+    {% else %}
+      {% assign product_image_hover_on = false %}
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+<div class="product-snippet {% if settings.product_quick_view_on %} tw-relative tw-pb-14 tw-h-full tw-box-border{% endif %} tw-text-{{settings.product_layout | default: 'left'}} {{ item_class | default:''}}" data-track-id="{{id}}">
+  <a {% unless isMock %}href="{{product.url}}"{% endunless %}
+    class="tw-relative tw-block tw-overflow-hidden tw-w-full {%if settings.general_style == 'round'%}tw-rounded-lg{%endif%} product-snippet__img-wrapper {% if product_image_hover_on %}product-snippet__img-hover{% endif %} common__img-wrapper_lazy"
+    style="padding-bottom: {{wrapperHeight}};">
+    {% if isMock %}
+        {{ 'product-1' | placeholder_svg_tag: 'tw-bg-svg tw-fill-svg tw-absolute tw-inset-0 tw-m-auto tw-w-full tw-h-full product-snippet__img-first' }}
+      {% if product_image_hover_on %}
+        {{ 'product-2' | placeholder_svg_tag: 'tw-bg-svg tw-fill-svg tw-absolute tw-inset-0 tw-m-auto tw-w-full tw-h-full tw-invisible product-snippet__img-second' }}
+      {% endif %}
+    {% else %}
+      <img
+        src="{{shop.default_img}}"
+        class="tw-absolute tw-inset-0 tw-m-auto tw-w-full tw-h-full tw-object-cover {%if settings.general_style == 'round'%}tw-rounded-lg{%endif%} product-snippet__img-first lazyload"
+        data-sizes="auto"
+        data-src="{{product.image.src | img_url: '{width}x'}}"
+        alt="{{product.image.alt | escape}}"
+      >
+      {% if product_image_hover_on %}
+        <img
+          src="{{shop.default_img}}"
+          class="tw-absolute tw-inset-0 tw-m-auto tw-w-full tw-h-full tw-object-cover tw-invisible {%if settings.general_style == 'round'%}tw-rounded-lg{%endif%}  product-snippet__img-second lazyload"
+          data-sizes="auto"
+          data-src="{{second_image.src | img_url: '{width}x'}}"
+          alt="{{second_image.alt | escape}}"
+        >
+      {% endif %}
+    {% endif %}
+    {% comment %} 折扣标签 {% endcomment %}
+    {% if settings.product_label_discount_on and product.compare_at_price > product.price %}
+      <div class="tw-absolute tw-top-2 tw-left-2 lg:tw-top-4 lg:tw-left-4 tw-uppercase tw-leading-4 lg:tw-leading-5 tw-tracking-tight tw-text-xs tw-px-1 tw-bg-discount-label-bg-color tw-text-discount-label-text-color {%if settings.general_style == 'round'%}tw-rounded-full{%endif%} product-info__label product-info__header_tag">
+        {% if settings.product_label_discount_format == 'percentage' %}
+          -{{product.off_ratio}}%
+        {% elsif settings.product_label_discount_format == 'amount' %}
+          {% capture saved_amount %}{{ product.compare_at_price | minus: product.price | money_with_symbol }}{% endcapture %}
+          {{langs.product.product_detail.save_html | t: saved_amount: saved_amount}}
+        {% endif %}
+      </div>
+    {% endif %}
+  </a>
+  {% unless status_label == blank %}
+    <div class="tw-mt-6 tw-font-semibold tw-text-text-color tw-leading-none tw-text-sm lg:tw-text-status-label-font-size tw-tracking-status-label-letter-spacing {%if settings.type_status_label_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_status_label_text_uppercase_on%}tw-uppercase{%endif%}">
+      {{status_label}}
+    </div>
+  {% endunless %}
+  <h3 class="tw-m-0 tw-p-0 {% unless status_label == blank %}tw-mt-2.5{% else %}tw-mt-5{% endunless %} product-snippet__title-normal xf_skin_product_list_title">
+    <a {% unless isMock %}href="{{product.url}}"{% endunless %}
+      class="tw-block tw-no-underline tw-text-sm tw-text-title-color type-heading-font-family lg:tw-text-snippet-font-size tw-tracking-snippet-letter-spacing tw-leading-snippet-line-height {%if settings.type_snippet_text_uppercase_on%} tw-uppercase {%endif%} lg:tw-transition-opacity lg:tw-duration-300 lg:hover:tw-opacity-60">
+      {{title}}
+    </a>
+  </h3>
+  <div class="tw-mt-2.5 tw-text-0 tw-leading-none product-snippet__price-wrapper">
+    <div class="tw-inline-block tw-mr-2 tw-max-w-full tw-truncate tw-text-sm tw-text-price-color lg:tw-text-price-font-size {%if settings.type_price_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%}">
+      {% if from_on %}{{ langs.products.general.from | t }}{% endif %}<span class="money">{{price | money_with_symbol}}</span>
+    </div>
+    {% assign compareAtPrice = compareAtPrice | times: 1 %}
+    {% assign price = price | times: 1 %}
+    {% if compareAtPrice > price and from_on == false %}
+      <del class="tw-inline-block tw-max-w-full tw-truncate tw-text-sm tw-text-compare-at-price-color lg:tw-text-price-font-size {%if settings.type_price_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} money">
+        {{compareAtPrice | money_with_symbol}}
+      </del>
+    {% endif %}
+  </div>
+  {% comment %} 色卡/缩略图 {% endcomment %}
+  {% if settings.product_swatches_name and settings.product_swatches_collection_on %}
+    {% for option in product.options %}
+      {% assign option_name = option.name | downcase %}
+      {% assign product_swatches_name = settings.product_swatches_name | downcase %}
+      {% if option_name contains product_swatches_name and option.values.size > 1 %}
+        {% assign option_index = forloop.index0 %}
+        {% assign values = '' %}
+        {% include 'colors' %}
+        <div class="tw-text-0 {% if settings.product_swatches_style == 'swatches' %} tw--mx-1 {% elsif settings.product_swatches_style == 'thumbnail' %} tw--mx-1.5 {% endif %}">
+          {% comment %} 第一张商品图 {% endcomment %}
+          <div class="tw-hidden product-snippet__variants_radio" data-product-variants='{"image":{{ product.image | json }}}'></div>
+          {% for variant in product.variants %}
+            {% assign value = variant.options[option_index].value %}
+            {% unless values contains value %}
+              {% assign values = values | join: ',' %}
+              {% assign values = values | append: ',' | append: value %}
+              {% assign values = values | split: ',' %}
+              {% if settings.product_swatches_style == "swatches" %}
+                {% comment %} 色卡 {% endcomment %}
+                {% assign color_value = value | downcase %}
+                {% if colors[color_value] %}
+                  <div style="background-color: {{colors[color_value]}};" class="tw-inline-block tw-box-border tw-cursor-pointer tw-rounded-full tw-h-4 tw-w-4 tw-mt-3 tw-mx-1 product-snippet__variants_radio" data-track="switch_swatches" data-product-variants='{"image":{{ variant.image | json }}}'></div>
+                {% endif %}
+              {% elsif settings.product_swatches_style == "thumbnail" and product.need_variant_image %}
+                {% comment %} 缩略图 {% endcomment %}
+                <div class="tw-inline-block tw-box-border tw-w-8 tw-h-8 tw-mt-2.5 lg:tw-mt-3 tw-mx-1.5 tw-bg-cover tw-bg-center tw-bg-no-repeat tw-cursor-pointer {%if settings.general_style == 'round'%}tw-rounded{%endif%} lazyload product-snippet__variants_radio" data-bgset="{{variant.image.src | img_url : '64x'}}" data-sizes="auto" data-track="switch_swatches" data-product-variants='{"image":{{ variant.image | json }}}'></div>
+              {% endif %}
+            {% endunless %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if settings.product_quick_view_on %}
+  <button type="button" class="tw-w-full tw-absolute tw-inset-x-0 tw-bottom-0 tw-text-btn-bg-color tw-bg-transparent tw-border tw-border-btn-bg-color tw-text-btn-font-size tw-tracking-btn-letter-spacing {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} tw-box-border tw-border-solid tw-outline-none tw-p-0 tw-h-10 tw-text-sm tw-cursor-pointer lg:hover:tw-text-btn-text-color lg:hover:tw-bg-btn-bg-color active:tw-text-btn-text-color active:tw-bg-btn-bg-color disabled:tw-opacity-40 disabled:tw-cursor-not-allowed {%if settings.general_style == 'round'%}tw-rounded{%endif%} quick-shop" {% unless product.isMock %} data-quick-shop="{{product.handle}}" data-track="quick_shop" data-track-product-id="{{product.id}}" {% endunless %}  >
+    {{ langs.general.product.quick_shop | t }}
+  </button>
+  {% endif %}
+</div>

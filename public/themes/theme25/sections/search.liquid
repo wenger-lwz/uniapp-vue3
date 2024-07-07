@@ -1,0 +1,93 @@
+<style type="text/css">
+  input::-webkit-input-placeholder { opacity: 0.32; color: {{ settings.color_general_text }}; }
+  input::-moz-placeholder { opacity: 0.32; color: {{ settings.color_general_text }}; }
+  input:-ms-input-placeholder  { opacity: 0.32; color: {{ settings.color_general_text }}; }
+  @media(min-width:{{settings.breakpoint}}px){
+    input::-webkit-input-placeholder { opacity: 0.32; color: {{ settings.color_header_text }}; }
+    input::-moz-placeholder { opacity: 0.32; color: {{ settings.color_header_text }}; }
+    input:-ms-input-placeholder  { opacity: 0.32; color: {{ settings.color_header_text }}; }
+  }
+</style>
+{% assign count = search.results.products_count %}
+{% assign limit = 12 %}
+<div class="tw-max-w-page tw-mx-auto tw-px-5 lg:tw-px-general-layout-spacing tw-py-10 lg:tw-py-20">
+  <div class="tw-text-title-color tw-text-4.5 lg:tw-text-7 tw-leading-8 type-heading-font-family tw-text-center tw-mb-1.25 lg:tw-mb-2.5">{{ langs.search.title | t }}</div>
+  <div class="{% if count == 0 %}tw-opacity-0{% endif %} tw-mb-7.5 tw-text-center tw-text-light-text-color type-heading-font-family tw-text-sm tw-tracking-normal tw-leading-none">{% if count > 1 %}{{ langs.search.items | t: count: count }}{%else%}{{ langs.search.item | t: count: count }}{%endif%}</div>
+  <form action="/search" method="get" class="tw-flex tw-justify-center tw-flex-nowrap lg:tw-max-w-160 lg:tw-mx-auto">
+    <input name="q" maxlength="1024" class="tw-w-full tw-h-12.5 tw-border-gray-300 tw-leading-4 tw-text-black tw-bg-transparent tw-py-0 tw-border tw-border-solid tw-outline-none tw-text-sm tw-px-4 tw-box-border focus:tw-border-btn-bg-color search_input tw-border-r-0 {%if settings.general_style == 'round'%}tw-rounded-l{%endif%}" value="{{ search.terms }}" placeholder="{{ langs.search.search_products | t }}" />
+    <button type="submit" class="tw-cursor-pointer tw-flex-shrink-0 tw-w-30 tw-h-12.5 tw-outline-none tw-text-btn-text-color tw-bg-btn-bg-color tw-border-none  tw-text-btn-font-size tw-tracking-btn-letter-spacing {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} lg:hover:tw-opacity-75 {%if settings.general_style == 'round'%}tw-rounded-r{%endif%} search_button">{{ langs.search.search_button | t }}</button>
+  </form>
+  {% if count > 0 %}
+    <div class="tw-grid tw-grid-cols-2 tw-gap-y-7.5 lg:tw-gap-y-15 lg:tw-grid-cols-4 tw-pt-7.5 lg:tw-pt-20 md:tw-gap-x-px-15 lg:tw-gap-x-5" id="search_results">
+      {% for block in search.results.products limit: limit %}
+        {% include 'product', product: block %}
+      {% endfor %}
+    </div>
+    <div class="tw-mx-auto tw-relative common__load-more-loading tw-mt-10 lg:tw-mt-20 empty:tw-hidden" id="search_results_loading"></div>
+    <div id="search_end" class="tw-hidden tw-text-sm tw-tracking-normal tw-leading-none tw-text-center tw-pt-10 lg:tw-pt-20">{{ langs.search.search_end | t }}</div>
+  {% else %}
+    <div class="tw-flex tw-items-center tw-mt-3 lg:tw-mt-7.5 tw-mb-10 lg:tw-mb-20 tw-rounded tw-h-12.5 tw-text-sm tw-px-4 lg:tw-px-7" style="background: #FDF4E6;color:#D27D5B;">{{ langs.search.no_results | t }}</div>
+  {% endif %}
+</div>
+
+{% javascript %}
+  $(function () {
+    var keyword = '{{search.terms | url_encode}}';
+    var loading = false;
+    var hasMore = true;
+    var params = $.params();
+    var page = params.page || 1;
+
+    $(document).on('scroll',$.throttle(function(){
+      if ($.isToPageEnd('{{section.id}}') && !loading && hasMore) {
+        loading = true;
+        ++page;
+        $.loading.show({selector: '#search_results_loading'});
+        $.get("/search?"+$.toQuery($.extend({},params,{page:page})),function(res){
+          var bodyHTML = res.match(/(<body\b[^>]*>)([^<]*(?:(?!<\/body>)<[^<]*)*)(<\/body>)/gi)[0];
+          var $children = $(bodyHTML).find("#search_results").children();
+          hasMore = ($children.length > 0);
+          $('#search_end')[!hasMore?'removeClass':'addClass']('tw-hidden');
+          $.loading.hide({selector: '#search_results_loading'});
+          $("#search_results").append($children);
+          loading = false;
+        }).always(function () {
+          $(document).trigger('product_list.update');
+          $(document).trigger('plugin_currency_update');
+        });
+      }
+    }, 10, 50 ));
+    // 触发自定义事件（sa）
+    setTimeout(function() {
+      (JSON.stringify(params) !== '{}') && $(document.body).trigger('productSearch', {
+        keyWord: '{{search.terms | url_encode}}',
+        hasResult: '{{search.results.products_count}}' > 0
+      });
+    }, 50);
+  })
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "search",
+  "settings": [],
+  "presets": [
+    {
+      "name": "search",
+      "cname": {
+        "en-US": "Search results",
+        "zh-CN": "搜索结果"
+      },
+      "category": {
+        "zh-CN": "基础",
+        "en-US": "Basic"
+      },
+      "ccategory": {
+        "zh-CN": "基础",
+        "en-US": "Basic"
+      },
+      "display": false
+    }
+  ]
+}
+{% endschema %}

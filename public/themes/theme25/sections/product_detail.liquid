@@ -1,0 +1,720 @@
+{% include 'product_detail_style' %}
+{% include 'colors' %}
+
+{% assign selectedVariantId = "" %}
+{% assign selectedVariant = nil %}
+{% for variant in product.variants %}
+  {% if variant.available_quantity > 0 %}
+    {% assign selectedVariantId = variant.id %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+{% assign paramVariantId = '' %}
+{% assign params = REQUEST_URI | split: "?" | last | split: "&" %}
+{% for p in params %}
+  {% assign pair = p | split: "=" %}
+  {% if pair[0] contains "variant" and pair[1] != '' %}
+    {% assign selectedVariantId = pair[1] %}
+    {% assign paramVariantId = pair[1] %}
+  {% endif  %}
+{% endfor %}
+
+{% for variant in product.variants %}
+  {% if variant.id == selectedVariantId %}
+    {% assign selectedVariant = variant %}
+  {% endif %}
+{% endfor %}
+
+{% assign initialSlide = 0 %}
+{% assign len = paramVariantId | size %}
+{% if len > 0 %}
+  {% for item in product.images %}
+    {% if item.src contains selectedVariant.image.src %}
+      {% assign initialSlide = forloop.index0 %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% assign view_thumb_size = 6 %}
+{% if section.settings.gallery_layout == "slide_show_left" %}
+  {% assign view_thumb_size = 5 %}
+{% endif %}
+
+<div class="tw-max-w-page tw-mx-auto lg:tw-px-general-layout-spacing tw-mb-10 lg:tw-my-15 tw-grid tw-grid-cols-12 product-detail product-detail-{{section.id}}" id="product_detail_{{ product.id }}" data-track="product" data-track-id="{{product.id}}" data-track-price="{{product.price}}" data-track-name="{{product.title | escape}}" data-track-type="{{product.type}}">
+  {% comment %}商品描述 accordion/tabs{% endcomment %}
+  {% capture desc_tab %}
+    {% assign tabs = "description,reviews,page1,page2,page3" | split:"," %}
+    {% assign desc_type = "accordion" %}
+    {% if section.settings.description_position == "tab" %}
+      {% assign desc_type = "tab" %}
+    {% else %}
+      {% assign tabs = tabs| replace:",reviews","" %}
+    {% endif %}
+    {% if section.settings.description_position == 'tab' %}
+      <div class="plugin__bundle-combination tw-col-span-12 tw-row-span-1 tw-mt-15 empty:tw-hidden"></div>
+    {% endif %}
+    <div class="tw-col-span-12 tw-row-span-1 tw-mt-15 tw-border-light-border-color tw-border-solid tw-flex tw-flex-wrap product-info__desc-tab product-info__desc bottom {{desc_type}}">
+      {% comment %} 移动端tab栏 {% endcomment %}
+      {% if desc_type == "tab" %}
+      <div class="tw-flex tw-w-full tw-mx-5 lg:tw-mx-0 hide-scrollbar product-info__label_tabs">
+        {% for tab in tabs %}
+          {% assign tab_page_idx = forloop.index | minus:2 | prepend:"page" %}
+          {% assign tab_page = section.settings[tab_page_idx]  %}
+          {% unless tab_page.id %}
+            {% assign tab_page = null %}
+          {% endunless %}
+          {% unless tab contains "page" and tab_page == null %}
+          <label class="tw-text-title-color type-heading-font-family tw-pb-5 {% if tab =="reviews" %}xfcart-reviews-header-label tw-hidden{% endif %} tw-cursor-pointer tw-text-base xf_skin_text product-info__desc-tab-header {% if forloop.index == 1 %}product-info__label_tabs_checked{% endif %}  " for="r-{{ section.id }}-{{ forloop.index }}">
+            {% if tab =="description" %}{{ langs.product.product_detail.product_description | t }}{% endif %}
+            {% if tab =="reviews" %}{{ langs.product.product_detail.review | t }}{% endif %}
+            {% if tab contains "page" %}{{ pages[tab_page.id].title }}{% endif %}
+          </label>
+          {% endunless %}
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% for tab in tabs %}
+        {% assign tab_page_idx = forloop.index | minus:2 | prepend:"page" %}
+        {% assign tab_page = section.settings[tab_page_idx]  %}
+        {% unless tab_page.id %}
+          {% assign tab_page = null %}
+        {% endunless %}
+        {% unless tab contains "page" and tab_page == null %}
+          <input autocomplete="off" type="checkbox" name="r-{{ section.id }}-{{ forloop.index }}" class=" tw-hidden product-info__desc-tab-cb" id="r-{{ section.id }}-{{ forloop.index }}" {% if forloop.index == 1 and desc_type == "tab" %}checked{% endif %} />
+          <label class="tw-text-title-color tw-text-base type-heading-font-family {% if tab =="reviews" %} tw-hidden {% endif %}  tw-items-center tw-border-light-border-color tw-border-solid tw-cursor-pointer xf_skin_text product-info__desc-tab-header product_detail_{{tab}}_label" for="r-{{ section.id }}-{{ forloop.index }}">
+            {% if tab =="description" %}{{ langs.product.product_detail.product_description | t }}{% endif %}
+            {% if tab =="reviews" %}{{ langs.product.product_detail.review | t }}{% endif %}
+            {% if tab contains "page" %}{{ pages[tab_page.id].title }}{% endif %}
+            {% include 'icon_more',icon_class:"tw-fill-current tw-transform tw--rotate-90" %}
+          </label>
+          <div class="tw-pt-1 tw-px-5 lg:tw-px-0 hide-scrollbar {% if tab =='description' %}tw-overflow-hidden{% endif %} {% if tab == 'description' or tab contains 'page' %}mce__content{% endif %} product-info__desc-tab-content product_detail_{{tab}}_content">
+          {% if tab =="description" %}{{ product.description | lazysizes }}{% endif %}
+          {% if tab =="reviews" %}
+            <div class="tw-col-span-12 tw-row-span-1 customers_review customers_review_tab lazyload"></div>
+          {% endif %}
+          {% if tab contains "page" %}{{ pages[tab_page.id].content }}{% endif %}
+          </div>
+        {% endunless %}
+      {% endfor %}
+    </div>
+  {% endcapture %}
+
+  <div class="tw-col-span-12 {% if section.settings.gallery_layout == "grid" %}lg:tw-col-span-8{% else %}lg:tw-col-span-7{% endif %} lg:tw-row-span-1 lg:tw-pr-20 product-image">
+    {% include 'product_images' %}
+  </div>
+  <form class="tw-col-span-12 tw-px-5 lg:tw-px-0 {% if section.settings.gallery_layout == "grid" %}lg:tw-col-span-4{% else %}lg:tw-col-span-5{% endif %} tw-mt-10 lg:tw-row-span-1 lg:tw-mt-0 tw-px-5 lg:tw-px-0 product-info product-info-{{ product.id }} properties">
+    <div class="properties-content">
+      <div class="product-info__header">
+        <h1 class="tw-m-0 tw-text-title-color type-heading-font-family tw-text-xl lg:tw-text-product-detail-heading-font-size tw-tracking-product-detail-heading-letter-spacing tw-leading-product-detail-heading-line-height {%if settings.type_product_text_uppercase_on%}tw-uppercase{%endif%} tw-break-words product-info__header_title ">{{ product.title | escape }}</h1>
+        {% if product.brief and section.settings.subtitle %}
+          <p class="tw-mb-0 tw-mt-5 tw-leading-1.3 product-info__header_brief">{{ product.brief }}</p>
+        {% endif %}
+        <div class="product-info__header_price-wrapper">
+          <div class="tw-mt-5 tw-flex tw-justify-between tw-items-center tw-flex-wrap">
+            <div class="tw-text-price-color {%if settings.type_price_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} tw-leading-none  tw-text-xl  product-info__header_price money">{{ selectedVariant.price | money_with_symbol }}</div>
+            {% if section.settings.sales %}<div class="tw-leading-none product-info__header_sales">{{ langs.product.product_detail.sold | t: count: product.sales }}</div>{% endif %}
+          </div>
+          {% if settings.product_label_discount_on %}
+            <div class="tw-leading-none tw-flex tw-items-center">
+              <span class="tw-text-compare-at-price-color tw-mt-2 tw-text-sm lg:tw-text-price-font-size {%if settings.type_price_same_with == 'heading' %}type-heading-font-family{%else%}type-text-font-family{%endif%} tw-line-through tw-mr-2 {% unless selectedVariant.off_ratio > 0  %}tw-hidden{% endunless %} product-info__header_compare-at-price money">{{selectedVariant.compare_at_price | money_with_symbol}}</span>
+              {% if settings.product_label_discount_format == 'amount' %}
+                {% assign saved = selectedVariant.compare_at_price | minus: selectedVariant.price | money_with_symbol %}
+                <span class="tw-mt-2 product-info__save {% unless selectedVariant.off_ratio > 0 %}tw-hidden{% endunless %}"  data-save="{{ langs.product.product_detail.save_html | t: saved_amount: "[saved]" }}" >
+                  {{ langs.product.product_detail.save_html | t: saved_amount:saved  }}
+                </span>
+              {% elsif settings.product_label_discount_format == 'percentage' %}
+                <span class="tw-mt-2 product-info__off {% unless selectedVariant.off_ratio > 0 %}tw-hidden{% endunless %}" data-off="{{ langs.product.product_detail.off | t: count: "[count]" | replace: "OFF","Off" }}" >
+                  {{ langs.product.product_detail.off | t: count: selectedVariant.off_ratio | replace: "OFF","Off" }}
+                </span>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      {% include 'product_info_body' %}
+      {% if section.settings.description_position == "side" %}
+      {{ desc_tab }}
+      {% endif %}
+      <div class="tw-block lg:tw-hidden {% if desc_type != "accordion" %} tw--mx-4 {% endif %} " id="product-info__desc-tab-below_m"></div>
+      {% comment %} 分享模块 {% endcomment %}
+      {% if section.settings.share_the_love %}
+      <div class="tw-flex tw-justify-between tw-items-center tw-space-x-4 tw-mt-10 product-info__social-sharing">
+        {% assign share_title = product.title %}
+        {% assign share_permalink = product.url %}
+        {% assign share_image = product.image.src %}
+        <span class="tw-flex-1 tw-text-base type-heading-font-family tw-text-title-color">{{ langs.product.product_detail.share_the_love | t }}</span>
+        <a target="_blank"
+          data-track="social_share"
+          href="//www.facebook.com/sharer.php?u={{ shop.url | append: share_permalink }}"
+          class="tw-w-8 tw-h-8 tw-rounded tw-bg-black tw-bg-opacity-5 tw-text-current tw-no-underline tw-flex tw-justify-center tw-items-center  share-facebook xf_skin_text">
+          {% include 'icon_facebook', icon_width:"20px", icon_height:"20px" %}
+        </a>
+        <a target="_blank"
+          data-track="social_share"
+          href="//twitter.com/share?text={{ share_title | url_param_escape }}&amp;url={{ shop.url | append: share_permalink }}"
+          class="tw-w-8 tw-h-8 tw-rounded tw-bg-black tw-bg-opacity-5  tw-text-current tw-no-underline  tw-flex tw-justify-center tw-items-center  share-twitter xf_skin_text">
+          {% include 'icon_twitter', icon_width:"20px", icon_height:"20px" %}
+        </a>
+        <a target="_blank"
+          data-track="social_share"
+          href="//pinterest.com/pin/create/button/?url={{ shop.url | append: share_permalink }}&amp;media={{ share_image | img_url: '1024x1024' }}&amp;description={{ share_title | url_param_escape }}"
+          class="tw-w-8 tw-h-8 tw-rounded tw-bg-black tw-bg-opacity-5 tw-text-current tw-no-underline  tw-flex  tw-justify-center tw-items-center  share-pinterest xf_skin_text">
+          {% include 'icon_pinterest', icon_width:"20px", icon_height:"20px" %}
+        </a>
+      </div>
+      {% endif %}
+
+      {% comment %} 安全支付图 {% endcomment %}
+      {% if section.settings.secure_payment_icon %}
+        {% assign item = images[section.settings.secure_payment_icon.src]  %}
+        <div style="padding-bottom:{{item.height | image_padding_bottom : item.width, origin:'unlimit'}};" class="tw-relative tw-mt-10" >
+          <img data-sizes="auto" data-src="{{ item.src | img_url: '{width}'}}" src="{{shop.default_img}}" class="tw-absolute tw-inset-0 tw-m-auto tw-w-full tw-h-full lazyload"  alt="{{item.alt | escape}}" />
+        </div>
+      {% endif %}
+    </div>
+  </form>
+
+  <div class="tw-col-span-12 {% if section.settings.gallery_layout == "grid" %}lg:tw-col-span-8{% else %}lg:tw-col-span-7{% endif %} lg:tw-row-span-1 lg:tw-pr-20 tw-hidden lg:tw-block product-info__desc-tab-below_pc " id="product-info__desc-tab-below_pc">
+    {% if section.settings.description_position == "below" %}
+      {{ desc_tab }}
+    {% endif %}
+  </div>
+
+  {% if section.settings.description_position == "tab" %}
+    {{ desc_tab }}
+  {% endif %}
+
+  {% if desc_type == "accordion" %}
+    {% if section.settings.description_position != 'tab' %}
+      <div class="plugin__bundle-combination tw-col-span-12 tw-row-span-1 tw-mt-15 empty:tw-hidden"></div>
+    {% endif %}
+    <div class="tw-text-title-color type-heading-font-family tw-text-base tw-col-span-12 tw-row-span-1 tw-leading-none tw-mt-15 lg:tw-mt-20 tw-px-5 lg:tw-px-0 tw-pb-8 tw-hidden customers_review_tilte">{{ langs.product.product_detail.customers_review | t }}</div>
+    <div class="tw-col-span-12 tw-row-span-1 customers_review customers_review_below_desc tw-px-5 lg:tw-px-0"></div>
+  {% endif %}
+
+  {% include 'relative_product' %}
+  {% include 'recently_view' %}
+  {% if desc_type == "accordion" %}
+    <div class="tw-text-title-color type-heading-font-family tw-text-base tw-col-span-12 tw-row-span-1 tw-leading-none tw-mt-15 lg:tw-mt-20 tw-px-5 lg:tw-px-0 tw-pb-8 tw-hidden customers_review_tilte">{{ langs.product.product_detail.customers_review | t }}</div>
+    <div class="tw-col-span-12 tw-row-span-1 customers_review customers_review_below_recent_view tw-px-5 lg:tw-px-0"></div>
+  {% endif %}
+</div>
+
+{% include 'add_to_cart',product: product,selected:selectedVariant,vtype:variant_type,paypal_btn_show:settings.is_paypal_btn_show,settings:section.settings %}
+{% include 'product_detail_js' %}
+
+{% javascript %}
+$(function () {
+  $(".product-detail-{{ section.id }}").product_detail({section_id:"{{ section.id }}",product:{{ product | json: "description,meta_description,meta_keyword,meta_title,brief" }}, initialSlide: {{initialSlide}},view_thumb_size:{{view_thumb_size}}});
+})
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "product_detail",
+  "max_blocks": 3,
+  "contentType": [
+    "products"
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Gallery",
+        "zh-CN": "图集"
+      }
+    },
+    {
+      "type": "select",
+      "label": {
+        "en-US": "Layout",
+        "zh-CN": "布局"
+      },
+      "id": "gallery_layout",
+      "options": [
+        {
+          "value": "slide_show",
+          "label": {
+            "en-US": "Slide show (Thumbnail below the image)",
+            "zh-CN": "幻灯(缩略图在下)"
+          }
+        },
+        {
+          "value": "slide_show_left",
+          "label": {
+            "en-US": "Slide show (Thumbnail on the left of the image)",
+            "zh-CN": "幻灯(缩略图在左)"
+          }
+        },
+        {
+          "value": "grid",
+          "label": {
+            "en-US": "Grid",
+            "zh-CN": "格子"
+          }
+        }
+      ],
+      "default": "slide_show"
+    },
+    {
+      "type": "select",
+      "label": {
+        "en-US": "Mobile Layout",
+        "zh-CN": "移动端布局"
+      },
+      "id": "mobile_gallery_layout",
+      "options": [
+        {
+          "value": "full_slide_show",
+          "label": {
+            "zh-CN": "全宽幻灯",
+            "en-US": "Full slideshow"
+          }
+        },
+        {
+          "value": "slide_show",
+          "label": {
+            "zh-CN": "幻灯",
+            "en-US": "Slideshow"
+          }
+        }
+      ],
+      "default": "slide_show"
+    },
+    {
+      "type": "header",
+      "content": {
+        "zh-CN": "常规设置",
+        "en-US": "General settings"
+      }
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "zh-CN": "开启副标题",
+        "en-US": "Show subheading"
+      },
+      "id": "subtitle",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "zh-CN": "开启销量",
+        "en-US": "Show sales volume"
+      },
+      "id": "sales",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "zh-CN": "开启SKU",
+        "en-US": "Show SKU"
+      },
+      "id": "sku",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "zh-CN": "开启重量",
+        "en-US": "Show weight"
+      },
+      "id": "weight",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "zh-CN": "开启条形码",
+        "en-US": "Show barcode"
+      },
+      "id": "barcode",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "zh-CN": "开启数量选择器",
+        "en-US": "Show quantity field"
+      },
+      "id": "qty",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Enable buy now",
+        "zh-CN": "开启立即购买"
+      },
+      "id": "buy_now",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "secure_payment_icon",
+      "label": {
+        "en-US": "Secure payment icon",
+        "zh-CN": "安全支付图标"
+      }
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "zh-CN": "开启社交分享",
+        "en-US": "Show social media icons"
+      },
+      "id": "share_the_love",
+      "default": true
+    },
+    {
+      "type": "select",
+      "label": {
+        "en-US": "Product description position",
+        "zh-CN": "商品详情位置"
+      },
+      "id": "description_position",
+      "options": [
+        {
+          "value": "below",
+          "label": {
+            "en-US": "Below images",
+            "zh-CN": "在图片下"
+          }
+        },
+        {
+          "value": "side",
+          "label": {
+            "en-US": "Default callapse on the right of image",
+            "zh-CN": "在图片右侧"
+          }
+        },
+        {
+          "value": "tab",
+          "label": {
+            "en-US": "Tab switching",
+            "zh-CN": "Tab切换"
+          }
+        }
+      ],
+      "default": "tab"
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "zh-CN": "开启商品推荐",
+        "en-US": "Show related recommendations"
+      },
+      "info": {
+        "en-US": "Recommend other products of this collection",
+        "zh-CN": "推荐此商品所在专辑的其它商品"
+      },
+      "id": "relative_products",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Enable recently views",
+        "zh-CN": "开启最近查看"
+      },
+      "id": "recently_view_on",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Additional content settings",
+        "zh-CN": "附加内容设置"
+      }
+    },
+    {
+      "type": "page",
+      "label": {
+        "en-US": "Content 1",
+        "zh-CN": "内容1"
+      },
+      "id": "page1"
+    },
+    {
+      "type": "page",
+      "label": {
+        "en-US": "Content 2",
+        "zh-CN": "内容2"
+      },
+      "id": "page2"
+    },
+    {
+      "type": "page",
+      "label": {
+        "en-US": "Content 3",
+        "zh-CN": "内容3"
+      },
+      "id": "page3"
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Delivery time",
+        "zh-CN": "投递时间提示"
+      }
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Activate",
+        "zh-CN": "启用"
+      },
+      "id": "delivery_time",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "delivery_time_min",
+      "label": {
+        "en-US": "Min delivery time（days）",
+        "zh-CN": "最小运送天数"
+      },
+      "default": "7",
+      "visibleOn": "delivery_time",
+      "props": {
+        "type": "number"
+      }
+    },
+    {
+      "type": "text",
+      "id": "delivery_time_max",
+      "label": {
+        "en-US": "Max delivery time（days）",
+        "zh-CN": "最大运送天数"
+      },
+      "default": "14",
+      "visibleOn": "delivery_time",
+      "props": {
+        "type": "number"
+      }
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Show as date",
+        "zh-CN": "开启按日期展示"
+      },
+      "id": "delivery_time_show_as_date",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Inventory",
+        "zh-CN": "库存提示"
+      }
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Activate",
+        "zh-CN": "启用"
+      },
+      "id": "inventory_on",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Enable random quantities",
+        "zh-CN": "展示随机数"
+      },
+      "id": "inventory",
+      "visibleOn": "inventory_on",
+      "info": {
+        "zh-CN": "关闭则展示真实库存",
+        "en-US": "Actual inventory level wil be displayed once closed."
+      },
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "inventory_min",
+      "label": {
+        "en-US": "Min quantity",
+        "zh-CN": "最小数量"
+      },
+      "default": "10",
+      "visibleOn": "inventory && inventory_on",
+      "props": {
+        "type": "number"
+      }
+    },
+    {
+      "type": "text",
+      "id": "inventory_max",
+      "label": {
+        "en-US": "Max quantity",
+        "zh-CN": "最大数量"
+      },
+      "default": "100",
+      "visibleOn": "inventory && inventory_on",
+      "props": {
+        "type": "number"
+      }
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Live view",
+        "zh-CN": "当前浏览人数"
+      }
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Activate",
+        "zh-CN": "启用"
+      },
+      "id": "live_view",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "live_view_min",
+      "label": {
+        "en-US": "Min people",
+        "zh-CN": "最少人数"
+      },
+      "default": "5",
+      "visibleOn": "live_view",
+      "props": {
+        "type": "number"
+      }
+    },
+    {
+      "type": "text",
+      "id": "live_view_max",
+      "label": {
+        "en-US": "Max people",
+        "zh-CN": "最多人数"
+      },
+      "default": "20",
+      "visibleOn": "live_view",
+      "props": {
+        "type": "number"
+      }
+    },
+    {
+      "type": "range",
+      "label": {
+        "en-US": "Interval time",
+        "zh-CN": "时间间隔"
+      },
+      "id": "live_view_interval",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "default": 3,
+      "visibleOn": "live_view",
+      "unit": "s"
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Added to cart",
+        "zh-CN": "已加入购物车人数"
+      }
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Activate",
+        "zh-CN": "启用"
+      },
+      "id": "added_to_cart",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "added_to_cart_min",
+      "label": {
+        "en-US": "Min people",
+        "zh-CN": "最少人数"
+      },
+      "default": "5",
+      "visibleOn": "added_to_cart",
+      "props": {
+        "type": "number"
+      }
+    },
+    {
+      "type": "text",
+      "id": "added_to_cart_max",
+      "label": {
+        "en-US": "Max people",
+        "zh-CN": "最多人数"
+      },
+      "default": "10",
+      "visibleOn": "added_to_cart",
+      "props": {
+        "type": "number"
+      }
+    },
+    {
+      "type": "range",
+      "label": {
+        "en-US": "Interval time",
+        "zh-CN": "时间间隔"
+      },
+      "id": "added_to_cart_interval",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "default": 5,
+      "visibleOn": "added_to_cart",
+      "unit": "s"
+    }
+  ],
+  "presets": [
+    {
+      "name": "product_detail",
+      "cname": {
+        "en-US": "Product details",
+        "zh-CN": "商品详情"
+      },
+      "category": {
+        "zh-CN": "基础",
+        "en-US": "Basic"
+      },
+      "ccategory": {
+        "zh-CN": "基础",
+        "en-US": "Basic"
+      },
+      "display": false,
+      "blocks": [],
+      "gallery_layout": "slide_show",
+      "mobile_gallery_layout": "slide_show",
+      "qty": true,
+      "buy_now": true,
+      "share_the_love": true,
+      "description_position": "tab",
+      "relative_products": true,
+      "recently_view_on": true,
+      "delivery_time": true,
+      "delivery_time_min": "7",
+      "delivery_time_max": "14",
+      "delivery_time_show_as_date": true,
+      "inventory": true,
+      "inventory_min": "10",
+      "inventory_max": "100",
+      "live_view": true,
+      "live_view_min": "5",
+      "live_view_max": "20",
+      "live_view_interval": 3,
+      "added_to_cart": true,
+      "added_to_cart_min": "5",
+      "added_to_cart_max": "10",
+      "added_to_cart_interval": 5
+    }
+  ]
+}
+{% endschema %}

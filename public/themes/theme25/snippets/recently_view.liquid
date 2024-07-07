@@ -1,0 +1,73 @@
+{% comment %}商品详情页 最近查看{% endcomment %}
+{% if section.settings.recently_view_on %}
+<div class="tw-col-span-12 tw-row-span-1 tw-overflow-hidden tw-px-5 lg:tw-px-0 hide-scrollbar recently-view lazyload" id="recently-view"></div>
+  <script id="recently-view-art-tpl" type="text/html">
+
+      <div class="tw-text-base tw-mt-15 lg:tw-mt-20 tw-mb-6 lg:tw-mb-9 tw-leading-tight tw-text-title-color type-heading-font-family">{{ langs.product.product_detail.recently_viewed | t }}</div>
+      <div class="tw-group tw-flex tw-relative tw--mx-1.5 lg:tw--mx-2.5 recently-view__list-wrapper">
+        <% if( products.length > 4 ) { %>
+          <div class="tw-w-full tw-absolute" style="padding-bottom: <%= $imports.image_padding_bottom(products[0].image.width*4, products[0].image.height,'unlimit') %>;">
+            <div class="tw-hidden lg:tw-block tw-opacity-0 lg:group-hover:tw-opacity-100 tw-absolute tw-z-10 tw-top-1/2 tw-left-6 lg:tw-left-7 tw-transform tw--translate-y-1/2 tw-cursor-pointer recently-view__pagination" data-direction="prev">{% include 'icon_bg_arrow', class: "tw-max-w-11 tw-max-h-11 tw-min-w-11 tw-min-h-11", icon_class: "tw-text-btn-bg-color" %}</div>
+            <div class="tw-hidden lg:tw-block tw-opacity-0 lg:group-hover:tw-opacity-100 tw-absolute tw-z-10 tw-top-1/2 tw-right-6 lg:tw-right-7 tw-transform tw--translate-y-1/2 tw-cursor-pointer recently-view__pagination" data-direction="next">{% include 'icon_bg_arrow', icon_class:"tw-transform tw-rotate-180 tw-text-btn-bg-color", class: "tw-max-w-11 tw-max-h-11 tw-min-w-11 tw-min-h-11" %}</div>
+          </div>
+        <% } %>
+        <div class="tw-flex tw-w-full tw-overflow-auto recently-view__list" data-track="recently_view">
+          <% for(var i = 0; i < products.length; i++) { %>
+            <div class="tw-w-38 lg:tw-w-1/4 tw-px-1.5 lg:tw-px-2.5 tw-flex-shrink-0 tw-box-border recently-view__item">
+              <% include ('product_art_tpl', {
+                product: products[i],
+              }) %>
+            </div>
+          <% } %>
+        </div>
+      </div>
+  </script>
+
+{% endif %}
+
+{% javascript %}
+  $(function(){
+    $('#recently-view').lazy(function () {
+      var productId = "{{product.id}}";
+      if (productId) {
+        try {
+          var shopId = window.SHOP_PARAMS.shop_id;
+          var recentlyView = JSON.parse(localStorage['xfcart_recently_view_' + shopId] || '[]');
+          if (!Array.isArray(recentlyView)) {
+            recentlyView = [];
+          }
+          recentlyView = recentlyView.filter(function (item) {
+            return item !== productId;
+          });
+          recentlyView.push(productId);
+          recentlyView.length > 9 && (recentlyView = recentlyView.slice(-9));
+          localStorage.setItem('xfcart_recently_view_' + shopId, JSON.stringify(recentlyView));
+        } catch (e) { }
+      }
+      try{
+        var productIds = JSON.parse(localStorage['xfcart_recently_view_' + window.SHOP_PARAMS.shop_id] || '[]')
+        productIds = productIds.filter(function(item){
+          return item !== '{{product.id}}';
+        })
+        if(productIds.length == 0) return
+        productIds.length > 8 && (productIds = productIds.slice(-8))
+        $.get(shop_url+'products/reviewed', {limit: 8,imgkey:'image', prod_id_str: productIds.join(',')},function(res) {
+          if (res && res.products && res.products.length > 0) {
+            var contents = window.template('recently-view-art-tpl', { products: res.products});
+            $("#recently-view")[res.products.length?"show":"hide"]().html(contents);
+            $(document).trigger('product_list.update');
+          }
+        })
+      }catch{}
+      $(document).on("click", ".recently-view .recently-view__pagination", function () {
+        var $recentlyView = $('.recently-view')
+        var $list = $('.recently-view__list')
+        var distance = $recentlyView.find(".recently-view__list > .recently-view__item:first").outerWidth();
+        $list.stop().animate(
+          { scrollLeft: $list.scrollLeft() + { prev: -1, next: 1 }[$(this).data("direction")] * distance },
+          { duration: "150", easing: "linear" }
+        );
+      });
+    });
+  })
+{% endjavascript %}

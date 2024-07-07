@@ -1,0 +1,511 @@
+{% assign defaultImg = '/themes/theme25/assets/image/4b9d4f387d340.png' %}
+{% comment %}
+分栏: lg:tw-grid-cols-2 lg:tw-grid-cols-3 tw-items-center tw-items-start tw-items-end
+{% endcomment %}
+{% assign padding_top = section.settings.padding.top | default: "0" %}
+{% assign padding_bottom = section.settings.padding.bottom | default: "100" %}
+{% if section.settings.padding.right == blank and section.settings.padding.left == blank %}
+  {% assign padding_right = section.settings.padding.right | default: settings.general_layout_spacing %}
+  {% assign padding_left = section.settings.padding.left | default: settings.general_layout_spacing %}
+{% else %}
+  {% assign padding_right = section.settings.padding.right | default: 0 %}
+  {% assign padding_left = section.settings.padding.left | default: 0 %}
+{% endif %}
+<style>
+  .container{{section.id}}{
+    max-width:{% if section.settings.max_width == blank %}var(--general-layout-width){% else %}{{section.settings.max_width}}px{% endif %};
+    padding-top:{{padding_top | times: 0.6 }}px;
+    padding-bottom:{{padding_bottom | times: 0.6 }}px;
+  }
+  .title{{section.id}} {
+    color:{{section.settings.title_color}};
+  }
+  .sub_title{{section.id}} {
+    color:{{section.settings.sub_title_color}};
+  }
+  @media (min-width: {{settings.breakpoint}}px) {
+    .container{{section.id}}{
+      padding-top:{{padding_top}}px;
+      padding-bottom:{{padding_bottom}}px;
+      padding-left:{{padding_left}}px;
+      padding-right:{{padding_right}}px;
+    }
+    .content{{section.id}}{
+      grid-row-gap: {{section.settings.space}};
+      row-gap: {{section.settings.space}};
+      grid-column-gap: {{section.settings.space}};
+      column-gap: {{section.settings.space}};
+    }
+    .columns{{section.id}}2 a{
+      margin-top:1.75rem;
+    }
+    .title{{section.id}} {
+      font-size: {{section.settings.title_font_size}}px;
+      letter-spacing: {{section.settings.title_letter_spacing}}px;
+      line-height: {{section.settings.title_line_height}};
+    }
+    .sub_title{{section.id}} {
+      font-size: {{section.settings.sub_title_font_size}}px;
+      letter-spacing: {{section.settings.sub_title_letter_spacing}}px;
+    }
+  }
+</style>
+<div class="tw-text-center" style="background:{{section.settings.bg_color}}">
+  <div class="tw-mx-auto tw-px-5 container{{section.id}}">
+    <div class="tw-flex tw-flex-nowrap tw-overflow-x-auto hide-scrollbar  tw-space-x-4 lg:tw-space-x-0 lg:tw-grid lg:tw-grid-cols-{{section.settings.columns}} content{{section.id}}">
+      {% for block in section.blocks %}
+      {% assign collection = collections[block.settings.collection.id] %}
+
+        {% assign cover = block.settings.cover %}
+        <div class="tw-relative tw-w-3/4 lg:tw-w-auto tw-flex-shrink-0">
+          {% if cover %}
+            <div class="tw-relative " style="padding-bottom:{{block.settings.image.height | image_padding_bottom : block.settings.image.width, origin:'unlimit'}}">
+              <img class="tw-absolute tw-inset-0 tw-m-auto tw-w-full tw-h-full {%if settings.general_style == 'round'%}tw-rounded-lg{%endif%} lazyload" src="{{shop.default_img}}" data-src="{{ cover  | img_url: '{width}x' }}"  data-sizes="auto" alt="{{ images[cover].alt | escape }}">
+            </div>
+          {% else %}
+			<img class="tw-absolute tw-inset-0 tw-m-auto tw-w-full tw-h-full {%if settings.general_style == 'round'%}tw-rounded-lg{%endif%} lazyload" src="{{defaultImg}}">
+            {{ 'collection-1' | placeholder_svg_tag: 'tw-block tw-fill-svg tw-bg-svg' }}
+          {% endif %}
+          <a href="{{collection.url | default: 'javascript:;'}}" class="tw-absolute tw-inset-0 tw-no-underline tw-flex tw-justify-around tw-items-{{section.settings.text_position}} tw-p-10 columns{{section.id}}{{section.settings.columns}}">
+            <div>
+              <h3 class="tw-w-full tw-m-0 tw-text-xs tw-leading-none {% if section.settings.sub_title_uppercase %}tw-uppercase{% endif %} type-heading-font-family tw-tracking-2 lg:tw-tracking-4 empty:tw-hidden sub_title{{section.id}}">{{block.settings.sub_title}}</h3>
+              <h2 class="tw-w-full tw-text-lg tw-leading-none tw-mt-4 lg:tw-mt-3 tw-m-0 {% if section.settings.title_uppercase %}tw-uppercase{% endif %} type-heading-font-family empty:tw-hidden title{{section.id}}" >{{block.settings.title | default: collection.title}}</h2>
+              <div style="background-color:{{section.settings.btn_bg_color}};border-color:{{section.settings.btn_border_color}};color:{{section.settings.btn_text_color}}" class="tw-inline-block tw-leading-none tw-py-3 tw-px-7 lg:tw-px-10 tw-mt-4 tw-text-sm lg:tw-mt-5 tw-no-underline tw-border tw-border-solid tw-outline-none tw-tracking-btn-letter-spacing {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} {%if settings.general_style == 'round'%}tw-rounded{%endif%} empty:tw-hidden " >{{block.settings.btn_text}}</div>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% javascript %}
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "collection_list",
+  "max_blocks": 100,
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "zh-CN": "设置",
+        "en-US": "Settings"
+      }
+    },
+    {
+      "type": "select",
+      "id": "space",
+      "label": {
+        "en-US": "Space",
+        "zh-CN": "格子间距"
+      },
+      "default": "30px",
+      "options": [
+        {
+          "value": "0px",
+          "label": {
+            "en-US": "No spacing",
+            "zh-CN": "无间距"
+          }
+        },
+        {
+          "value": "15px",
+          "label": {
+            "en-US": "15px",
+            "zh-CN": "15px"
+          }
+        },
+        {
+          "value": "20px",
+          "label": {
+            "en-US": "20px",
+            "zh-CN": "20px"
+          }
+        },
+        {
+          "value": "30px",
+          "label": {
+            "en-US": "30px",
+            "zh-CN": "30px"
+          }
+        },
+        {
+          "value": "40px",
+          "label": {
+            "en-US": "40px",
+            "zh-CN": "40px"
+          }
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "step": 1,
+      "max": 6,
+      "min": 1,
+      "label": {
+        "en-US": "Columns",
+        "zh-CN": "分栏"
+      },
+      "default": 2
+    },
+    {
+      "type": "select",
+      "id": "text_position",
+      "label": {
+        "en-US": "Text position",
+        "zh-CN": "文字位置"
+      },
+      "default": "center",
+      "options": [
+        {
+          "value": "start",
+          "label": {
+            "en-US": "Top",
+            "zh-CN": "顶部"
+          }
+        },
+        {
+          "value": "center",
+          "label": {
+            "en-US": "Center",
+            "zh-CN": "垂直居中"
+          }
+        },
+        {
+          "value": "end",
+          "label": {
+            "en-US": "Botton",
+            "zh-CN": "底部"
+          }
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Title",
+        "zh-CN": "标题"
+      }
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "step": 1,
+      "max": 48,
+      "min": 12,
+      "label": {
+        "en-US": "Font size",
+        "zh-CN": "字号"
+      },
+      "default": 30,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "title_letter_spacing",
+      "step": 0.1,
+      "max": 2,
+      "min": -2,
+      "label": {
+        "en-US": "Letter spacing",
+        "zh-CN": "字间距"
+      },
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "title_line_height",
+      "step": 0.1,
+      "max": 3,
+      "min": 1,
+      "label": {
+        "en-US": "Line height",
+        "zh-CN": "行高"
+      },
+      "default": 1
+    },
+    {
+      "id": "title_uppercase",
+      "type": "checkbox",
+      "label": {
+        "zh-CN": "文字全大写",
+        "en-US": "Uppercase heading"
+      },
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": {
+        "zh-CN": "副标题",
+        "en-US": "Subheading"
+      }
+    },
+    {
+      "type": "range",
+      "id": "sub_title_font_size",
+      "step": 1,
+      "max": 20,
+      "min": 12,
+      "label": {
+        "en-US": "Font size",
+        "zh-CN": "字号"
+      },
+      "default": 14,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "sub_title_letter_spacing",
+      "step": 0.1,
+      "max": 2,
+      "min": -2,
+      "label": {
+        "en-US": "Letter spacing",
+        "zh-CN": "字间距"
+      },
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "id": "sub_title_uppercase",
+      "type": "checkbox",
+      "label": {
+        "zh-CN": "文字全大写",
+        "en-US": "Uppercase subheading"
+      },
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Color",
+        "zh-CN": "颜色"
+      }
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": {
+        "en-US": "Background",
+        "zh-CN": "背景"
+      },
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": {
+        "zh-CN": "标题",
+        "en-US": "Heading"
+      },
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "sub_title_color",
+      "label": {
+        "zh-CN": "副标题",
+        "en-US": "Subheading"
+      },
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "btn_bg_color",
+      "label": {
+        "en-US": "Button background",
+        "zh-CN": "按钮背景"
+      },
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "btn_border_color",
+      "label": {
+        "en-US": "Button border",
+        "zh-CN": "按钮边框"
+      },
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "btn_text_color",
+      "label": {
+        "en-US": "Button text",
+        "zh-CN": "按钮文字"
+      },
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Layout",
+        "zh-CN": "布局"
+      }
+    },
+    {
+      "type": "padding",
+      "id": "padding",
+      "label": {
+        "en-US": "Content space",
+        "zh-CN": "内容留白"
+      },
+      "default": {
+        "top": "80",
+        "right": "",
+        "bottom": "80",
+        "left": ""
+      },
+      "info": {
+        "en-US": "Content space in px",
+        "zh-CN": "内容留白单位为px"
+      }
+    },
+    {
+      "type": "text",
+      "id": "max_width",
+      "label": {
+        "en-US": "Max content width",
+        "zh-CN": "最大内容宽度"
+      },
+      "placeholder": {
+        "zh-CN": "输入最大内容宽度",
+        "en-US": "Enter Max content width"
+      },
+      "info": {
+        "en-US": "Max content width in px",
+        "zh-CN": "最大内容宽度单位为px"
+      },
+      "default": "",
+      "props": {
+        "type": "number"
+      }
+    },
+    {
+      "type": "header",
+      "content": {
+        "zh-CN": "添加专辑",
+        "en-US": "Add collection"
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": {
+        "en-US": "Collection",
+        "zh-CN": "专辑"
+      },
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "cover",
+          "label": {
+            "zh-CN": "封面图",
+            "en-US": "Collection image"
+          }
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "en-US": "Title",
+            "zh-CN": "主标题"
+          },
+          "placeholder": {
+            "zh-CN": "输入主标题",
+            "en-US": "Enter heading"
+          }
+        },
+        {
+          "type": "text",
+          "id": "sub_title",
+          "label": {
+            "zh-CN": "副标题",
+            "en-US": "Subheading"
+          },
+          "placeholder": {
+            "zh-CN": "输入副标题",
+            "en-US": "Input subheading"
+          }
+        },
+        {
+          "type": "text",
+          "id": "btn_text",
+          "label": {
+            "zh-CN": "按钮名称",
+            "en-US": "Button text"
+          },
+          "default": "Shop now"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "collection_list",
+      "icon": "oss/operation/8b688b3547789ac110e0c0e36c893100.svg",
+      "cname": {
+        "en-US": "Collection list",
+        "zh-CN": "专辑列表"
+      },
+      "category": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "ccategory": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "display": true,
+      "space": "30px",
+      "columns": "2",
+      "padding": {
+        "top": "",
+        "right": "",
+        "bottom": "",
+        "left": ""
+      },
+      "max_width": "",
+      "bg_color": "#ffffff",
+      "title_color": "#000000",
+      "sub_title_color": "#000000",
+      "btn_bg_color": "#000000",
+      "btn_border_color": "#000000",
+      "btn_text_color": "#ffffff",
+      "title_uppercase": true,
+      "sub_title_uppercase": true,
+      "blocks": [
+        {
+          "type": "collection",
+          "name": "Collection",
+          "settings": {
+            "collection": null,
+            "btn_text": "Shop now",
+            "title": "Best selller",
+            "sub_title": "New comming"
+          }
+        },
+        {
+          "type": "collection",
+          "name": "Collection",
+          "settings": {
+            "collection": null,
+            "btn_text": "Shop now",
+            "title": "Best selller",
+            "sub_title": "New comming"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

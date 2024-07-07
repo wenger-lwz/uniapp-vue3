@@ -1,0 +1,274 @@
+<style>@media (min-width: 768px) {
+  .featured-product {
+    justify-content: space-between; } }
+
+@media (max-width: 767.98px) {
+  .featured-product {
+    flex-direction: column; } }
+
+.featured-product__image {
+  position: relative;
+  overflow: hidden; }
+  @media (max-width: 767.98px) {
+    .featured-product__image {
+      width: 100%;
+      margin-bottom: 1.25rem;
+      order: 0; } }
+  @media (min-width: 768px) {
+    .featured-product__image {
+      width: 50%; } }
+  .featured-product__image_tag {
+    position: absolute;
+    top: -1rem;
+    right: -0.625rem;
+    width: 3.125rem;
+    height: 3.125rem;
+    background-color: #9a9a9a;
+    border-radius: 1.875rem;
+    color: #fff;
+    font-size: 0.8125rem;
+    display: flex;
+    align-items: center;
+    justify-content: center; }
+    @media (min-width: 768px) {
+      .featured-product__image_tag {
+        top: -1.5625rem;
+        right: -1.5625rem;
+        width: 3.125rem;
+        height: 3.125rem; } }
+
+@media (max-width: 767.98px) {
+  .featured-product__text {
+    order: 1; } }
+
+@media (min-width: 768px) {
+  .featured-product__text {
+    width: 40%; } }
+
+.featured-product__title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 0.9375rem; }
+  @media (min-width: 768px) {
+    .featured-product__title {
+      font-size: 1.875rem; } }
+
+.featured-product__desc {
+  font-size: 16px;
+  margin-bottom: 2.1875rem; }
+
+.featured-product__price-wrapper {
+  margin-bottom: 1.25rem;
+  display: flex;
+  justify-content: center;
+  align-items: center; }
+  .featured-product__price-wrapper span,
+  .featured-product__price-wrapper del {
+    padding: 0 0.5rem;
+    vertical-align: middle;
+    max-width: 100%; }
+
+.featured-product__price {
+  font-size: 1.25rem; }
+  @media (min-width: 768px) {
+    .featured-product__price {
+      font-size: 1.5rem; } }
+
+.featured-product__compare-at-price {
+  font-size: 1rem; }
+
+.featured-product__btn {
+  max-width: 21.5625rem;
+  padding: 0.625rem 1.875rem; }
+  @media (min-width: 768px) {
+    .featured-product__btn {
+      max-width: 12.5rem; } }
+</style>
+{% assign  block= section.settings.product %}
+{% assign  is_subheading_show= section.settings.is_subheading_show %}
+{% assign  is_price_show= section.settings.is_price_show %}
+{% assign  button_label= section.settings.button_label %}
+{% assign  layout= section.settings.layout %}
+{% if shop.env == 1 or block.id != 0 %}
+  {% if block.id != 0 and all_products[block.id].id %}
+    {% assign data = all_products[block.id] %}
+  {% elsif block.id != 0 and all_products[block.id].id == '' %}
+    {% comment %} 若选择产品后被删除，C端不展示，B端加上‘已删除’标记，展示默认商品信息{% endcomment %}
+    {% assign data = default_product %}
+    {% assign type = 'delete' %}
+  {% else %}
+    {% assign data = default_product %}
+  {% endif %}
+
+  {% comment %} 下架产品在C端不展示，B端预览区域要展示,B端选择产品后移除，id为0，其他信息保留 {% endcomment %}
+  {% if shop.env == 1 or all_products[block.id].published %}
+    <div class="container container-gap">
+      <div class="row featured-product d-flex align-items-center mb-padding {% if layout == "right" %}flex-md-row-reverse {%endif%}">
+
+{% assign product = data %}
+<div class="featured-product__image">
+  <a class="common__img-wrapper_lazy"
+    {% unless product.isMock %}
+      href="{{product.url}}"
+      data-track="viewImage"
+      data-track-url="{{ product.url }}"
+      data-track-id="{{product.id}}"
+      data-track-price="{{product.price}}" 
+      data-track-name="{{product.title | escape}}" 
+      data-track-type="{{product.type}}"
+    {% endunless %}
+    style="padding-bottom:
+      {% if product.url != '' %}
+        {{ product.image.height | image_padding_bottom : product.image.width, origin: 'unlimit' }};
+      {% else %}
+        70.4%;
+      {% endif %}
+      width: 100%;">
+      {% include 'lazyimg', src: product.image.src, alt: product.image.alt|escape, class: 'img-full-width common__img_hover' %}
+  </a>
+  {% include 'product_label', product: product %}
+</div>
+
+<div class="featured-product__text text-center" data-track="product" data-track-id="{{product.id}}" data-track-price="{{product.price}}" data-track-name="{{product.title | escape}}" data-track-type="{{product.type}}">
+  <div>
+    <a {% unless product.isMock %}href="{{ product.url }}"{% endunless %} class="featured-product__title xf_skin_title_font two_line_text_truncate">{{ product.title }}</a>
+    <div class="product-info__vendor text-center xf_skin_product_list_title">{{ product.vendor }}</div>
+  </div>
+  {% if is_subheading_show and product.brief != '' %}
+    <div class="featured-product__desc xf_skin_text three_line_text_truncate">{{ product.brief }}</div>
+  {% endif %}
+  <div class="featured-product__price-wrapper">
+    {% if is_price_show %}
+      <span class="text-truncate xf_skin_product_detail_price featured-product__price money">
+        {{ product.price | money_with_symbol}}
+      </span>
+    {% endif %}
+    {% if product.compare_at_price > product.price %}
+      <del class="xf_skin_product_compare_at_price text-truncate xf_skin_product_detail_compare_at_price featured-product__compare-at-price money">
+        {{ product.compare_at_price | money_with_symbol}}
+      </del>
+    {% endif %}
+  </div>
+  {% if button_label %}
+    <div>
+      {% if product.available %}
+        <a {% unless product.isMock %}href="{{ product.url }}"{%else%}data-product-mock="true"{% endunless %} class="btn btn-primary featured-product__btn">
+          {{ button_label | escape }}
+        </a>
+      {% else %}
+        <button type="button" class="btn btn-primary " disabled="">{{ langs.general.product.sold_out | t }}</button>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+
+
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
+
+<style>@media (min-width:768px){.featured-product{justify-content:space-between}}@media (max-width:767.98px){.featured-product{flex-direction:column}}.featured-product__image{position:relative;overflow:hidden}@media (max-width:767.98px){.featured-product__image{width:100%;margin-bottom:1.25rem;order:0}}@media (min-width:768px){.featured-product__image{width:50%}}.featured-product__image_tag{position:absolute;top:-1rem;right:-.625rem;width:3.125rem;height:3.125rem;background-color:#9a9a9a;border-radius:1.875rem;color:#fff;font-size:.8125rem;display:flex;align-items:center;justify-content:center}@media (min-width:768px){.featured-product__image_tag{top:-1.5625rem;right:-1.5625rem;width:3.125rem;height:3.125rem}}@media (max-width:767.98px){.featured-product__text{order:1}}@media (min-width:768px){.featured-product__text{width:40%}}.featured-product__title{font-size:1.5rem;font-weight:500;margin-bottom:.9375rem}@media (min-width:768px){.featured-product__title{font-size:1.875rem}}.featured-product__desc{font-size:16px;margin-bottom:2.1875rem}.featured-product__price-wrapper{margin-bottom:1.25rem;display:flex;justify-content:center;align-items:center}.featured-product__price-wrapper del,.featured-product__price-wrapper span{padding:0 .5rem;vertical-align:middle;max-width:100%}.featured-product__price{font-size:1.25rem}@media (min-width:768px){.featured-product__price{font-size:1.5rem}}.featured-product__compare-at-price{font-size:1rem}.featured-product__btn{max-width:21.5625rem;padding:.625rem 1.875rem}@media (min-width:768px){.featured-product__btn{max-width:12.5rem}}</style>
+
+{% schema %}
+{
+  "name": "feature_product",
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Product information",
+        "zh-CN": "商品信息"
+      }
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "",
+      "default": {
+        "id": 0
+      }
+    },
+    {
+      "type": "checkbox",
+      "id": "is_subheading_show",
+      "label": {
+        "en-US": "Show subheading",
+        "zh-CN": "显示副标题"
+      },
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "is_price_show",
+      "label": {
+        "en-US": "Show price",
+        "zh-CN": "显示售价"
+      },
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": {
+        "zh-CN": "按钮文案",
+        "en-US": "Button text"
+      },
+      "placeholder": "",
+      "default": "Shop Now"
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Image display rules",
+        "zh-CN": "图片展示规则"
+      }
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": {
+        "zh-CN": "PC图片位置",
+        "en-US": "Image position on desktop"
+      },
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": {
+            "en-US": "Left",
+            "zh-CN": "居左"
+          }
+        },
+        {
+          "value": "right",
+          "label": {
+            "en-US": "Right",
+            "zh-CN": "居右"
+          }
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "feature_product",
+      "cname": {
+        "en-US": "Single product",
+        "zh-CN": "单个商品"
+      },
+      "category": {
+        "en-US": "Products",
+        "zh-CN": "商品"
+      },
+      "ccategory": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "display": true,
+      "blocks": [],
+      "icon": ""
+    }
+  ]
+}
+{% endschema %}

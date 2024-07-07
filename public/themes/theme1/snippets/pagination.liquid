@@ -1,0 +1,146 @@
+{% comment %}
+  description:  分页template
+{% endcomment %}
+<style>/* sep-pagination : block */
+.sep-pagination {
+  height: 32px;
+  line-height: 32px;
+  font-size: 14px;
+  text-align: center;
+  margin: 20px 0;
+  /* link more pagesize : elements */ }
+  .sep-pagination a {
+    color: #2a2a2a; }
+  .sep-pagination__link, .sep-pagination__more {
+    font-size: 13px;
+    padding: 0 12px;
+    margin-right: 10px;
+    display: inline-block;
+    line-height: 30px;
+    position: relative; }
+    .sep-pagination__link::before, .sep-pagination__more::before {
+      content: '';
+      display: block;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+      border: 1px solid #bfbfbf; }
+  .sep-pagination__link {
+    /* modifier: active */ }
+    .sep-pagination__link_active {
+      position: relative; }
+      .sep-pagination__link_active::before {
+        border: 2px solid #000; }
+  .sep-pagination__link:last-child {
+    margin-right: 0; }
+  .sep-pagination__sum {
+    line-height: 32px;
+    float: left; }
+  .sep-pagination__pagesize {
+    line-height: 32px;
+    float: right; }
+  .sep-pagination__prev, .sep-pagination__next, .sep-pagination__more {
+    font-weight: 500; }
+    .sep-pagination__prev::before, .sep-pagination__next::before, .sep-pagination__more::before {
+      border: unset; }
+
+@media (max-width: 767.98px) {
+  .sep-pagination {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center; }
+    .sep-pagination__pagesize, .sep-pagination__more, .sep-pagination__link:not(.sep-pagination__prev):not(.sep-pagination__next) {
+      display: none; }
+    .sep-pagination__prev {
+      position: absolute;
+      left: 0;
+      top: 0; }
+    .sep-pagination__next {
+      position: absolute;
+      right: 0;
+      top: 0; }
+    .sep-pagination__sum {
+      float: none; }
+    .sep-pagination-mobile_input {
+      width: 35px;
+      height: 28px;
+      line-height: 1.6;
+      outline: none;
+      text-align: center;
+      border: 1px solid #000;
+      border-radius: 4px;
+      margin-right: 5px; }
+    .sep-pagination-mobile_goto {
+      height: 28px;
+      line-height: 1.6;
+      outline: none;
+      background-color: transparent;
+      border: 1px solid #000;
+      margin-left: 12px;
+      border-radius: 4px; }
+      .sep-pagination-mobile_goto:focus {
+        outline: none; } }
+
+@media (max-width: 767.98px) {
+  html[dir='rtl'] .sep-pagination__prev {
+    left: unset;
+    right: 0; }
+  html[dir='rtl'] .sep-pagination__next {
+    right: unset;
+    left: 0; } }
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0; }
+
+input[type=number] {
+  -moz-appearance: textfield; }
+</style>
+<script id="tpl-pagination" type="text/html">
+  <div class="sep-pagination">
+    <span class="d-none d-md-block sep-pagination__sum"><%= page %>/<%= total %></span>
+    <span class="d-block d-md-none sep-pagination__sum">
+      <input type="number" class="sep-pagination-mobile_input" value="<%= page %>">/ <%= total %>
+      <button class="sep-pagination-mobile_goto">GO</button>
+    </span>
+    <span class="sep-pagination__pagesize"><%= labelPageSize.replace('{% raw %}{{ count }}{% endraw %}',pageSize) %></span>
+
+    <a class="sep-pagination__link sep-pagination__prev" href="javascript:;" data-page="<%= page-1 %>"
+      <% if(page!=1){ %> style="visibility: visible;" <% } else { %> style="visibility: hidden;" <% } %>
+    >
+      <%= labelPrev %>
+    </a>
+
+    <% if(total<=delimiterPageSize){ %>
+      <% for(var i=1;i<=total;i++){ %>
+      <a class="sep-pagination__link <%= (page==i?"sep-pagination__link_active":"")  %>" data-page="<%= i %>" href="javascript:;"><%= i %></a>
+      <% } %>
+    <% }else{ %>
+    <a class="sep-pagination__link <%= (page==1?"sep-pagination__link_active":"")  %>" data-page="1" href="javascript:;">1</a>
+      <% if(page>3){ %>
+      <span class="sep-pagination__more">...</span>
+      <% } %>
+      <% for(var i= $imports.clamp(page-1,2,total-3);i<= $imports.clamp(page+1,4,total-1) ;i++){ %>
+      <a class="sep-pagination__link <%= (page==i?"sep-pagination__link_active":"")  %>" data-page="<%= i %>" href="javascript:;"><%= i %></a>
+      <% } %>
+
+      <% if(page<total-2){ %>
+      <span class="sep-pagination__more">...</span>
+      <% } %>
+
+    <a class="sep-pagination__link <%= (page==total?"sep-pagination__link_active":"")  %>" data-page="<%= total %>" href="javascript:;"><%= total %></a>
+    <% } %>
+
+    <a class="sep-pagination__link sep-pagination__next" href="javascript:;" data-page="<%= page+1 %>"
+      <% if(page!=total){ %> style="visibility: visible;" <% } else { %> style="visibility: hidden;" <% } %>
+    >
+      <%= labelNext %>
+    </a>
+
+  </div>
+</script>
+

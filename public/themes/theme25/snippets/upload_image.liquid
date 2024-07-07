@@ -1,0 +1,68 @@
+{% raw %}
+<script>
+// 自定义款式 图片上传
+$(function () {
+  $('.line-item-property__field input[type="file"]').val('');
+  $(document).on('change', '.line-item-property__field input[type="file"]', function () {
+    var id = $(this).attr('id');
+    var file = $(this)[0].files[0];
+    file || $('img[data-name="' + id + '"]').attr('src', "").hide();
+    if (id && file) {
+      if (file.size > (parseInt($("#" + id).data("max-size"), 10) || 10485760)) {
+        $('[data-name="' + id + '"],#' + id).val("");
+        $('img[data-name="' + id + '"]').attr('src', "").hide();
+        return $.toast.show({ content: $("#" + id).data("max-size-msg") || "File size exceeds 10MB, please change to a smaller one" });
+      }
+      uploadImage(id, file);
+    } else {
+      $('[data-name="' + id + '"]').val("");
+    }
+  });
+  /**
+  * upload image
+  */
+  function uploadImage(id, file) {
+    var objectName = window.SHOP_PARAMS.shop_id + "/" + (new Date()).getTime() + "." + file.name.split(".").pop();
+    $("#" + id).css({ "pointer-events": "none" });
+    $.getJSON("/api/file/s3-sign?key=" + objectName).then(function (signData) {
+      fetch(signData.write_host, {
+        method: 'put',
+        mode: 'cors',
+        body: file,
+        headers: { "Content-Type": file.type }
+      }).then(function () {
+        var url = signData.read_host + objectName;
+        $("#" + id).css({ "pointer-events": "" });
+        $('[data-name="' + id + '"]').val(url);
+        $('img[data-name="' + id + '"]').attr('src', url).show();
+        // 修改为已上传
+        $('[data-name="' + id + '"]').parent('label');
+        $('[data-name="' + id + '"]').parent('.line-item-property__field').find('.not-empty').remove();
+      }).catch(function () {
+        $("#" + id).css({ "pointer-events": "" });
+        $.toast.show({ content: $("#" + id).data("error-msg") || "Upload error, please try again" });
+        $('[data-name="' + id + '"],#' + id).val("");
+        $('img[data-name="' + id + '"]').attr('src', "").hide();
+      });
+    });
+  }
+
+  $(document).on('click', '.line-item-property__field .item', function () {
+    $(this).parents('.line-item-property__field').find('.item').removeClass('selected');
+    $(this).parents('.line-item-property__field').find('.item_value').html($(this).find('input').val());
+    $(this).addClass('selected');
+  })
+
+  $(document).on('blur', '.line-item-property__field .required', function () {
+    if ($(this).val()) {
+      var $parent = $(this).parents('.line-item-property__field');
+      $parent.find('.required').removeClass('not-empty-field');
+      $parent.find('.not-empty').remove();
+    }
+  })
+  $('.line-item-property__field').each(function () {
+    $(this).find('.item:first').click();
+  })
+});
+</script>
+{% endraw %}

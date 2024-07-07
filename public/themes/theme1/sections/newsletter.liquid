@@ -1,0 +1,228 @@
+<style>.newsletter__input {
+  height: 2.75rem;
+  font-size: 0.875rem; }
+
+.newsletter__btn {
+  margin-top: 0.9375rem;
+  width: 10.625rem;
+  height: 2.75rem;
+  font-size: 1rem; }
+
+.newsletter__title {
+  font-size: 1.4375rem;
+  line-height: 1.2em; }
+  .newsletter__title_sub {
+    margin-top: 1.25rem;
+    font-size: 0.875rem;
+    line-height: 1.2em;
+    color: #777; }
+    .newsletter__title_sub + .newsletter__form {
+      margin-top: 2.5rem; }
+  .newsletter__title + .newsletter__form {
+    margin-top: 2.5rem; }
+
+.newsletter_subscribed {
+  display: none; }
+
+.newsletter_subscribing {
+  display: block; }
+
+.newsletter_success .newsletter_subscribing {
+  display: none; }
+
+.newsletter_success .newsletter_subscribed {
+  display: block; }
+
+@media (min-width: 768px) {
+  .newsletter__title {
+    font-size: 2.125rem; }
+    .newsletter__title_sub {
+      font-size: 1rem;
+      line-height: 1.5em; }
+  .newsletter__input {
+    width: 21.25rem;
+    margin-bottom: 0; }
+  .newsletter__input-wrap {
+    max-width: 21.875rem; }
+  .newsletter__btn {
+    margin-top: 0;
+    margin-left: 0.375rem;
+    width: 10.625rem; }
+  .newsletter__btn-wrap {
+    max-width: 11.625rem;
+    text-align: left; }
+  .form-row {
+    max-width: 33.5rem; } }
+</style>
+<div class="container container-gap">
+  <div class="row">
+  <div class="col-sm-12">
+    <div id="newsletter" class="newsletter text-center">
+      <div class="newsletter_subscribing">
+        {% if section.settings.title != '' %}
+        <div class="newsletter__title xf_skin_title_font">{{ section.settings.title }}</div>
+        {% endif %}
+        {% if section.settings.sub_title != '' %}
+        <div class="newsletter__title_sub xf_skin_text">{{ section.settings.sub_title }}</div>
+        {% endif %}
+        <div class="newsletter__form">
+          <div class="form-row mx-auto">
+            <div class="col-sm-12 col-md-8 newsletter__input-wrap">
+              <input id="input_email" type="email" class=" newsletter__input form-control" placeholder="{{ langs.general.newsletter_form.email_placeholder }}">
+              <div class="text-left invalid-feedback"></div>
+            </div>
+            <div class="col-sm-12 col-md-4 newsletter__btn-wrap">
+              <input type="button" class="submit_newsletter xf_skin_title_font newsletter__btn btn btn-primary" type="submit" value="{{ section.settings.btn_title }}">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="newsletter_subscribed">
+        {% if section.settings.title_thanks != '' %}
+        <div class="newsletter__title xf_skin_title_font">{{ section.settings.title_thanks }}</div>
+        {% endif %}
+        {% if section.settings.sub_title_thanks != '' %}
+        <div class="newsletter__title_sub xf_skin_text">{{ section.settings.sub_title_thanks }}</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+{% javascript %}
+
+  $(function () {
+    var lan = {{ langs.general.newsletter_form | json }};
+    $("[data-section-type='newsletter']")
+      .on('click', '.submit_newsletter', function(e) {
+        var emailExp = /^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,4})$/g;
+        var newsletterObj = $(this).parents('.newsletter');
+        var emailObj = newsletterObj.find('input[type=email]');
+        var email = emailObj.val();
+        var invalidFeedback = newsletterObj.find('.invalid-feedback');
+        var feedbacks = {
+          is_empty: lan.email_address_empty_warning,
+          not_formatted: lan.email_address_invalid_warning
+        };
+
+        emailObj.removeClass('is-valid is-invalid');
+        invalidFeedback.html("");
+
+        if (email === '') {
+          invalidFeedback.html(feedbacks['is_empty']);
+          emailObj.addClass('is-invalid');
+          return;
+        }
+        if (!emailExp.test(email)) {
+          invalidFeedback.html(feedbacks['not_formatted']);
+          emailObj.addClass('is-invalid');
+          return;
+        }
+        $.ajax({
+          url: shop_url+'/index.php?act=subscribe',
+          type: 'post',
+          dataType: 'text',
+          data: {
+            email: email
+          },
+          success: function(data, textStatus, jqXHR) {
+            if (jqXHR.status === 200) {
+              emailObj.addClass('is-valid');
+              newsletterObj.addClass('newsletter_success');
+            }
+          },
+          error: function(jqXHR) {
+            emailObj.addClass('is-invalid');
+            newsletterObj.removeClass('newsletter_success');
+            invalidFeedback.html(JSON.parse(jqXHR.responseText).errors);
+          }
+        });
+      })
+      .on('keyup', '#input_email', function(e) {
+        if (e.keyCode === 13) {
+          $('[data-section-id="{{section.id}}"] .submit_newsletter').trigger('click');
+        }
+      });
+  })
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "newsletter",
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Edit text",
+        "zh-CN": "编辑文案"
+      }
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": {
+        "en-US": "Heading",
+        "zh-CN": "标题"
+      },
+      "default": "Sign up for our newsletter"
+    },
+    {
+      "type": "text",
+      "id": "sub_title",
+      "label": {
+        "en-US": "Subheading",
+        "zh-CN": "副标题"
+      },
+      "default": "Never miss a new season"
+    },
+    {
+      "type": "text",
+      "id": "btn_title",
+      "label": {
+        "en-US": "Subscribe button",
+        "zh-CN": "订阅按钮"
+      },
+      "default": "Subscribe"
+    },
+    {
+      "type": "text",
+      "id": "title_thanks",
+      "label": {
+        "zh-CN": "感谢订阅标题",
+        "en-US": "Heading"
+      },
+      "default": "Thanks for Subscribing！"
+    },
+    {
+      "type": "text",
+      "id": "sub_title_thanks",
+      "label": {
+        "zh-CN": "感谢订阅副标题",
+        "en-US": "Subheading"
+      },
+      "default": "We will send news to your email."
+    }
+  ],
+  "presets": [
+    {
+      "name": "newsletter",
+      "cname": {
+        "zh-CN": "邮件订阅",
+        "en-US": "Newsletter"
+      },
+      "category": {
+        "en-US": "Marketing",
+        "zh-CN": "营销"
+      },
+      "ccategory": {
+        "en-US": "Marketing",
+        "zh-CN": "营销"
+      },
+      "display": true,
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}

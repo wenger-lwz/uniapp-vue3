@@ -1,0 +1,244 @@
+<style>.collectioin_list_plus .block-left__gap {
+  margin-bottom: 0.75rem; }
+  @media (min-width: 768px) {
+    .collectioin_list_plus .block-left__gap {
+      padding-right: 0.375rem; } }
+  @media (max-width: 767.98px) {
+    .collectioin_list_plus .block-left__gap {
+      padding: 0 0.375rem; } }
+
+.collectioin_list_plus .block-right__gap .row {
+  margin: 0 -0.75rem; }
+
+@media (max-width: 767.98px) {
+  .collectioin_list_plus .block-right__gap {
+    padding: 0 0.375rem; } }
+
+@media (min-width: 768px) {
+  .collectioin_list_plus .block-right__gap {
+    padding-left: 0.375rem; } }
+
+.collectioin_list_plus .block-right__item:first-child {
+  padding-left: 0.75rem;
+  padding-right: 0.375rem;
+  margin-bottom: 0.75rem; }
+
+.collectioin_list_plus .block-right__item:nth-child(2) {
+  padding-right: 0.75rem;
+  padding-left: 0.375rem;
+  margin-bottom: 0.75rem; }
+
+.collectioin_list_plus .block-right__item:nth-child(3) {
+  padding-left: 0.75rem;
+  padding-right: 0.375rem;
+  margin-bottom: 0; }
+
+.collectioin_list_plus .block-right__item:nth-child(4) {
+  padding-right: 0.75rem;
+  padding-left: 0.375rem;
+  margin-bottom: 0; }
+</style>
+<div class="container container-gap">{% comment %} 卡片标题 {% endcomment %}
+{% if section.settings.name %}
+  {% include 'card_title', title: section.settings.name %}
+{% endif %}
+
+{% assign grid = section.blocks.size %}
+
+{% case grid %}
+  {% when 1 %}
+    {% assign colMd="col-md-12"%}
+    {% assign col="col-12"%}
+    {% assign heightMd = "50%" %}
+    {% assign height = "100%" %}
+  {% when 2 %}
+    {% assign colMd="col-md-6"%}
+    {% assign col="col-12"%}
+    {% assign heightMd = "79.4%" %}
+    {% assign height = "100%" %}
+  {% when 3 %}
+    {% assign colMd="col-md-4"%}
+    {% assign col="col-12"%}
+    {% assign heightMd = "78.4%" %}
+    {% assign height = "100%" %}
+  {% when 4 %}
+    {% assign colMd="col-md-6"%}
+    {% assign col="col-6"%}
+    {% assign heightMd = "58.4%" %}
+    {% assign height = "100%" %}
+  {% when 5 %}
+    {% assign colMd="col-md-2_4"%}
+    {% assign col="col-6"%}
+  {% when 6 %}
+    {% assign colMd="col-md-4"%}
+    {% assign col="col-6"%}
+    {% assign heightMd = "78.4%" %}
+    {% assign height = "100%" %}
+{% endcase %}
+
+{% if grid == 0 and shop.env == 1 %}
+  {% comment %} 补充模拟数据 {% endcomment %}
+  <div class="row common__collection-row">
+    {% for block in (1..4) %}
+      <div class="col-6 col-md-6 common__collection-gap">
+        {% include 'default_image_6' %}
+        {% include 'collection', collection: default_collection, height: "100%", heightMd: "58.4%", defaultImage, imgSize: '500x' %}
+      </div>
+    {% endfor %}
+  </div>
+{% elsif grid == 5 %}
+  <div class="row common__collection-row collectioin_list_plus">
+    {% comment %} 左边大图 {% endcomment %}
+    <div class="col-12 col-md-6 common__collection-gap block-left__gap">
+      {% assign id = section.blocks[0].settings.collection.id %}
+      {% include 'collection', collection: collections[id], imgSize: "500x", heightMd: "100%", height: "61.7%", defaultImage: "/themes/theme1/assets/image/5643xcrwee3.png" %}
+    </div>
+    {% comment %} 右边四小图 {% endcomment %}
+    <div class="col-12 col-md-6 common__collection-gap block-right__gap">
+      <div class="row">
+        <div class="col-6 col-md-6 block-right__item">
+          {% assign id = section.blocks[1].settings.collection.id %}
+          {% include 'collection', imgSize: "500x", collection: collections[id], heightMd: "100%", height: "100%", defaultImage:  "/themes/theme1/assets/image/b657a71de7.png" %}
+        </div>
+        <div class="col-6 col-md-6 block-right__item">
+          {% assign id = section.blocks[2].settings.collection.id %}
+          {% include 'collection', imgSize: "500x", collection: collections[id], heightMd: "100%", height: "100%", defaultImage:  "/themes/theme1/assets/image/643f7b6086.png" %}
+        </div>
+        <div class="col-6 col-md-6 block-right__item">
+          {% assign id = section.blocks[3].settings.collection.id %}
+          {% include 'collection', imgSize: "500x", collection: collections[id], heightMd: "100%", height: "100%", defaultImage:  "/themes/theme1/assets/image/2fdgff1e50c8.png" %}
+        </div>
+        <div class="col-6 col-md-6 block-right__item">
+          {% assign id = section.blocks[4].settings.collection.id %}
+          {% include 'collection', imgSize: "500x", collection: collections[id], heightMd: "100%", height: "100%", defaultImage:  "/themes/theme1/assets/image/b657a71de7.png" %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% else %}
+  <div class="row common__collection-row">
+    {% for block in section.blocks %}
+      <div class="{{col}} {{colMd}} common__collection-gap">
+        {% include 'default_image_6' %}
+        {% include 'collection', collection: collections[block.settings.collection.id], height: height, heightMd: heightMd, defaultImage, imgSize: '500x' %}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+</div>
+<style>
+  [data-section-id='{{section.id}}'] .common__mask_title::after {
+    {% assign titleFont = settings.skin_title_font_family %}
+    font-family: {{titleFont.family}},{{titleFont.fallback_families}};
+    font-style: {{titleFont.style}};
+    font-weight: {{titleFont.weight}};
+    color: {{section.settings.collection_title_color | default: '#ffffff'}};
+  }
+</style>
+
+
+{% schema %}
+{
+  "name": "collection_list_plus",
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Settings",
+        "zh-CN": "设置"
+      }
+    },
+    {
+      "type": "text",
+      "id": "name",
+      "label": {
+        "en-US": "Heading",
+        "zh-CN": "标题"
+      },
+      "default": "Collection list",
+      "placeholder": "Collection list"
+    },
+    {
+      "type": "color",
+      "id": "collection_title_color",
+      "default": "#ffffff",
+      "label": {
+        "zh-CN": "专辑名称颜色",
+        "en-US": "Collection"
+      }
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Add collection",
+        "zh-CN": "添加专辑"
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": {
+        "en-US": "Collection",
+        "zh-CN": "专辑"
+      },
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "collection_list_plus",
+      "cname": {
+        "en-US": "Collection list",
+        "zh-CN": "专辑列表"
+      },
+      "category": {
+        "zh-CN": "商品",
+        "en-US": "Products"
+      },
+      "ccategory": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "display": true,
+      "blocks": [
+        {
+          "type": "collection",
+          "name": "Collection",
+          "settings": {
+            "collection": null
+          }
+        },
+        {
+          "type": "collection",
+          "name": "Collection",
+          "settings": {
+            "collection": null
+          }
+        },
+        {
+          "type": "collection",
+          "name": "Collection",
+          "settings": {
+            "collection": null
+          }
+        },
+        {
+          "type": "collection",
+          "name": "Collection",
+          "settings": {
+            "collection": null
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

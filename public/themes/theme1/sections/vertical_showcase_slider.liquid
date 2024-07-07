@@ -1,0 +1,557 @@
+{% assign is_price_show = section.settings.is_price_show %}
+{% assign button_label = section.settings.button_label %}
+{% assign layout = section.settings.layout %}
+{% assign product_count = section.settings.max_count | default: 4 %}
+{% assign collection = section.settings.collection %}
+
+{% if shop.env == 0 and collection.id == 0 %}
+  {% comment %} 专辑ID空（C端没有选择专辑的情况） {% endcomment %}
+  {% assign style = 'display: none;' %}
+{% elsif shop.env == 0 and collections[collection.id].products.size == 0 %}
+  {% comment %} 专辑ID不空，但是商品数量空（专辑存在） {% endcomment %}
+  {% assign style = 'display: none;' %}
+{% elsif shop.env == 0 and collections[collection.id].products.size == '' %}
+  {% comment %} 专辑ID不空，但是商品数量无法获取（专辑被删除） {% endcomment %}
+  {% assign style = 'display: none;' %}
+{% endif %}
+
+{% if collection.id != 0 %}
+  {% assign products = collections[collection.id].products %}
+  {% if product_count <= products.size %}
+    {% assign size = product_count %}
+  {% else %}
+    {% assign size = products.size %}
+  {% endif %}
+{% else %}
+  {% assign size = product_count %}
+{% endif %}
+
+<section class="slider-container slider-container-{{ size }} container" style="{{ style }}">
+  {% if collection.id != 0 %}
+    {% assign products = collections[collection.id].products %}
+    {% if product_count <= products.size %}
+      {% assign size = product_count %}
+    {% else %}
+      {% assign size = products.size %}
+    {% endif %}
+
+    {% unless size == 0 %}
+      <div class="slider-contentwrapper" style="background:{{settings.skin_bg}}">
+        {% for product in products limit:size %}
+          {% include 'slider_product_info', product: product %}
+        {% endfor %}
+      </div>
+      <div class="slider-slidewrapper">
+        <div class="slider-slides slider-slides-{{ size }}">
+          {% for product in products limit:size %}
+            <div class="slider-slides-img" title="{{ product.image.alt | escape }}" style="background-image:url({{ product.image.src | img_url: '540x' }});"></div>
+            {% include 'product_label', product: product, is_opacity: true %}
+          {% endfor %}
+        </div>
+        {% if size > 1 %}
+          <nav>
+            {% comment %} 当只有两个商品时，左侧按钮不可点击 {% endcomment %}
+            <a class="slider-prev slider-prev-{{ size }}"></a>
+            <a class="slider-next"></a>
+          </nav>
+        {% endif %}
+      </div>
+    {% else %}
+      {% if shop.env == 1 %}
+        {% include 'slider_product_mock', default_product: default_product, size: product_count %}
+      {% endif %}
+    {% endunless %}
+
+  {% else %}
+    {% comment %} 未选择专辑需要在 B 端 mock 数据 {% endcomment %}
+    {% if shop.env == 1 %}
+      {% include 'slider_product_mock', default_product: default_product, size: size %}
+    {% endif %}
+  {% endif %}
+</section>
+<style>.slider-container {
+  width: 100%;
+  overflow: hidden;
+  color: #555;
+  background: #fff;
+  height: 40rem;
+  position: relative;
+  padding-left: 0;
+  padding-right: 0;
+  margin-top: 3.5rem;
+  margin-bottom: 3.5rem; }
+  @media (max-width: 767.98px) {
+    .slider-container {
+      margin-top: 1.25rem;
+      margin-bottom: 1.25rem; } }
+  .slider-container-0, .slider-container-1 {
+    height: 33.75rem; }
+  @media (min-width: 768px) and (max-width: 991.98px) {
+    .slider-container {
+      height: 26.875rem; }
+      .slider-container-0, .slider-container-1 {
+        height: 22.5rem; } }
+
+.slider-container .slider-contentwrapper, .slider-container .slider-slidewrapper {
+  position: absolute;
+  width: 50%; }
+
+.slider-container > .slider-contentwrapper > .slider-content,
+.slider-slides,
+.slider-slidewrapper > nav,
+.slider-slides > .slider-slides-img {
+  position: absolute; }
+
+.slider-contentwrapper {
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 80; }
+
+.slider-prev-2 {
+  opacity: 0.2;
+  box-shadow: rgba(34, 35, 35, 0.1) 0 0 0 9999px inset; }
+  .slider-prev-2:hover {
+    cursor: default !important; }
+
+.slider-content {
+  background: #fff;
+  width: 100%;
+  height: calc(100% - 100px); }
+  @media (min-width: 768px) {
+    .slider-content {
+      display: flex;
+      align-items: center; } }
+  @media (min-width: 768px) and (max-width: 991.98px) {
+    .slider-content {
+      padding: 1.5625rem 2.5rem !important;
+      height: calc(100% - 70px); } }
+  .slider-content__wrapper {
+    margin-bottom: 1.5625rem; }
+  .slider-content__title {
+    font-size: 1.875rem;
+    margin-bottom: 0.9375rem;
+    word-break: break-word; }
+  .slider-content__price {
+    font-size: 1.5rem;
+    margin-right: 0.625rem;
+    margin-bottom: 0.9375rem; }
+  .slider-content__compare-at-price {
+    font-size: 1rem;
+    margin-bottom: 0.9375rem; }
+  .slider-content__desc {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    margin-bottom: 3.125rem; }
+  .slider-content__btn {
+    max-width: 12.5rem;
+    padding: 0.625rem 1.875rem; }
+  @media (min-width: 768px) {
+    .slider-content__vendor {
+      margin-bottom: 0.625rem; } }
+
+.slider-slidewrapper {
+  right: 0;
+  top: 0;
+  height: 100%;
+  overflow: hidden; }
+
+.slider-slides {
+  top: 0;
+  bottom: 6.25rem;
+  width: 100%; }
+  .slider-slides-1 {
+    bottom: 0; }
+  @media (min-width: 768px) and (max-width: 991.98px) {
+    .slider-slides {
+      bottom: 4.375rem; }
+      .slider-slides-1 {
+        bottom: 0; } }
+
+.slider-slides > .slider-slides-img {
+  width: 100%;
+  height: 100%; }
+
+.slider-slidewrapper > nav {
+  width: 100%;
+  height: 6.25rem;
+  bottom: 0;
+  right: 0;
+  z-index: 80; }
+  @media (min-width: 768px) and (max-width: 991.98px) {
+    .slider-slidewrapper > nav {
+      height: 4.375rem; } }
+
+.slider-slidewrapper > nav > a {
+  width: 50%;
+  height: 100%;
+  position: relative;
+  float: left;
+  outline: none; }
+
+.no-touch .slider-slidewrapper > nav > a {
+  -webkit-transition: box-shadow 0.4s ease-in-out;
+  -moz-transition: box-shadow 0.4s ease-in-out;
+  -ms-transition: box-shadow 0.4s ease-in-out;
+  -o-transition: box-shadow 0.4s ease-in-out;
+  transition: box-shadow 0.4s ease-in-out; }
+
+.slider-slidewrapper > nav > a::after {
+  content: '';
+  position: absolute;
+  width: 3.125rem;
+  height: 3.125rem;
+  top: 50%;
+  left: 50%;
+  margin: -0.625rem 0 0 -1.5625rem;
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+  border-left: 1px solid #fff;
+  border-top: 1px solid #fff; }
+
+.slider-slidewrapper > nav > a:first-child::after {
+  -webkit-transform: rotate(-135deg);
+  -moz-transform: rotate(-135deg);
+  -o-transform: rotate(-135deg);
+  -ms-transform: rotate(-135deg);
+  transform: rotate(-135deg);
+  margin: -2.625rem 0 0 -1.5625rem; }
+
+.slider-slides > .slider-slides-img,
+.slider-slidewrapper > nav > a {
+  background-color: #fff;
+  background-position: center top;
+  background-repeat: no-repeat;
+  -webkit-background-size: auto 100%;
+  -moz-background-size: auto 100%;
+  background-size: auto 100%; }
+
+.slider-move {
+  -webkit-transition: top 400ms ease-out;
+  -moz-transition: top 400ms ease-out;
+  -o-transition: top 400ms ease-out;
+  -ms-transition: top 400ms ease-out;
+  transition: top 400ms ease-out; }
+
+@media (max-width: 767.98px) {
+  .slider-container {
+    height: 40rem; }
+  .slider-container > .slider-contentwrapper, .slider-container > .slider-slidewrapper {
+    width: 100%; }
+  .slider-slides {
+    bottom: 18.75rem;
+    top: 0; }
+  .slider-slidewrapper > nav {
+    height: 5.625rem; }
+  .slider-contentwrapper {
+    top: auto;
+    height: 15.625rem;
+    bottom: 5.625rem; }
+  .slider-content {
+    height: 100%;
+    padding: 1.5625rem 0.9375rem; }
+    .slider-content__top {
+      height: 8.125rem;
+      overflow-y: auto; }
+    .slider-content__wrapper {
+      margin-bottom: 0.9375rem; }
+    .slider-content__title {
+      font-size: 1.5rem;
+      margin-bottom: 0.9375rem; }
+    .slider-content__price {
+      font-size: 1.25rem;
+      margin-right: 0.3125rem;
+      margin-bottom: 0.9375rem; }
+    .slider-content__compare-at-price {
+      margin-left: 0.3125rem;
+      margin-bottom: 0.9375rem; }
+    .slider-content__desc {
+      margin-bottom: 1.875rem; }
+    .slider-content__btn-wrapper {
+      position: absolute;
+      bottom: 1.875rem;
+      right: 1.25rem; }
+    .slider-content__btn {
+      max-width: 21.5625rem; } }
+</style>
+<style>
+  @media (min-width: 768px) {
+    {% if layout == 'left' %}
+      [data-section-id='{{section.id}}'] .slider-contentwrapper{
+        right: 0;
+        left:auto;
+      }
+      [data-section-id='{{section.id}}'] .slider-content{
+        padding: 100px 0 50px 100px;
+      }
+      [data-section-id='{{section.id}}'] .slider-slidewrapper{
+        left: 0;
+        right: auto;
+      }
+    {% else %}
+      [data-section-id='{{section.id}}'] .slider-contentwrapper{
+        left: 0;
+        right: auto;
+      }
+      [data-section-id='{{section.id}}'] .slider-slidewrapper{
+        right: 0;
+        left: auto;
+      }
+      [data-section-id='{{section.id}}'] .slider-content{
+        padding: 100px 100px 50px 0;
+      }
+    {% endif %}
+  }
+
+  {% if settings.skin_primary_btn_bg_color contains '#' %}
+    {% assign primary_color = settings.skin_primary_btn_bg_color %}
+  {% else %}
+    {% assign primary_color = settings.skin_primary_btn_bg_color   %}
+  {% endif %}
+
+  [data-section-id='{{section.id}}'] .slider-slides > .slider-slides-img {
+    box-shadow: inset 0 0 0 9999px {{ primary_color | color_modify: 'alpha', 0.05 }} ;
+  }
+
+  [data-section-id='{{section.id}}'] .slider-prev {
+    box-shadow: inset 0 0 0 9999px {{ primary_color | color_modify: 'alpha', 0.1 }} ;
+  }
+
+  [data-section-id='{{section.id}}'] .slider-next {
+    box-shadow: inset 0 0 0 9999px {{ primary_color | color_modify: 'alpha', 0.15 }} ;
+  }
+
+  [data-section-id='{{section.id}}'] .slider-prev:hover, .slider-next:hover {
+    cursor: pointer;
+    box-shadow: inset 0 0 0 9999px {{ primary_color | color_modify: 'alpha', 0.35 }} ;
+  }
+</style>
+
+{% javascript%}
+  $(function() {
+    var Slider = (function() {
+      var $container = $("[data-section-id='{{section.id}}'] .slider-container"),
+        $contentwrapper = $container.children( 'div.slider-contentwrapper' ),
+        // 商品信息
+        $items = $contentwrapper.children( 'div.slider-content' ),
+        itemsCount = $items.length,
+        $slidewrapper = $container.children( 'div.slider-slidewrapper' ),
+        // 商品图片
+        $slidescontainer = $slidewrapper.find( 'div.slider-slides' ),
+        $slides = $slidescontainer.children( '.slider-slides-img' ),
+        $slideLabel = $slidescontainer.children( '.product-info__label' ),
+        // 箭头按钮
+        $navprev = $slidewrapper.find( 'nav > a.slider-prev' ),
+        $navnext = $slidewrapper.find( 'nav > a.slider-next' ),
+        current = 0, // 当前序号
+        isAnimating = false, // checks if the transition is in progress
+        transEndEventName = 'webkitTransitionEnd transitionend',
+        init = function() {
+          // 首屏
+          var $currentItem = $items.eq( current ),
+            $currentSlide = $slides.eq( current ),
+            $currentLabel = $slideLabel.eq( current ),
+            initCSS = {
+              top : 0,
+              zIndex : 79
+            };
+          $currentItem.css( initCSS );
+          $currentSlide.css( initCSS );
+          $currentLabel.css( initCSS );
+          updateNavImages(); // 更新按钮背景图
+          initEvents(); // 初始化
+        },
+        updateNavImages = function() {
+          var configPrev = ( current > 0 ) ? $slides.eq( current - 1 ).css( 'background-image' ) : $slides.eq( itemsCount - 1 ).css( 'background-image' ),
+            configNext = ( current < itemsCount - 1 ) ? $slides.eq( current + 1 ).css( 'background-image' ) : $slides.eq( 0 ).css( 'background-image' );
+          $navprev.css( 'background-image', configPrev );
+          $navnext.css( 'background-image', configNext );
+        },
+        initEvents = function() {
+          $navprev.on( 'click', function( event ) {
+            // 当只有两个商品时，左侧按钮不可点击
+            if({{ size }} == 2) {
+              return false;
+            }
+            if( !isAnimating ) {
+              slide( 'prev' );
+            }
+            return false;
+          } );
+          $navnext.on( 'click', function( event ) {
+            if( !isAnimating ) {
+              slide( 'next' );
+            }
+            return false;
+          } );
+          // transition end event
+          $items.on( transEndEventName, removeTransition );
+          $slides.on( transEndEventName, removeTransition );
+        },
+        removeTransition = function() {
+          isAnimating = false;
+          $(this).removeClass('slider-move');
+        },
+        slide = function( dir ) {
+          isAnimating = true;
+          var $currentItem = $items.eq( current ),
+            $currentSlide = $slides.eq( current ),
+            $currentLabel = $slideLabel.eq( current );
+          // 更新当前序号
+          if( dir === 'next' ) {
+            ( current < itemsCount - 1 ) ? ++current : current = 0;
+          }
+          else if( dir === 'prev' ) {
+            ( current > 0 ) ? --current : current = itemsCount - 1;
+          }
+          // 切换方向展示新的一屏
+          var $newItem = $items.eq( current ),
+            $newSlide = $slides.eq( current ),
+            $newLabel = $slideLabel.eq( current );
+          // 根据方向上下切换
+          $newItem.css( {
+            top : ( dir === 'next' ) ? '-100%' : '100%',
+            zIndex : 79
+          } );
+          $newSlide.css( {
+            top : ( dir === 'next' ) ? '100%' : '-100%',
+            zIndex : 79
+          } );
+          $newLabel.css('z-index', $newSlide.css('z-index'));
+          setTimeout( function() {
+            $currentItem.addClass( 'slider-move' ).css( {
+              top : ( dir === 'next' ) ? '100%' : '-100%',
+              zIndex : 1
+            } );
+            $currentSlide.addClass( 'slider-move' ).css( {
+              top : ( dir === 'next' ) ? '-100%' : '100%',
+              zIndex : 1
+            } );
+            $currentLabel.css('z-index', $currentSlide.css('z-index'));
+            // move the new ones to the main viewport
+            $newItem.addClass( 'slider-move' ).css( 'top', 0 );
+            $newSlide.addClass( 'slider-move' ).css( 'top', 0 );
+            $newLabel.addClass( 'slider-move' ).css( 'top', 0 );
+          }, 0 );
+          updateNavImages();
+        };
+      return { init : init };
+    })();
+    Slider.init();
+  });
+{% endjavascript%}
+
+{% schema %}
+{
+  "name": "vertical_showcase_slider",
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Settings",
+        "zh-CN": "设置"
+      }
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "default": {
+        "id": 0
+      }
+    },
+    {
+      "type": "paragraph",
+      "content": {
+        "zh-CN": "建议添加不少于3个商品的专辑",
+        "en-US": "Recommend to add product collections contains more than 3"
+      }
+    },
+    {
+      "type": "range",
+      "label": {
+        "zh-CN": "商品展示数量",
+        "en-US": "Show number of products"
+      },
+      "id": "max_count",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "is_price_show",
+      "label": {
+        "en-US": "Show price",
+        "zh-CN": "显示售价"
+      },
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": {
+        "zh-CN": "按钮文案",
+        "en-US": "Button text"
+      },
+      "placeholder": "",
+      "default": "Shop Now"
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Image display rules",
+        "zh-CN": "图片展示规则"
+      }
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": {
+        "zh-CN": "PC图片位置",
+        "en-US": "Image position on desktop"
+      },
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": {
+            "en-US": "Left",
+            "zh-CN": "居左"
+          }
+        },
+        {
+          "value": "right",
+          "label": {
+            "zh-CN": "居右",
+            "en-US": "Right"
+          }
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "vertical_showcase_slider",
+      "cname": {
+        "en-US": "Product display",
+        "zh-CN": "商品展示"
+      },
+      "category": {
+        "zh-CN": "商品",
+        "en-US": "Products"
+      },
+      "ccategory": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "icon": "/themes/theme1/assets/image/f82935520a.svg",
+      "display": true,
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,201 @@
+<input type="hidden" name="product_id" value="{{ product.id }}" />
+<input type="hidden" name="variant_id" id="selected_variant_id_{{product.id}}" value="{% if selectedVariant.available_quantity > 0 %}{{ selectedVariantId }}{% endif %}" />
+<div class="product-info__body">
+  <div class="tw-mt-10 empty:tw-hidden product-info_marketing-tools">
+    {% if section.settings.inventory_on %}
+      {% include 'product_info_body_inventory' %}
+    {% endif %}
+    {% if section.settings.live_view %}
+      {% include 'product_info_body_liveview' %}
+    {% endif %}
+    {% if section.settings.delivery_time %}
+      {% include 'product_info_body_deliverytime' %}
+    {% endif %}
+  </div>
+  <div class="product-info__variants ">
+    {% for opt in product.options %}
+      {% assign optIdx = forloop.index | downcase | prepend: 'option'  %}
+      {% if selectedVariant != nil %}
+        {% assign selectedOptValue = selectedVariant[optIdx]  %}
+      {% endif  %}
+      {% comment %} 色卡 {% endcomment %}
+      {% assign is_color = false %}
+      {% assign optname = opt.name | downcase %}
+      {% assign swatch_name = settings.product_swatches_name | downcase %}
+      {% if settings.product_swatches_style == "swatches" %}
+        {% if optname contains swatch_name %}
+          {% assign is_color = true %}
+          {% for value in opt.values %}
+            {% assign color_valid = false %}
+            {% assign color = value | downcase %}
+            {% if is_color %}
+              {% for c in colors %}
+                {% if c[0] == color %}
+                  {% assign color_valid = true %}
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+            {% unless color_valid %}
+              {% assign is_color = false %}
+            {% endunless %}
+          {%endfor%}
+        {% endif %}
+      {% endif %}
+
+      {% assign is_thumbnail = false %}
+      {% if settings.product_swatches_style == "thumbnail" %}
+        {% if optname contains swatch_name and product.need_variant_image %}
+          {% assign is_thumbnail = true %}
+        {% endif %}
+      {% endif %}
+
+      {% assign variantDisabledArray = '' %}
+      {% for value in opt.values %}
+        {% comment %} 计算按钮是否需要禁用 {% endcomment %}
+        {%  assign variantDisabled = 0 %}
+        {% if selectedVariant != nil %}
+          {% comment %}选中子款式 替换其中一个属性值 对应的子商品不存在，该属性值禁用{% endcomment %}
+          {%  assign variantDisabled = 1 %}
+          {%  assign option1Value = selectedVariant.option1 | default: '' %}
+          {% if optIdx contains 'option1' %}
+            {%  assign option1Value = value | default: '' %}
+          {% endif %}
+          {%  assign option2Value = selectedVariant.option2 | default: '' %}
+          {% if optIdx contains 'option2' %}
+            {%  assign option2Value = value | default: '' %}
+          {% endif %}
+          {%  assign option3Value = selectedVariant.option3 | default: '' %}
+          {% if optIdx contains 'option3' %}
+            {%  assign option3Value = value | default: '' %}
+          {% endif %}
+          {% for variant in product.variants %}
+            {% assign v1 = variant.option1 | default: '' %}
+            {% assign v2 = variant.option2 | default: '' %}
+            {% assign v3 = variant.option3 | default: '' %}
+            {%  if variant.available and option1Value == v1 and option2Value == v2 and option3Value == v3  %}
+                {%  assign variantDisabled = 0 %}
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          {% comment %}没有选中子商品需要检查该属性值是否有对应的子商品，没有需要禁用{% endcomment %}
+          {% assign variantExists = 0 %}
+          {% if optIdx contains 'option1' and variantExists == 0  %}
+            {% for variant in product.variants %}
+              {%  if value == variant.option1 and variant.available_quantity > 0 %}
+                {% assign variantExists = 1 %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% if optIdx contains 'option2' and variantExists == 0  %}
+            {% for variant in product.variants %}
+              {%  if value == variant.option2 and variant.available_quantity > 0 %}
+                {% assign variantExists = 1 %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% if optIdx contains 'option3' and variantExists == 0  %}
+            {% for variant in product.variants %}
+              {%  if value == variant.option3 and variant.available_quantity > 0 %}
+                {% assign variantExists = 1 %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+
+          {% if variantExists == 0 %}
+            {%  assign variantDisabled = 1 %}
+          {% endif %}
+        {% endif  %}
+        {% unless product.available or product.published %}
+          {%  assign variantDisabled = 1 %}
+        {% endunless %}
+        {% assign variantDisabledArray = variantDisabledArray | append: variantDisabled %}
+      {% endfor %}
+      <div class="tw-mt-10 product-info__variants_items">
+        <div class="tw-text-sm tw-uppercase tw-text-title-color tw-leading-4 type-heading-font-family product-info__variants_title">{% if is_color or is_thumbnail %}<span class="variant_color-label">{%if selectedOptValue%}{{selectedOptValue}}{%endif%}</span>{% else %}{{ opt.name }}{% endif %}</div>
+        <div class="tw-flex tw-flex-wrap tw--mr-2.5 product-info__variants_value-wrapper">
+          {% for value in opt.values %}
+            {% assign isDisabled = variantDisabledArray | slice: forloop.index0, 1 %}
+            <span class=" tw-relative  tw-mt-4 tw-mr-3 {% if is_color %}tw-h-8 tw-min-w-8{%else%} tw-flex tw-items-center {% if is_thumbnail %} tw-h-9 tw-w-9 {% else %}tw-break-words tw-min-w-10 tw-text-sm {% endif %} tw-relative tw-text-btn-bg-color {% endif %} btn product-info__variants_value ">
+              <input type="radio" class="tw-hidden product-info__variants_radio" name="{{ optIdx }}-{{product.id}}" id="{{ optIdx }}-{{ forloop.index0 }}-{{product.id}}" {% if value == selectedOptValue %} checked {% endif %}   value="{{ value | escape }}" />
+                {% if is_thumbnail %}
+                  {% assign thumbnail_image = '' %}
+                  {% for v in product.variants %}
+                    {% if optIdx contains "option1" %}
+                      {% assign optValue = v.option1 %}
+                    {% endif %}
+                    {% if optIdx contains "option2" %}
+                      {% assign optValue = v.option2 %}
+                    {% endif %}
+                    {% if optIdx contains "option3" %}
+                      {% assign optValue = v.option3 %}
+                    {% endif %}
+                    {% assign len = thumbnail_image | size  %}
+
+                    {% if thumbnail_image == '' and optValue == value %}
+                      {% assign thumbnail_image = v.image.src %}
+                    {% endif %}
+                  {% endfor %}
+                  <label optValue="{{optValue}}" data-bgset="{{thumbnail_image | img_url:'180'}}" for="{{ optIdx }}-{{ forloop.index0 }}-{{product.id}}" data-variants-value="{{ value | escape }}" class="tw-absolute tw-inset-0 tw-bg-no-repeat tw-bg-cover tw-bg-center tw-box-border tw-border tw-border-solid tw-border-transparent {%if settings.general_style == 'round'%}tw-rounded{%endif%} lazyload product-info__thumbnail" data-options-order="{{ forloop.index0 }}" data-click="select" data-track="switch_variants"></label>
+                {% else %}
+                  {% if is_color %}
+                    {% assign downcase_color= value | downcase %}
+                    <label style="background-color: {{colors[downcase_color]}};" for="{{ optIdx }}-{{ forloop.index0 }}-{{product.id}}" data-variants-value="{{ value | escape }}" class="tw-absolute tw-inset-0 tw-rounded-full product-info__swatch" data-options-order="{{ forloop.index0 }}" data-click="select" data-track="switch_variants"></label>
+                  {% else %}
+                    <label for="{{ optIdx }}-{{ forloop.index0 }}-{{product.id}}" data-variants-value="{{ value | escape }}" class="tw-px-2 tw-min-w-13 tw-h-full tw-text-center tw-leading-8 tw-box-border tw-border tw-border-solid tw-border-light-border-color {%if settings.general_style == 'round'%}tw-rounded{%endif%} product-info__label" data-options-order="{{ forloop.index0 }}" data-click="select" data-track="switch_variants">
+                      {{ value }}
+                    </label>
+                  {% endif %}
+                {% endif %}
+            </span>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% if section.settings.sku or section.settings.weight or section.settings.barcode %}
+    <div class=" tw-leading-none tw-mt-6 tw-space-y-3 empty:tw-hidden">
+      {% if section.settings.sku %}
+        <div class="{% unless selectedVariant != nill and selectedVariant.sku != blank %}tw-hidden{% endunless %} product-info__header-sku">{{ langs.product.product_detail.sku | t }}: <span>{{ selectedVariant.sku }}</span></div>
+      {% endif %}
+      {% if section.settings.weight %}
+        {% assign weight = selectedVariant.weight | times: 1 %}
+        <div class="{% unless selectedVariant != nill and weight > 0 %}tw-hidden{% endunless %} product-info__weight">{{ langs.product.product_detail.weight | t }}: <span>{{ selectedVariant.weight }}{{ selectedVariant.weight_unit }}</span></div>
+      {% endif %}
+      {% if section.settings.barcode %}
+        <div class="{% unless selectedVariant != nill and selectedVariant.barcode != blank %}tw-hidden{% endunless %} product-info__barcode">{{ langs.product.product_detail.barcode | t }}: <span>{{ selectedVariant.barcode }}</span></div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="product-info__btn {% if selectedVariant.available == false or product.available == false %}variant_disabled{% endif %}">
+    <div class="tw-mt-10 product-info__qty_container tw-flex ">
+      <div class="tw-flex tw-w-30 tw-mr-3 tw-h-12.5 tw-box-border tw-border-2 tw-border-solid tw-border-btn-bg-color {%if settings.general_style == 'round'%}tw-rounded{%endif%} {% if section.settings.qty == false %}tw-hidden{% endif %} product-info__qty">
+        <button data-track="product_minus_quantity" type="button" class="tw-bg-transparent tw-border-0 tw-p-0 tw-text-xl tw-text-btn-bg-color tw-w-1/3  tw-text-center tw-cursor-pointer disabled:tw-cursor-not-allowed tw-outline-none tw-flex tw-justify-center tw-items-center {%if settings.general_style == 'round'%}tw-rounded{%endif%} btn product-info__qty_btn  product-info__qty_decr" data-click="decrease" disabled>{% include 'icon_minus',icon_class:"" %}</button>
+        <input class="tw-border-0 tw-p-0  tw-w-1/3 tw-bg-transparent  tw-border-gray-300 tw-text-center tw-outline-none tw-box-border tw-text-text-font-size form-control product-info__qty_num tw-text-text-color " id="product_quantity_{{product.id}}" name="quantity" type="text" value="1">
+        <button data-track="product_add_quantity" type="button" class="tw-bg-transparent tw-border-0 tw-p-0 tw-text-xl tw-text-btn-bg-color tw-w-1/3  tw-cursor-pointer disabled:tw-cursor-not-allowed tw-outline-none tw-flex tw-justify-center tw-items-center {%if settings.general_style == 'round'%}tw-rounded{%endif%} btn product-info__qty_btn product-info__qty_incr " data-click="increase">{% include 'icon_plus',icon_class:"" %}</button>
+      </div>
+      <button type="button" class="tw-flex-1 tw-w-full tw-text-btn-text-color tw-bg-btn-bg-color tw-border-2 tw-border-btn-bg-color tw-text-btn-font-size tw-tracking-btn-letter-spacing {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} tw-box-content tw-border-none tw-outline-none tw-p-0 tw-h-12.5 tw-text-sm tw-cursor-pointer lg:hover:tw-opacity-75 active:tw-opacity-75 disabled:tw-opacity-40 disabled:tw-cursor-not-allowed {%if settings.general_style == 'round'%}tw-rounded{%endif%} tw-relative btn btn-secondary product-info__add-to-cart" data-click="addToCart" data-sold-out="{{ langs.product.product_detail.sold_out | t }}" data-on-sale="{{ langs.product.product_detail.add_to_bag | t }}" data-unavailable="{{ langs.products.product.unavailable | t }}" data-switch-variant="{{ langs.product.product_detail.switch_variant | t }}" data-added-to-bag-successfully="{{ langs.product.product_detail.added_to_bag_successfully | t }}"  {% if selectedVariant.available == false or product.available == false %}disabled {% endif %} >
+        {% if selectedVariant.available == false or product.available == false %}{{ langs.product.product_detail.sold_out | t }}{% else %}{{ langs.product.product_detail.add_to_bag | t }}{% endif %}
+      </button>
+    </div>
+    {% if section.settings.buy_now %}
+      <button type="button" 
+        class="{% if selectedVariant.available == false or product.available == false  %}tw-hidden{% endif %} 
+          tw-w-full tw-mt-4 tw-border-2 tw-border-btn-bg-color tw-text-btn-font-size tw-tracking-btn-letter-spacing 
+          {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} 
+          {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} tw-box-border tw-border-solid tw-bg-transparent tw-text-btn-bg-color 
+          tw-outline-none tw-p-0 tw-h-12.5 tw-text-sm tw-cursor-pointer 
+          lg:hover:tw-text-btn-text-color lg:hover:tw-bg-btn-bg-color active:tw-text-btn-text-color active:tw-bg-btn-bg-color  
+          disabled:tw-opacity-40 disabled:tw-cursor-not-allowed 
+          {%if settings.general_style == 'round'%}tw-rounded{%endif%} tw-relative 
+          btn btn-primary product-info__buy-now" data-click="submit">{{ langs.product.product_detail.buy_now | t }}</button>
+    {% endif %}
+    {% if section.settings.added_to_cart %}
+      {% include 'product_info_body_addedtocart' %}
+    {% endif %}
+  </div>
+  {% assign paypal_express_enabled = shop.payment_settings.paypal_express_enabled %}
+  {% if paypal_express_enabled %}
+    <div class="placeholder-paypal-express-button-container"></div>
+  {% endif %}
+</div>

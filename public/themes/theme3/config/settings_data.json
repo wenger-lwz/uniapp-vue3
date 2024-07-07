@@ -1,0 +1,122 @@
+{
+  "current": {
+    "general_layout_width": 1080,
+    "general_layout_spacing": 40,
+    "product_reviews_star_color": "#FFC700",
+    "additional_text": "",
+    "additional_image_pc": "",
+    "additional_image_mobile": "",
+    "skin_bg": "#FFFFFF",
+    "skin_title_color": "#000000",
+    "skin_text_color": "#999999",
+    "skin_price_color": "#9B3C44",
+    "skin_compare_at_price_color": "#999999",
+    "skin_primary_btn_bg_color": "#212121",
+    "skin_primary_btn_text_color": "rgba(255, 255, 255, 1)",
+    "skin_primary_btn_border_color": "#212121",
+    "skin_secondary_btn_bg_color": "#FFFFFF",
+    "skin_secondary_btn_text_color": "#212121",
+    "skin_title_font_family": "work_sans_n5",
+    "skin_text_font_family": "work_sans_n4",
+    "skin_btn_font_family": "work_sans_n4",
+    "skin_product_header_font_family": "work_sans_n4",
+    "skin_title_font_size": 34,
+    "skin_product_header_font_size": 13,
+    "skin_price_font_size": 15,
+    "skin_compare_at_price_font_size": 15,
+    "is_compare_at_price_show": true,
+    "is_discount_show": true,
+    "label_style": "triangle",
+    "label_background_color": "#9B3C44",
+    "label_color": "#FFFFFF",
+    "vendor_enable": false,
+    "product_save_amount": false,
+    "is_sales_show": false,
+    "is_brief_show": true,
+    "is_quantity_box_show": false,
+    "is_select_default_variants": true,
+    "variant_type": "button",
+    "is_stock_show": true,
+    "is_add_to_cart_show": false,
+    "is_payment_btn_show": false,
+    "is_quick_view_btn_show": false,
+    "add_to_cart_process": "to_toast",
+    "quick_view_btn_text": "Quick View",
+    "quick_view_process": "to_quick_view",
+    "product_grid_image_size": "100%",
+    "facebook_url": "https://www.facebook.com",
+    "instagram_url": "https://instagram.com",
+    "twitter_url": "https://twitter.com",
+    "pinterest_url": "https://pinterest.com",
+    "youtube_url": "https://youtube.com",
+    "sections": {
+      "header_plus": {
+        "type": "header_plus",
+        "settings": {
+          "is_announce_show": true,
+          "is_announce_show_only_on_home": false,
+          "announce_title": "$3 OFF over $49 code:3 new i free shipping over $49 ",
+          "announce_src": "",
+          "shop_logo": "860a27959ba064d8084e2df114838b76.png",
+          "alignment": "center",
+          "cart_style": "cart",
+          "is_currency_show": true,
+          "is_account_show": false,
+          "is_search_show": true,
+          "is_cart_show": false,
+          "is_header_fixed": true,
+          "menu_id": {
+            "id": "header",
+            "type": "menu",
+            "title": "\u9876\u90e8\u5bfc\u822a\u83dc\u5355"
+          },
+          "announce_color": "#FFFFFF",
+          "announce_bg_color": "rgba(0, 0, 0, 1)",
+          "menu_color": "#3D4246",
+          "menu_bg_color": "rgba(255, 255, 255, 1)",
+          "logo_color": "rgba(0, 0, 0, 1)",
+          "logo_icon_color": "rgba(0, 0, 0, 1)",
+          "logo_bg_color": "rgba(255, 255, 255, 1)"
+        },
+        "blocks": []
+      },
+      "footer_plus": {
+        "type": "footer_plus",
+        "settings": {
+          "special_desc": "",
+          "footer_bg_color": "rgba(243, 243, 243, 1)",
+          "footer_text_color": "rgba(0, 0, 0, 1)",
+          "footer_title_color": "rgba(0, 0, 0, 1)",
+          "footer_payment_icon": true
+        },
+        "blocks": [{
+          "type": "social",
+          "settings": {
+            "instagram_url": true,
+            "facebook_url": true,
+            "twitter_url": true,
+            "pinterest_url": false,
+            "youtube_url": false
+          }
+        }, {
+          "type": "menu",
+          "settings": {
+            "title": "SUPPORT",
+            "menu": {
+              "id": "footer",
+              "type": "menu",
+              "title": "\u9875\u5c3e\u83dc\u5355"
+            }
+          }
+        }, {
+          "type": "info",
+          "settings": {
+            "logo_src": "860a27959ba064d8084e2df114838b76.png",
+            "richtext": "<p>Bedum is a comprehensive electronics store<\/p>"
+          }
+        }]
+      }
+    }
+  },
+  "presets": []
+}

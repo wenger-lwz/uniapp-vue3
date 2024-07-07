@@ -1,0 +1,78 @@
+{% include 'lazyimg_art' %}
+<script id="product-info-qty-tpl" type="text/html">
+  <div class="qty-title product-info__qty_title">{{ langs.product.product_detail.qty | t }}
+    <% if ( {{ settings.is_stock_show | default: true }} ) { %>
+      <span class="product-info__qty_stock">
+        <% if (product.inventory_quantity > 0 && product.inventory_tracking) { %>
+          (<%= $imports.getI18n("{{ langs.product.product_detail.in_stock | t }}", {
+            '{% raw %}{{ count }}{% endraw %}': product.inventory_quantity
+          }) %>)
+        <% } %>
+      </span>
+    <% } %>
+
+  </div>
+  <div class="product-info__qty {% if settings.variant_type == 'dropdown' %}product-info__qty-dropdown{% endif %}">
+    <button type="button" class="btn product-info__qty_btn product-info__qty_decr"
+      data-click="decrease"
+      <% if (qty === 1
+        || (product.available === false)
+        || (!product.published && product.published !== undefined)) { %> disabled <% } %>
+      >
+      -
+    </button>
+    <input id="product_quantity_<%= product.id %>" class="form-control product-info__qty_num"
+      <% if ((product.available === false)
+        || (!product.published && product.published !== undefined)) { %> disabled <% } %>
+      type="text" value="<%= qty %>"  name="quantity" >
+    <button  type="button" class="btn product-info__qty_btn product-info__qty_incr"
+      data-click="increase" <% if ((product
+        && qty === product.available_quantity)
+        || (product.available === false)
+        || (!product.published && product.published !== undefined) ) { %> disabled <% } %>
+      >
+      +
+    </button>
+  </div>
+</script>
+<script id="product-info-price-wrapper" type="text/html">
+  <div class="product-info__header_price-wrapper-left">
+    <span class="product-info__header_price xf_skin_product_detail_price money">
+      <% if (product.price_min !== undefined) { %>
+        <%= $imports.finance_money_with_symbol(product.price_min) %>
+        <% if (product.price_max > product.price_min) { %>
+          - <%= $imports.finance_money_with_symbol(product.price_max) %>
+        <% } %>
+      <% } else { %>
+        <%= $imports.finance_money_with_symbol(product.price) %>
+      <% } %>
+    </span>
+    <% if (product.compare_at_price - product.price > 0) { %>
+      <span class="product-info__header_compare-at-price xf_skin_product_compare_at_price money ">
+        <%= $imports.finance_money_with_symbol(product.compare_at_price) %>
+      </span>
+    <% } %>
+  </div>
+  <% if ({{ settings.is_sales_show | default: 'false' }}) { %>
+    <span class="product-info__header_sales ">
+      <%= $imports.getI18n("{{ langs.product.product_detail.sold | t }}", {
+        '{% raw %}{{ count }}{% endraw %}': product.sales
+      }) %>
+    </span>
+  <% } %>
+</script>
+<script id="product-select-wrapper" type="text/html">
+  <div class="modal fade" id="product-select-modal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true" >
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content product__select_modal">
+        <div class="sep-font sep-font-close close modal__close" data-dismiss="modal" aria-label="Close">
+        </div>
+        <div class="modal-body product-select-modal">
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+
+

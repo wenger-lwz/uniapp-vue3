@@ -1,0 +1,29 @@
+<a {% if settings.cart_settings_click == 'page' %}href="/cart"{% else %}onclick="$(document).trigger('cart-drawer');"{% endif%} class="tw-cursor-pointer tw-relative tw-flex tw-justify-end tw-items-center tw-text-inherit tw-no-underline tw-leading-none">
+  {% comment %} 移动端固定是图标 {% endcomment %}
+  <i class="tw-text-0">{% include 'icon_bag_thin_mobile', icon_class: "lg:tw-hidden" %}</i>
+  {% if settings.cart_settings_icon == 'bag' or settings.cart_settings_icon == "bag_with_num" %}
+    <i class="tw-ml-6 tw-hidden lg:tw-inline tw-text-0 lg:tw-transition-opacity lg:tw-duration-300 lg:hover:tw-opacity-60">
+      {% include 'icon_bag_thin_pc'%}
+    </i>
+  {% endif %}
+  {% if settings.cart_settings_icon == "bag_with_num" %}
+    <div class="tw-box-border tw-hidden tw-ml-1 tw-text-xs tw-leading-1.5 tw-text-white tw-text-center header__cart_bubble header__cart_count" style="background-color: {{ settings.color_header_cart_tip }};min-width:18px;border-radius:9px;padding:0 5px;"></div>
+  {% else %}
+    <i class="tw-rounded-full tw-absolute tw-text-0 {% if settings.cart_settings_icon == 'text' %}lg:tw-invisible{% endif %} tw-hidden header__cart_bubble" style="background-color: {{ settings.color_header_cart_tip }}; width: 6px; height: 6px;"></i>
+  {% endif %}
+  {% if settings.cart_settings_icon == 'text' %}
+    <span class="tw-hidden lg:tw-inline-block lg:tw-ml-6 lg:tw-transition-opacity lg:tw-duration-300 lg:hover:tw-opacity-60">{{langs.navigation.general.bag | t}}(<span class="header__cart_count">0</span>)</span>
+  {% endif %}
+</a>
+<style>
+.header__cart_bubble{
+  top: -3px;
+  right: -3px;
+}
+@media (min-width: {{settings.breakpoint}}px) {
+  .header__cart_bubble{
+    top: 0px;
+    right: 0px;
+  }
+}
+</style>

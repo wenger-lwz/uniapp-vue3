@@ -1,0 +1,1359 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Nova",
+    "theme_author": "Underground",
+    "theme_version": "1.0"
+  },
+  {
+    "name": {
+      "zh-CN": "常规",
+      "en-US": "General"
+    },
+    "settings": [
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Style",
+          "zh-CN": "风格"
+        }
+      },
+      {
+        "type": "select",
+        "id": "general_style",
+        "label": {
+          "en-US": "Style",
+          "zh-CN": "风格"
+        },
+        "default": "square",
+        "options": [
+          {
+            "value": "square",
+            "label": {
+              "en-US": "Square",
+              "zh-CN": "直角"
+            }
+          },
+          {
+            "value": "round",
+            "label": {
+              "en-US": "Round",
+              "zh-CN": "圆角"
+            }
+          }
+        ]
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Layout",
+          "zh-CN": "布局"
+        }
+      },
+      {
+        "type": "text",
+        "id": "general_layout_width",
+        "label": {
+          "en-US": "Content width",
+          "zh-CN": "内容宽度"
+        },
+        "info": {
+          "en-US": "Content width in px",
+          "zh-CN": "内容宽度单位为px"
+        },
+        "default": "1200",
+        "props": {
+          "type": "number"
+        }
+      },
+      {
+        "type": "text",
+        "id": "general_layout_spacing",
+        "label": {
+          "en-US": "Content space",
+          "zh-CN": "内容留白"
+        },
+        "default": "40",
+        "info": {
+          "en-US": "Content space in px",
+          "zh-CN": "内容留白单位为px"
+        }
+      }
+    ]
+  },
+  {
+    "name": {
+      "en-US": "Typography",
+      "zh-CN": "字体排版"
+    },
+    "settings": [
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Heading",
+          "zh-CN": "标题"
+        }
+      },
+      {
+        "type": "font_picker",
+        "id": "type_heading_font_family",
+        "label": {
+          "zh-CN": "字体",
+          "en-US": "Font families"
+        },
+        "default": "roboto_n4"
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Body text",
+          "zh-CN": "文本"
+        }
+      },
+      {
+        "type": "font_picker",
+        "id": "type_text_font_family",
+        "label": {
+          "en-US": "Font family",
+          "zh-CN": "字体"
+        },
+        "default": "roboto_n4"
+      },
+      {
+        "type": "range",
+        "id": "type_text_font_size",
+        "step": 1,
+        "max": 20,
+        "min": 12,
+        "unit": "px",
+        "label": {
+          "en-US": "Font size",
+          "zh-CN": "字号"
+        },
+        "default": 14
+      },
+      {
+        "type": "range",
+        "id": "type_text_line_height",
+        "step": 0.1,
+        "max": 3,
+        "min": 1,
+        "label": {
+          "en-US": "Line height",
+          "zh-CN": "行高"
+        },
+        "default": 1.5
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Menu",
+          "zh-CN": "菜单"
+        }
+      },
+      {
+        "type": "select",
+        "id": "type_menu_same_with",
+        "label": {
+          "en-US": "Font family",
+          "zh-CN": "字体"
+        },
+        "default": "heading",
+        "options": [
+          {
+            "value": "heading",
+            "label": {
+              "en-US": "Heading",
+              "zh-CN": "标题"
+            }
+          },
+          {
+            "value": "text",
+            "label": {
+              "zh-CN": "文本",
+              "en-US": "Body text"
+            }
+          }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "type_menu_font_size",
+        "step": 1,
+        "max": 20,
+        "min": 12,
+        "unit": "px",
+        "label": {
+          "en-US": "Font size",
+          "zh-CN": "字号"
+        },
+        "default": 14
+      },
+      {
+        "type": "range",
+        "id": "type_menu_letter_spacing",
+        "step": 0.1,
+        "max": 2,
+        "min": -2,
+        "unit": "px",
+        "label": {
+          "en-US": "Letter spacing",
+          "zh-CN": "字间距"
+        },
+        "default": 0
+      },
+      {
+        "type": "checkbox",
+        "id": "type_menu_text_uppercase_on",
+        "label": {
+          "zh-CN": "文字全大写",
+          "en-US": "Uppercase text"
+        },
+        "default": false
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Product title",
+          "zh-CN": "商品详情标题"
+        }
+      },
+      {
+        "type": "range",
+        "id": "type_product_font_size",
+        "step": 1,
+        "max": 36,
+        "min": 14,
+        "unit": "px",
+        "label": {
+          "en-US": "Font size",
+          "zh-CN": "字号"
+        },
+        "default": 20
+      },
+      {
+        "type": "range",
+        "id": "type_product_letter_spacing",
+        "step": 0.1,
+        "max": 2,
+        "min": -2,
+        "unit": "px",
+        "label": {
+          "en-US": "Letter spacing",
+          "zh-CN": "字间距"
+        },
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "type_product_line_height",
+        "step": 0.1,
+        "max": 3,
+        "min": 1,
+        "label": {
+          "en-US": "Line height",
+          "zh-CN": "行高"
+        },
+        "default": 1.3
+      },
+      {
+        "type": "checkbox",
+        "id": "type_product_text_uppercase_on",
+        "label": {
+          "zh-CN": "文字全大写",
+          "en-US": "Uppercase text"
+        },
+        "default": false
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Products list title",
+          "zh-CN": "商品列表标题"
+        }
+      },
+      {
+        "type": "range",
+        "id": "type_snippet_font_size",
+        "step": 1,
+        "max": 36,
+        "min": 14,
+        "unit": "px",
+        "label": {
+          "en-US": "Font size",
+          "zh-CN": "字号"
+        },
+        "default": 14
+      },
+      {
+        "type": "range",
+        "id": "type_snippet_letter_spacing",
+        "step": 0.1,
+        "max": 2,
+        "min": -2,
+        "unit": "px",
+        "label": {
+          "en-US": "Letter spacing",
+          "zh-CN": "字间距"
+        },
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "type_snippet_line_height",
+        "step": 0.1,
+        "max": 3,
+        "min": 1,
+        "label": {
+          "en-US": "Line height",
+          "zh-CN": "行高"
+        },
+        "default": 1.2
+      },
+      {
+        "type": "checkbox",
+        "id": "type_snippet_text_uppercase_on",
+        "label": {
+          "zh-CN": "文字全大写",
+          "en-US": "Uppercase text"
+        },
+        "default": false
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Widget title",
+          "zh-CN": "小工具标题"
+        }
+      },
+      {
+        "type": "range",
+        "id": "type_widget_font_size",
+        "step": 1,
+        "max": 18,
+        "min": 12,
+        "unit": "px",
+        "label": {
+          "en-US": "Font size",
+          "zh-CN": "字号"
+        },
+        "default": 14
+      },
+      {
+        "type": "range",
+        "id": "type_widget_letter_spacing",
+        "step": 0.1,
+        "max": 2,
+        "min": -2,
+        "unit": "px",
+        "label": {
+          "en-US": "Letter spacing",
+          "zh-CN": "字间距"
+        },
+        "default": 1
+      },
+      {
+        "type": "checkbox",
+        "id": "type_widget_text_uppercase_on",
+        "label": {
+          "zh-CN": "文字全大写",
+          "en-US": "Uppercase text"
+        },
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Status label",
+          "zh-CN": "状态标签"
+        }
+      },
+      {
+        "type": "select",
+        "id": "type_status_label_same_with",
+        "label": {
+          "en-US": "Font family",
+          "zh-CN": "字体"
+        },
+        "default": "text",
+        "options": [
+          {
+            "value": "heading",
+            "label": {
+              "en-US": "Heading",
+              "zh-CN": "标题"
+            }
+          },
+          {
+            "value": "text",
+            "label": {
+              "zh-CN": "文本",
+              "en-US": "Body text"
+            }
+          }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "type_status_label_font_size",
+        "step": 1,
+        "max": 18,
+        "min": 12,
+        "unit": "px",
+        "label": {
+          "en-US": "Font size",
+          "zh-CN": "字号"
+        },
+        "default": 12
+      },
+      {
+        "type": "range",
+        "id": "type_status_label_letter_spacing",
+        "step": 0.1,
+        "max": 2,
+        "min": -2,
+        "unit": "px",
+        "label": {
+          "en-US": "Letter spacing",
+          "zh-CN": "字间距"
+        },
+        "default": 0
+      },
+      {
+        "type": "checkbox",
+        "id": "type_status_label_text_uppercase_on",
+        "label": {
+          "zh-CN": "文字全大写",
+          "en-US": "Uppercase text"
+        },
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Price",
+          "zh-CN": "价格"
+        }
+      },
+      {
+        "type": "select",
+        "id": "type_price_same_with",
+        "label": {
+          "en-US": "Font family",
+          "zh-CN": "字体"
+        },
+        "default": "text",
+        "options": [
+          {
+            "value": "heading",
+            "label": {
+              "en-US": "Heading",
+              "zh-CN": "标题"
+            }
+          },
+          {
+            "value": "text",
+            "label": {
+              "zh-CN": "文本",
+              "en-US": "Body text"
+            }
+          }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "type_price_font_size",
+        "step": 1,
+        "max": 18,
+        "min": 12,
+        "unit": "px",
+        "label": {
+          "en-US": "Font size",
+          "zh-CN": "字号"
+        },
+        "default": 14
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Button",
+          "zh-CN": "按钮"
+        }
+      },
+      {
+        "type": "select",
+        "id": "type_button_same_with",
+        "label": {
+          "en-US": "Font family",
+          "zh-CN": "字体"
+        },
+        "default": "text",
+        "options": [
+          {
+            "value": "heading",
+            "label": {
+              "en-US": "Heading",
+              "zh-CN": "标题"
+            }
+          },
+          {
+            "value": "text",
+            "label": {
+              "zh-CN": "文本",
+              "en-US": "Body text"
+            }
+          }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "type_button_font_size",
+        "step": 1,
+        "max": 18,
+        "min": 12,
+        "unit": "px",
+        "label": {
+          "en-US": "Font size",
+          "zh-CN": "字号"
+        },
+        "default": 14
+      },
+      {
+        "type": "range",
+        "id": "type_button_letter_spacing",
+        "step": 0.1,
+        "max": 2,
+        "min": -2,
+        "unit": "px",
+        "label": {
+          "en-US": "Letter spacing",
+          "zh-CN": "字间距"
+        },
+        "default": 0
+      },
+      {
+        "type": "checkbox",
+        "id": "type_button_text_uppercase_on",
+        "label": {
+          "zh-CN": "文字全大写",
+          "en-US": "Uppercase text"
+        },
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Footer text",
+          "zh-CN": "页尾文字"
+        }
+      },
+      {
+        "type": "select",
+        "id": "type_footer_same_with",
+        "label": {
+          "en-US": "Font family",
+          "zh-CN": "字体"
+        },
+        "default": "text",
+        "options": [
+          {
+            "value": "heading",
+            "label": {
+              "en-US": "Heading",
+              "zh-CN": "标题"
+            }
+          },
+          {
+            "value": "text",
+            "label": {
+              "zh-CN": "文本",
+              "en-US": "Body text"
+            }
+          }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "type_footer_font_size",
+        "step": 1,
+        "max": 18,
+        "min": 12,
+        "unit": "px",
+        "label": {
+          "en-US": "Font size",
+          "zh-CN": "字号"
+        },
+        "default": 14
+      },
+      {
+        "type": "range",
+        "id": "type_footer_letter_spacing",
+        "step": 0.1,
+        "max": 2,
+        "min": -2,
+        "unit": "px",
+        "label": {
+          "en-US": "Letter spacing",
+          "zh-CN": "字间距"
+        },
+        "default": 0
+      },
+      {
+        "type": "checkbox",
+        "id": "type_footer_text_uppercase_on",
+        "label": {
+          "zh-CN": "文字全大写",
+          "en-US": "Uppercase text"
+        },
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": {
+      "en-US": "Color",
+      "zh-CN": "颜色"
+    },
+    "settings": [
+      {
+        "type": "header",
+        "content": {
+          "en-US": "General",
+          "zh-CN": "常规设置"
+        }
+      },
+      {
+        "type": "color",
+        "id": "color_general_heading_text",
+        "label": {
+          "zh-CN": "标题",
+          "en-US": "Title"
+        },
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "color_general_text",
+        "label": {
+          "en-US": "Body text",
+          "zh-CN": "文本"
+        },
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "color_general_light_text",
+        "label": {
+          "zh-CN": "浅色文本",
+          "en-US": "Light text"
+        },
+        "default": "#666666"
+      },
+      {
+        "type": "color",
+        "id": "color_general_light_border",
+        "label": {
+          "en-US": "Light border",
+          "zh-CN": "浅色边框"
+        },
+        "default": "#e5e5e5"
+      },
+      {
+        "type": "color",
+        "id": "color_general_bg",
+        "label": {
+          "en-US": "Background",
+          "zh-CN": "背景"
+        },
+        "default": "#ffffff"
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Header",
+          "zh-CN": "头部"
+        }
+      },
+      {
+        "type": "color",
+        "id": "color_header_bg",
+        "label": {
+          "en-US": "Background",
+          "zh-CN": "背景"
+        },
+        "default": "#ffffff"
+      },
+      {
+        "type": "color",
+        "id": "color_header_text",
+        "label": {
+          "en-US": "Text",
+          "zh-CN": "文字"
+        },
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "color_header_border",
+        "label": {
+          "zh-CN": "分隔线",
+          "en-US": "Section divider"
+        },
+        "default": "#E5E5E5"
+      },
+      {
+        "type": "color",
+        "id": "color_header_cart_tip",
+        "label": {
+          "zh-CN": "购物袋提示",
+          "en-US": "Bag tip"
+        },
+        "default": "#E35C58"
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Header menu",
+          "zh-CN": "头部菜单"
+        }
+      },
+      {
+        "type": "color",
+        "id": "color_header_menu_bg",
+        "label": {
+          "en-US": "Background",
+          "zh-CN": "背景"
+        },
+        "default": "#ffffff"
+      },
+      {
+        "type": "color",
+        "id": "color_header_menu_text",
+        "label": {
+          "en-US": "Text",
+          "zh-CN": "文字"
+        },
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "color_header_menu_border",
+        "label": {
+          "zh-CN": "分割线",
+          "en-US": "Section divider"
+        },
+        "default": "#E5E5E5"
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Footer widget",
+          "zh-CN": "页尾小工具"
+        }
+      },
+      {
+        "type": "color",
+        "id": "color_footer_widget_bg",
+        "label": {
+          "en-US": "Background",
+          "zh-CN": "背景"
+        },
+        "default": "#ffffff"
+      },
+      {
+        "type": "color",
+        "id": "color_footer_widget_title_text",
+        "label": {
+          "en-US": "Title",
+          "zh-CN": "标题"
+        },
+        "default": "#666666"
+      },
+      {
+        "type": "color",
+        "id": "color_footer_widget_text",
+        "label": {
+          "en-US": "Text",
+          "zh-CN": "文字"
+        },
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "color_footer_widget_border",
+        "label": {
+          "zh-CN": "分隔线",
+          "en-US": "Section divider"
+        },
+        "default": "#E5E5E5"
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Footer newsletter",
+          "zh-CN": "页尾订阅框"
+        }
+      },
+      {
+        "type": "color",
+        "id": "color_footer_newsletter_border",
+        "label": {
+          "en-US": "Border",
+          "zh-CN": "边框"
+        },
+        "default": "#dddddd"
+      },
+      {
+        "type": "color",
+        "id": "color_footer_newsletter_text",
+        "label": {
+          "en-US": "Text",
+          "zh-CN": "文字"
+        },
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "color_footer_newsletter_bg",
+        "label": {
+          "en-US": "Background",
+          "zh-CN": "背景"
+        },
+        "default": "#ffffff"
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Footer",
+          "zh-CN": "页尾"
+        }
+      },
+      {
+        "type": "color",
+        "id": "color_footer_bg",
+        "label": {
+          "en-US": "Background",
+          "zh-CN": "背景"
+        },
+        "default": "#ffffff"
+      },
+      {
+        "type": "color",
+        "id": "color_footer_text",
+        "label": {
+          "en-US": "Text",
+          "zh-CN": "文字"
+        },
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "color_footer_border",
+        "label": {
+          "zh-CN": "分隔线",
+          "en-US": "Section divider"
+        },
+        "default": "#E5E5E5"
+      },
+      {
+        "type": "header",
+        "content": {
+          "zh-CN": "折扣标签",
+          "en-US": "On sale tag"
+        }
+      },
+      {
+        "type": "color",
+        "id": "color_label_bg",
+        "label": {
+          "en-US": "Background",
+          "zh-CN": "背景"
+        },
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "color_label_text",
+        "label": {
+          "en-US": "Text",
+          "zh-CN": "文字"
+        },
+        "default": "#ffffff"
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Price",
+          "zh-CN": "价格"
+        }
+      },
+      {
+        "type": "color",
+        "id": "color_compare_at_price_text",
+        "label": {
+          "en-US": "Original price",
+          "zh-CN": "原价"
+        },
+        "default": "#999999"
+      },
+      {
+        "type": "color",
+        "id": "color_price_text",
+        "label": {
+          "zh-CN": "售价",
+          "en-US": "Price"
+        },
+        "default": "#000000"
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Button",
+          "zh-CN": "按钮"
+        }
+      },
+      {
+        "type": "color",
+        "id": "color_button_bg",
+        "label": {
+          "en-US": "Background",
+          "zh-CN": "背景"
+        },
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "color_button_text",
+        "label": {
+          "en-US": "Text",
+          "zh-CN": "文字"
+        },
+        "default": "#ffffff"
+      },
+      {
+        "type": "header",
+        "content": {
+          "zh-CN": "评论星级",
+          "en-US": "Ratings"
+        }
+      },
+      {
+        "type": "color",
+        "id": "color_review",
+        "label": {
+          "zh-CN": "颜色",
+          "en-US": "Star"
+        },
+        "default": "#000000"
+      }
+    ]
+  },
+  {
+    "name": {
+      "en-US": "Product",
+      "zh-CN": "商品"
+    },
+    "settings": [
+      {
+        "type": "header",
+        "content": {
+          "zh-CN": "色卡",
+          "en-US": "Color swatch"
+        }
+      },
+      {
+        "type": "text",
+        "id": "product_swatches_name",
+        "label": {
+          "en-US": "Activated variants",
+          "zh-CN": "激活色卡的变体名称"
+        },
+        "default": ""
+      },
+      {
+        "type": "select",
+        "id": "product_swatches_style",
+        "visibleOn": "product_swatches_name",
+        "label": {
+          "zh-CN": "色卡的形式",
+          "en-US": "Type"
+        },
+        "default": "swatches",
+        "options": [
+          {
+            "value": "swatches",
+            "label": {
+              "zh-CN": "色卡块",
+              "en-US": "Block"
+            }
+          },
+          {
+            "value": "thumbnail",
+            "label": {
+              "en-US": "Thumbnail",
+              "zh-CN": "缩略图"
+            }
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "visibleOn": "product_swatches_name",
+        "id": "product_swatches_collection_on",
+        "label": {
+          "en-US": "Enable color swatches on products grid",
+          "zh-CN": "开启商品列表色卡"
+        },
+        "default": false
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Status label",
+          "zh-CN": "状态标签"
+        }
+      },
+      {
+        "type": "checkbox",
+        "id": "product_label_sale_on",
+        "label": {
+          "zh-CN": "打折促销",
+          "en-US": "On sale"
+        },
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "product_label_sold_out_on",
+        "label": {
+          "en-US": "Sold out",
+          "zh-CN": "售空"
+        },
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "product_label_best_seller_on",
+        "label": {
+          "zh-CN": "热卖",
+          "en-US": "Hot"
+        },
+        "default": false
+      },
+      {
+        "type": "collection",
+        "visibleOn": "product_label_best_seller_on",
+        "id": "product_label_best_seller_collection",
+        "label": {
+          "en-US": "Add collection",
+          "zh-CN": "添加专辑"
+        }
+      },
+      {
+        "type": "checkbox",
+        "id": "product_label_new_on",
+        "label": {
+          "en-US": "New",
+          "zh-CN": "新品"
+        },
+        "default": false
+      },
+      {
+        "type": "collection",
+        "visibleOn": "product_label_new_on",
+        "id": "product_label_new_collection",
+        "label": {
+          "en-US": "Add collection",
+          "zh-CN": "添加专辑"
+        }
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Discount label",
+          "zh-CN": "折扣标签"
+        }
+      },
+      {
+        "type": "checkbox",
+        "id": "product_label_discount_on",
+        "label": {
+          "en-US": "Discount label",
+          "zh-CN": "折扣标签"
+        },
+        "default": false
+      },
+      {
+        "type": "select",
+        "id": "product_label_discount_format",
+        "visibleOn": "product_label_discount_on",
+        "label": {
+          "en-US": "Format",
+          "zh-CN": "格式"
+        },
+        "default": "percentage",
+        "options": [
+          {
+            "value": "percentage",
+            "label": {
+              "zh-CN": "按百分比",
+              "en-US": "Percent"
+            }
+          },
+          {
+            "value": "amount",
+            "label": {
+              "zh-CN": "按金额",
+              "en-US": "Amount"
+            }
+          }
+        ]
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Products grid",
+          "zh-CN": "商品列表"
+        }
+      },
+      {
+        "type": "select",
+        "id": "product_image_display",
+        "label": {
+          "zh-CN": "封面图比例",
+          "en-US": "Cover image scale"
+        },
+        "default": "natural",
+        "options": [
+          {
+            "value": "natural",
+            "label": {
+              "en-US": "Natural",
+              "zh-CN": "原始比例"
+            }
+          },
+          {
+            "value": "133.33%",
+            "label": {
+              "zh-CN": "4:3",
+              "en-US": "Landscape (4:3)"
+            }
+          },
+          {
+            "value": "177.78%",
+            "label": {
+              "zh-CN": "16:9",
+              "en-US": "Wide (16:9)"
+            }
+          },
+          {
+            "value": "100%",
+            "label": {
+              "zh-CN": "1:1",
+              "en-US": "Square (1:1)"
+            }
+          },
+          {
+            "value": "66.67%",
+            "label": {
+              "zh-CN": "2:3",
+              "en-US": "Portrait (2:3)"
+            }
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "id": "product_image_hover_on",
+        "label": {
+          "en-US": "Enable hover image",
+          "zh-CN": "Hover图片"
+        },
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "product_quick_view_on",
+        "label": {
+          "en-US": "Enable quick shop",
+          "zh-CN": "快速加购"
+        },
+        "default": true
+      },
+      {
+        "type": "select",
+        "id": "product_layout",
+        "label": {
+          "zh-CN": "文字布局",
+          "en-US": "Text alignment"
+        },
+        "default": "left",
+        "options": [
+          {
+            "value": "left",
+            "label": {
+              "zh-CN": "居左",
+              "en-US": "Left"
+            }
+          },
+          {
+            "value": "center",
+            "label": {
+              "en-US": "Center",
+              "zh-CN": "居中"
+            }
+          }
+        ]
+      },
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Add to bag",
+          "zh-CN": "加购"
+        }
+      },
+      {
+        "type": "select",
+        "id": "add_to_cart_process",
+        "label": {
+          "en-US": "Type",
+          "zh-CN": "类型"
+        },
+        "default": "drawer",
+        "options": [
+          {
+            "value": "to_cart",
+            "label": {
+              "zh-CN": "购物袋页",
+              "en-US": "Bag page"
+            }
+          },
+          {
+            "value": "drawer",
+            "label": {
+              "en-US": "Drawer",
+              "zh-CN": "抽屉式"
+            }
+          },
+          {
+            "value": "to_toast",
+            "label": {
+              "en-US": "Notification",
+              "zh-CN": "提示"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": {
+      "en-US": "Shopping bag",
+      "zh-CN": "购物袋"
+    },
+    "settings": [
+      {
+        "type": "header",
+        "content": {
+          "en-US": "Settings",
+          "zh-CN": "设置"
+        }
+      },
+      {
+        "type": "select",
+        "id": "cart_settings_icon",
+        "label": {
+          "en-US": "Bag icon",
+          "zh-CN": "购物袋图标"
+        },
+        "default": "bag",
+        "options": [
+          {
+            "value": "text",
+            "label": {
+              "en-US": "Text",
+              "zh-CN": "文字"
+            }
+          },
+          {
+            "value": "bag",
+            "label": {
+              "en-US": "Bag",
+              "zh-CN": "购物袋"
+            }
+          },
+          {
+            "value": "bag_with_num",
+            "label": {
+              "zh-CN": "购物袋带数字",
+              "en-US": "Bag with number"
+            }
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "cart_settings_click",
+        "label": {
+          "zh-CN": "点击购物袋",
+          "en-US": "Click bag"
+        },
+        "default": "drawer",
+        "options": [
+          {
+            "value": "drawer",
+            "label": {
+              "en-US": "Drawer",
+              "zh-CN": "抽屉式"
+            }
+          },
+          {
+            "value": "page",
+            "label": {
+              "zh-CN": "购物袋",
+              "en-US": "Bag"
+            }
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_settings_postage_on",
+        "label": {
+          "en-US": "Free shipping tip",
+          "zh-CN": "免邮提示"
+        },
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_settings_postage_bar_on",
+        "visibleOn": "cart_settings_postage_on",
+        "label": {
+          "en-US": "Progress bar",
+          "zh-CN": "免邮进度条"
+        },
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "cart_settings_postage_value",
+        "visibleOn": "cart_settings_postage_on",
+        "label": {
+          "en-US": "Postage free amount",
+          "zh-CN": "免邮金额"
+        },
+        "default": "500"
+      },
+      {
+        "type": "image_picker",
+        "id": "cart_settings_secure_payment_img",
+        "label": {
+          "en-US": "Secure payment info",
+          "zh-CN": "安全支付信息"
+        },
+        "default": ""
+      }
+    ]
+  }
+]

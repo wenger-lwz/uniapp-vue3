@@ -1,0 +1,384 @@
+{% assign default_ratio = 100 %}
+<style type="text/css">
+  {% assign slider_pb = 0 %}
+  {% for block in section.blocks %}
+    {% assign src = block.settings.src %}
+    {% if src %}
+      {% assign ratio = 100 %}
+    {% else %}
+      {% assign ratio = default_ratio %}
+    {% endif %}
+    {% if ratio > slider_pb %}
+      {% assign slider_pb = ratio %}
+    {% endif %}
+    .slider-{{section.id}}-{{forloop.index0}}{ padding-bottom: {{ratio}}%; }
+    .slider-{{section.id}}-{{forloop.index0}}-wrapper:after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 60px;
+      z-index: 1;
+      background: {{block.settings.background}};
+    }
+    @media (min-width: {{settings.breakpoint}}px) {
+      .slider-{{section.id}}-{{forloop.index0}}-wrapper .slider-{{section.id}}-content {
+        width: calc(33.33% + 80px);
+      }
+    }
+    @media (max-width: {{settings.breakpoint}}px) {
+      .slider-{{section.id}}-{{forloop.index0}}-wrapper .slider-{{section.id}}-content {
+        width: calc(33.33% + 60px);
+      }
+    }
+  {% endfor %}
+  .slides-{{section.id}}{padding-bottom: {{slider_pb | times: 2 | divided_by: 3 | round: 5 }}%;}
+  @media (max-width: {{settings.breakpoint}}px) {
+    {% assign mobile_slider_pb = 0 %}
+    {% for block in section.blocks %}
+      {% assign src = block.settings.src %}
+      {% assign mobile_src = block.settings.mobile_src | default: src %}
+      {% if mobile_src %}
+        {% assign mobile_ratio = 100 | divided_by: images[mobile_src].aspect_ratio %}
+      {% else %}
+        {% assign mobile_ratio = default_ratio %}
+      {% endif %}
+      {% if mobile_ratio > mobile_slider_pb %}
+        {% assign mobile_slider_pb = mobile_ratio %}
+      {% endif %}
+      .slider-{{section.id}}-{{forloop.index0}}{ padding-bottom: {{ mobile_ratio }}%; }
+    {% endfor %}
+    .slides-{{section.id}}{ padding-bottom: {{mobile_slider_pb | times: 2 | divided_by: 3 | round: 5}}%;}
+  }
+  #slider-{{section.id}} .dot {
+    background: {{section.blocks[0].settings.transform_btn_text_color}};
+    height: 3px;
+    transition: width 0.4s;
+  }
+  #slider-{{section.id}} .slides-dot-active {opacity:1; width: 48px;}
+</style>
+
+<div id="slider-{{section.id}}" class="tw-relative tw-group" >
+  <div id="slider-{{section.id}}-slick">
+    {% include "slides", slide: 'slider_fashion_slide', id: section.id, images: section.blocks %}
+    <div class="tw-hidden lg:tw-block tw-absolute tw-z-20 tw-top-1/2 tw-transform tw--translate-y-1/2 dots" style="right:60px;">
+      {% for block in section.blocks %}
+        <button class="tw-block tw-w-4 tw-p-0 tw-my-6 tw-ml-auto tw-opacity-40 tw-border-none tw-cursor-pointer dot slides-{{section.id}}-dot {% if forloop.index0 == 0 %}slides-dot-active{% endif %}" data-index="{{forloop.index0}}"></button>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% if section.blocks.size > 1 %}
+  {% javascript %}
+    $(function(){
+      $(window).resize($.throttle(function () {
+        var w = $(window).width();
+        var breakpoint = window.breakpoint;
+        var $section = $('#slider-{{section.id}}');
+        $slides = $('.slides-{{section.id}}');
+        $section.find('.slides-dot-active').removeClass('slides-dot-active');
+        $section.find('.dot[data-index=0]').addClass('slides-dot-active');
+        $slides.slides({vertical: w > breakpoint, autoplay: {{section.settings.is_auto_play}}, autoplaySpeed: {{section.settings.interval | times : 1000}},});
+      }, 16, 16)).trigger('resize')
+    })
+  {% endjavascript %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "slider_fashion",
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "zh-CN": "设置",
+        "en-US": "Settings"
+      }
+    },
+    {
+      "type": "checkbox",
+      "id": "is_auto_play",
+      "label": {
+        "zh-CN": "开启自动播放",
+        "en-US": "Enable autoplay"
+      },
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "interval",
+      "visibleOn": "is_auto_play",
+      "step": 1,
+      "max": 5,
+      "min": 2,
+      "label": {
+        "zh-CN": "轮播时间",
+        "en-US": "Change images every"
+      },
+      "default": 3,
+      "unit": "s"
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Content",
+        "zh-CN": "幻灯内容"
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": {
+        "zh-CN": "幻灯内容",
+        "en-US": "Slideshow"
+      },
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "src",
+          "label": {
+            "zh-CN": "PC端幻灯图",
+            "en-US": "Desktop image"
+          }
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_src",
+          "label": {
+            "en-US": "Mobile image",
+            "zh-CN": "移动端幻灯图"
+          }
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "zh-CN": "标题",
+            "en-US": "Heading"
+          },
+          "placeholder": {
+            "zh-CN": "请输入标题",
+            "en-US": "Input heading"
+          },
+          "default": "Holiday Sales"
+        },
+        {
+          "type": "text",
+          "id": "sub_title",
+          "label": {
+            "zh-CN": "副标题",
+            "en-US": "Subheading"
+          },
+          "placeholder": {
+            "zh-CN": "请输入副标题",
+            "en-US": "Enter subheading"
+          },
+          "default": "New Fashion"
+        },
+        {
+          "type": "textarea",
+          "id": "desc",
+          "label": {
+            "en-US": "Description",
+            "zh-CN": "描述"
+          },
+          "placeholder": {
+            "en-US": "Input description",
+            "zh-CN": "请输入描述"
+          },
+          "default": "Save up to 50% off of the selected products. Our rock-bottom price for this season."
+        },
+        {
+          "type": "text",
+          "id": "btn_text",
+          "label": {
+            "en-US": "Button text",
+            "zh-CN": "按钮文案"
+          },
+          "placeholder": {
+            "en-US": "Input Button text",
+            "zh-CN": "请输入按钮文案"
+          },
+          "default": "Shop Now"
+        },
+        {
+          "type": "url",
+          "id": "btn_href",
+          "label": {
+            "en-US": "Button link",
+            "zh-CN": "按钮链接"
+          }
+        },
+        {
+          "type": "select",
+          "id": "layout",
+          "label": {
+            "en-US": "Layout",
+            "zh-CN": "布局"
+          },
+          "default": "image_on_right",
+          "options": [
+            {
+              "value": "image_on_left",
+              "label": {
+                "zh-CN": "左图+右文字",
+                "en-US": "Image on left+Text on right"
+              }
+            },
+            {
+              "value": "image_on_right",
+              "label": {
+                "zh-CN": "左文字+右图",
+                "en-US": "Text on left+Image on right"
+              }
+            }
+          ]
+        },
+        {
+          "id": "title_uppercase",
+          "type": "checkbox",
+          "label": {
+            "zh-CN": "开启标题全大写",
+            "en-US": "Uppercase heading"
+          },
+          "default": false
+        },
+        {
+          "id": "sub_title_uppercase",
+          "type": "checkbox",
+          "label": {
+            "zh-CN": "开启副标题全大写",
+            "en-US": "Uppercase subheading"
+          },
+          "default": true
+        },
+        {
+          "type": "color",
+          "id": "title_color",
+          "label": {
+            "zh-CN": "标题颜色",
+            "en-US": "Heading color"
+          },
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "sub_title_color",
+          "label": {
+            "zh-CN": "副标题颜色",
+            "en-US": "Subheading color"
+          },
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": {
+            "en-US": "Description color",
+            "zh-CN": "描述颜色"
+          },
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "btn_bg_color",
+          "label": {
+            "en-US": "Button background color",
+            "zh-CN": "按钮背景色"
+          },
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "btn_border_color",
+          "label": {
+            "en-US": "Button border color",
+            "zh-CN": "按钮边框色"
+          },
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "btn_text_color",
+          "label": {
+            "en-US": "Button text color",
+            "zh-CN": "按钮文字色"
+          },
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "transform_btn_text_color",
+          "label": {
+            "en-US": "Slider nav color",
+            "zh-CN": "切换按钮颜色"
+          },
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "background",
+          "label": {
+            "en-US": "Background color",
+            "zh-CN": "背景颜色"
+          },
+          "default": "#f7f7f7"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "slider_fashion",
+      "cname": {
+        "zh-CN": "时尚幻灯",
+        "en-US": "Fashion slideshow"
+      },
+      "category": {
+        "en-US": "Material",
+        "zh-CN": "素材"
+      },
+      "ccategory": {
+        "en-US": "Material",
+        "zh-CN": "素材"
+      },
+      "is_auto_play": false,
+      "interval": 3,
+      "blocks": [
+        {
+          "type": "item",
+          "name": {
+            "zh-CN": "幻灯片",
+            "en-US": "Slideshow"
+          },
+          "max_blocks": 5,
+          "settings": {
+            "src": "",
+            "mobile_src": "",
+            "title": "Holiday Sales",
+            "sub_title": "New Fashion",
+            "desc": "Save up to 50% off of the selected products. Our rock-bottom price for this season.",
+            "btn_text": "Shop now",
+            "layout": "image_on_right",
+            "title_uppercase": false,
+            "sub_title_uppercase": true,
+            "title_color": "#000000",
+            "sub_title_color": "#000000",
+            "text_color": "#000000",
+            "btn_bg_color": "#000000",
+            "btn_border_color": "#000000",
+            "btn_text_color": "#ffffff",
+            "transform_btn_text_color": "#000000",
+            "background": "#f7f7f7"
+          }
+        }
+      ],
+      "display": true,
+      "icon": "oss/operation/1061c5cdb00c5382b09f2e8626304cee.svg"
+    }
+  ]
+}
+{% endschema %}

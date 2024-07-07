@@ -1,0 +1,25 @@
+<style type="text/css">
+  {% comment %}略缩图选中样式{% endcomment %}
+  .product-image__thumbs-item.slick-current .product-image__thumb:after{content:"";position:absolute;left:0;right:0;top:0;bottom:0;z-index:1;box-shadow:inset 0 0 0 1px var(--color-button-bg), inset 0 0 0 2px #fff;{%if settings.general_style == 'round'%}border-radius:4px;{% endif %}}
+  .product-image__thumbs_left .product-image__thumbs-item.slick-current .product-image__thumb:after{box-shadow:inset 0 0 0 1px var(--color-button-bg), inset 0 0 0 3px #fff;}
+
+  .product-info__desc-tab-content img { display:block;max-width: 100%; height: auto; }
+
+  .product-info__desc-tab-content{display:none;}
+  .product-info__desc-tab-cb:checked + .product-info__desc-tab-header + .product-info__desc-tab-content{display:block;width:100%;}
+
+  .tab{border-width:0;}
+  .tab .product-info__desc-tab-cb + .product-info__desc-tab-header{display:none;}
+  .tab .product-info__label_tabs{overflow-x: scroll; overflow-y:auto; box-shadow: inset 0 -1px 0 0 var(--color-general-light-border);position:relative;}
+  .tab .product-info__label_tabs .product-info__desc-tab-header{ line-height: 1.4;color:var(--color-general-heading-text); word-break: keep-all; white-space: nowrap;margin-right:2.5rem;}
+  .tab .product-info__label_tabs .product-info__label_tabs_checked{ box-shadow: inset 0 -3px 0 0 var(--color-general-heading-text); }
+  .tab .product-info__desc-tab-cb:checked + .product-info__desc-tab-header + .product-info__desc-tab-content{padding-top:2rem;}
+  .product-info__desc-tab a{color:var(--color-general-heading-text)}
+  .product-info__desc-tab a:hover{color:var(--color-general-light-text)}
+
+  .accordion {border-width:0 0 1px 0;}
+  .accordion .product-info__desc-tab-header:not(.tw-hidden) { height: 4.25rem; line-height: 4.25rem;width: 100%; margin-bottom: 0; border-width:1px 0 0 0;display: flex; align-items: center; justify-content: space-between; }
+  .accordion .product-info__desc-tab-cb:checked + .product-info__desc-tab-header svg {transform: rotateZ(0deg); }
+  .accordion .product-info__desc-tab-cb:checked + .product-info__desc-tab-header + .product-info__desc-tab-content,.accordion  .product-info__desc-tab-cb:last-of-type:not(:checked) ~ .product-info__desc-tab-header{}
+
+</style>

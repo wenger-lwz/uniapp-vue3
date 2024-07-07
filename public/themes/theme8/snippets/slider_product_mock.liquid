@@ -1,0 +1,19 @@
+<div class="slider-contentwrapper" style="background:{{settings.skin_bg}}">
+  {% for i in (1..size) %}
+    {% include 'slider_product_info', product: default_product %}
+  {% endfor %}
+</div>
+<div class="slider-slidewrapper">
+  <div class="slider-slides slider-slides-{{ size }}">
+    {% for i in (1..size) %}
+      <div class="slider-slides-img" style="background-image:url({{ default_product.image.src | img_url: '540x' }});"></div>
+      {% include 'product_label', product: default_product, is_opacity: true %}
+    {% endfor %}
+  </div>
+  {% if size > 1 %}
+    <nav>
+      <a class="slider-prev slider-prev-{{ size }}"></a>
+      <a class="slider-next"></a>
+    </nav>
+  {% endif %}
+</div>

@@ -1,0 +1,901 @@
+{% comment %} {% capture time_seed %}{{ 'now' | date: "%s" }}{% endcapture %}
+{% assign random = time_seed | times: 1103515245 | plus: 12345 | divided_by: 65536 | modulo: 32768 %} {% endcomment %}
+<div class='{% unless REQUEST_URI contains "view=ajax" %}container{% endunless %} container-gap product-detail product-detail-{{section.id}}'
+  id="product_detail_{{ product.id }}"
+  data-track="product"
+  data-track-id="{{product.id}}"
+  data-track-price="{{product.price}}"
+  data-track-name="{{product.title | escape}}"
+  data-track-type="{{product.type}}">
+  {% assign recommendedProductsPosition = "line" %}
+  {% if section.settings.recommended_products_position != nil %}
+    {% assign recommendedProductsPosition = section.settings.recommended_products_position %}
+  {% endif %}
+  {% assign selectedVariantId = "" %}
+  {% assign selectedVariant = nil %}
+  {% assign priceMin = 99999999 %}
+  {% assign comparePriceMin = 99999999 %}
+  {% assign priceMax = 0 %}
+  {%  if settings.is_select_default_variants or product.variants.size == 1 %}
+    {% for variant in product.variants %}
+      {% if variant.available_quantity > 0 %}
+        {% assign selectedVariantId = variant.id %}
+        {% break %}
+      {% endif %}
+    {% endfor %}
+  {%  endif %}
+  {% assign params = REQUEST_URI | split: "?" | last | split: "&" %}
+  {% for p in params %}
+    {% assign pair = p | split: "=" %}
+    {% if pair[0] contains "variant" and pair[1] != '' %}
+      {% assign selectedVariantId = pair[1] %}
+    {% endif  %}
+  {% endfor %}
+
+  {% for variant in product.variants %}
+    {% if variant.compare_at_price < comparePriceMin %}
+      {% assign comparePriceMin = variant.compare_at_price %}
+    {% endif %}
+    {% if variant.price < priceMin %}
+      {% assign priceMin = variant.price %}
+    {% endif %}
+    {% if variant.price > priceMax %}
+      {% assign priceMax = variant.price %}
+    {% endif %}
+    {% if variant.id == selectedVariantId %}
+      {% assign selectedVariant = variant %}
+    {% endif %}
+  {% endfor %}
+
+  {% assign initialSlide = 0 %}
+  {% for item in product.images %}
+    {% if item.src contains selectedVariant.image.src %}
+      {% assign initialSlide = forloop.index0 %}
+    {% endif %}
+  {% endfor %}
+
+  <div class="row">
+    {% assign commonImg = '/themes/theme1/assets/image/1a1cb4afb89a43.png' | img_url %}
+    <div class="product-image col-12 col-md-6">
+      <div class="position-relative">
+        <div class="support-slick">
+          {% if product.images.size > 0 %}
+            {% for item in product.images %}
+              <div class="swiper-slide">
+                <div style="padding-bottom:{{item.height | image_padding_bottom : item.width, origin:'unlimit'}};" class="position-relative w-100 zoom {% unless initialSlide == forloop.index0 %}d-none{% endunless %}">
+                {% if item.video %}						
+					<video style="width:100%;position:absolute;height:auto;top:50%;left:50%;transform:translate(-50%,-50%);" controls><source src="{{item.video}}"><object></object></video>
+				{% else %}
+				<img data-lazy="{{item.src | img_url: '1080x'}}" src="{{shop.default_img}}" class="product-image__swiper_img imglazy loading_bg" data-zoom-src="{{item.src | img_url: '1080x'}}" data-zoom-width="{% if item.width < 1080 %}{{item.width}}{% else %}1080{% endif %}" data-zoom-height="{% if item.width < 1080 %}{{item.height}}{% else %}{{ 1080 | divided_by: item.aspect_ratio | round }}{% endif %}"  alt="{{item.alt | default: images[src].alt | escape}}" />
+				{% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="swiper-slide">
+              <div style="padding-bottom:100%">
+                {% include 'lazyimg', src: commonImg %}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="product-image__swiper_bullets">{{initialSlide | plus: 1}} / {{product.images.size}}</div>
+      {% comment %} 缩略图 {% endcomment %}
+      {% if product.images.size > 1 %}
+        <div class="product-image__thumbs">
+          <div class="product-image__thumbs-content">
+            {% assign thumbWidth = 80 %}
+            {% assign marginLeft = 0 %}
+            {% assign size = product.images.size %}
+            {% assign maxIdx = product.images.size | minus:6 %}
+            {% if initialSlide < 6 %}
+              {% assign marginLeft = 0 %}
+            {% elsif initialSlide >= maxIdx and size > 6 %}
+              {% assign marginLeft = maxIdx | times: 80 %}
+            {% else %}
+              {% assign marginLeft = initialSlide | times: 80 %}
+            {% endif %}
+
+            {% for item in product.images %}
+              <div class="product-image__thumbs-item position-relative {% if initialSlide == forloop.index0 %}slick-slide slick-current{% endif %}" style="margin-left:{% if forloop.index0  == 0 %}-{{marginLeft}}{% endif %}px" data-thumb-idx="{{ forloop.index0 }}" >
+                {% assign inView = 0 %}
+                {% assign offsetLeft  = forloop.index0 | times: 80 | minus: marginLeft %}
+                {% if offsetLeft >= 0 and offsetLeft < 480 %}
+                {% assign inView = 1 %}
+                {% endif %}
+
+                <img class="{% if inView == 0 %}lazy-{%endif%}lazyload" src="{{shop.default_img}}" data-src="{{item.src | img_url: '100x' }}" alt="{{ item.alt | escape }}">
+              </div>
+            {% endfor %}
+          </div>
+          <div class="swiper-button-prev product-image__thumbs_button-prev-{{section.id}} product-image__thumbs_btn sep-font sep-font-angle-left"></div>
+          <div class="swiper-button-next product-image__thumbs_button-next-{{section.id}} product-image__thumbs_btn sep-font sep-font-angle-right"></div>
+        </div>
+      {% endif %}
+      {% unless REQUEST_URI contains "view=ajax" %}
+        {% if section.settings.is_relative_product_show and recommendedProductsPosition == "line" and section.settings.description_position != 'bottom'%}
+          <div class="col-12 relative_product_left d-none d-md-block">
+            {% if section.settings.relative_title != '' %}
+              <div class="relative_product__title xf_skin_title_font position-relative">
+                {{ section.settings.relative_title}}
+                <span class="relative_product__change d-none">{{ langs.product.product_detail.not_like_these | t}}</span>
+              </div>
+            {% endif %}
+            <div class="relative_product__content row"></div>
+          </div>
+        {% endif %}
+      {% endunless %}
+      {% assign productSelected = selectedVariant | default: product %}
+      {% assign priceMinus = productSelected.compare_at_price | minus: productSelected.price %}
+      {% include 'product_label', product: product, product_selected: productSelected, is_opacity: true %}
+    </div>
+
+    <form class="product-info product-info-{{product.id}} col-12 col-md-6 properties">
+      <div class="product-info__header">
+          <div class="product-info__vendor xf_skin_product_list_title">{{ product.vendor }}</div>
+          <h1 class="product-info__header_title xf_skin_product_title">{{ product.title | escape }}</h1>
+          {% if product.brief %}
+            <p class="product-info__header_brief">{{ product.brief }}</p>
+          {% endif %}
+          {% if settings.is_sku_show  %}
+          <p class="product-info__header-sku">{% if selectedVariant != nill %}{{ selectedVariant.sku }}{% endif %}</p>
+          {% endif %}
+          <div class="product-info__header_price-wrapper">
+            <div class="product-info__header_price-wrapper-left">
+              {% assign current = selectedVariant | default: product %}
+
+              <span class="product-info__header_price xf_skin_product_detail_price money">
+                {% if selectedVariant == nill %}
+                  {% if priceMax > priceMin %}
+                    {{ priceMin | money_with_symbol}} - {{ priceMax | money_with_symbol}}
+                  {% else %}
+                    {{ priceMin | money_with_symbol}}
+                  {% endif %}
+                {% else %}
+                  {{ selectedVariant.price | money_with_symbol }}
+                {% endif %}
+              </span>
+
+              {% assign price_minus = current.compare_at_price | minus: current.price %}
+              {% if price_minus > 0 %}
+                <span class="product-info__header_compare-at-price xf_skin_product_compare_at_price money">
+                  {{current.compare_at_price | money_with_symbol}}
+                </span>
+              {% endif %}
+            </div>
+            <span class="product-info__header_sales ">
+              {{ langs.product.product_detail.sold | t: count: product.sales }}
+            </span>
+          </div>
+      </div>
+
+
+      <input type="hidden" name="product_id" value="{{ product.id }}" />
+      <input type="hidden" name="variant_id" class="selected_variant_id_{{product.id}}" value="{% if selectedVariantId !='' and selectedVariant.available_quantity > 0 %}{{ selectedVariantId }}{% endif %}" />
+
+      <div class="product-info__body">
+		{% if product_combo != nil %}
+		{{ product_combo }}		
+		{% else %}
+        {% assign variant_type = settings.variant_type | default: 'button' %}
+        <div class="product-info__variants ">
+          {% for opt in product.options %}
+            {% assign optIdx = forloop.index | downcase | prepend: 'option'  %}
+            {% if selectedVariant != nill %}
+              {% assign selectedOptValue = selectedVariant[optIdx]  %}
+            {% endif  %}
+			{% if selectedVariant != nill %}
+				{% assign selectedOptValue = selectedVariant[optIdx]  %}
+				{% if selectedOptValue == nill %}
+					{% for opt in selectedVariant %}			
+						{% if opt[0] == optIdx %}
+						  {% assign selectedOptValue = opt[1]  %}
+						{% endif %}
+					{% endfor %}	
+				{% endif %}			
+            {% endif  %}
+            {% comment %} 色卡 {% endcomment %}
+            {% if settings.product_color_swatches %}
+              {% assign optname = opt.name | downcase %}
+              {% assign is_color = false %}
+              {% if optname contains 'color' or optname contains 'colour' %}
+                {% assign is_color = true %}
+              {% endif %}
+            {% endif %}
+
+            {% assign variantDisabledArray = '' %}
+            {% for value in opt.values %}
+              {% comment %} 计算按钮是否需要禁用 {% endcomment %}
+              {%  assign variantDisabled = 0 %}
+              {% if selectedVariant != nil %}
+                {% comment %}选中子款式 替换其中一个属性值 对应的子商品不存在，该属性值禁用{% endcomment %}
+                {%  assign variantDisabled = 1 %}
+                {%  assign option1Value = selectedVariant.option1 | default: '' %}
+                {% if optIdx contains 'option1' %}
+                  {%  assign option1Value = value | default: '' %}
+                {% endif %}
+                {%  assign option2Value = selectedVariant.option2 | default: '' %}
+                {% if optIdx contains 'option2' %}
+                  {%  assign option2Value = value | default: '' %}
+                {% endif %}
+                {%  assign option3Value = selectedVariant.option3 | default: '' %}
+                {% if optIdx contains 'option3' %}
+                  {%  assign option3Value = value | default: '' %}
+                {% endif %}
+                {% for variant in product.variants %}
+                  {% assign v1 = variant.option1 | default: '' %}
+                  {% assign v2 = variant.option2 | default: '' %}
+                  {% assign v3 = variant.option3 | default: '' %}
+                  {%  if variant.available and option1Value == v1 and option2Value == v2 and option3Value == v3  %}
+                      {%  assign variantDisabled = 0 %}
+                  {% endif %}
+                {% endfor %}
+              {% else %}
+                {% comment %}没有选中子商品需要检查该属性值是否有对应的子商品，没有需要禁用{% endcomment %}
+                {% assign variantExists = 0 %}
+                {% if optIdx contains 'option1' and variantExists == 0  %}
+                  {% for variant in product.variants %}
+                    {%  if value == variant.option1 and variant.available_quantity > 0 %}
+                      {% assign variantExists = 1 %}
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+                {% if optIdx contains 'option2' and variantExists == 0  %}
+                  {% for variant in product.variants %}
+                    {%  if value == variant.option2 and variant.available_quantity > 0 %}
+                      {% assign variantExists = 1 %}
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+                {% if optIdx contains 'option3' and variantExists == 0  %}
+                  {% for variant in product.variants %}
+                    {%  if value == variant.option3 and variant.available_quantity > 0 %}
+                      {% assign variantExists = 1 %}
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+
+                {% if variantExists == 0 %}
+                  {%  assign variantDisabled = 1 %}
+                {% endif %}
+              {% endif  %}
+              {% unless product.available or product.published %}
+                {%  assign variantDisabled = 1 %}
+              {% endunless %}
+              {% assign variantDisabledArray = variantDisabledArray | append: variantDisabled %}
+            {% endfor %}
+
+            {% if is_color or variant_type == 'button' %}
+              <div class="product-info__variants_items">
+                <div class="product-info__variants_title">{{ opt.name }}{% if is_color %}<span id="variant_color-label">{%if selectedOptValue%} - {{selectedOptValue}}{%endif%}</span>{% endif %}</div>
+                <div class="product-info__variants_value-wrapper">
+                  {% for value in opt.values %}
+                    {% assign isDisabled = variantDisabledArray | slice: forloop.index0, 1 %}
+                    <span class="btn product-info__variants_value {% if is_color %}product-info__variants_value_color{% endif %}">
+                      <input type="radio" class="d-none product-info__variants_radio" name="{{ optIdx }}-{{product.id}}" id="{{ optIdx }}-{{ forloop.index0 }}-{{product.id}}" {% if isDisabled == 1 %} disabled {% elsif value == selectedOptValue %} checked {% endif %} value="{{ value | escape }}" />
+                      {% if is_color %}
+                        <label data-iscolor style="background-color: {{value}};" for="{{ optIdx }}-{{ forloop.index0 }}-{{product.id}}" data-variants-value="{{ value | escape }}" class="mb-0" data-options-order="{{ forloop.index0 }}" data-click="select"></label>
+                      {% else %}
+                        <label for="{{ optIdx }}-{{ forloop.index0 }}-{{product.id}}" data-variants-value="{{ value | escape }}" class="mb-0" data-options-order="{{ forloop.index0 }}" data-click="select">
+						  {% for img in opt.optimg %}
+							{% if img[0] == value %}
+							<img width="60" height="60" src="{{img[1]}}"/><br/>
+							{% endif %}
+						  {% endfor %}
+                          {{ value }}
+                        </label>
+                      {% endif %}
+                    </span>
+                  {% endfor %}
+                </div>
+              </div>
+            {% else %}
+              <div class="product-info__variants_items d-inline-block w-100">
+                <div class="xf_skin_title_font product-info__variants_title">{{ opt.name }}</div>
+                {% unless settings.is_select_default_variants or selectedVariantId %}
+                  {% assign showDefault = true %}
+                {% endunless %}
+                <select {% if showDefault %}class="tw-text-black tw-opacity-50"{% endif %}>
+                  {% if showDefault %}
+                    <option disabled selected>{{langs.product.product_detail.please_select | t}}</option>
+                  {% endif %}
+                  {% for value in opt.values %}
+                    {% assign isDisabled = variantDisabledArray | slice: forloop.index0, 1 %}
+                    <option data-soldout="{{ langs.product.product_detail.sold_out | t }}" {% if isDisabled == 1 %}disabled{% endif %} name="{{ optIdx }}-{{product.id}}" id="{{ optIdx }}-{{ forloop.index0 }}-{{product.id}}" class="text-center d-inline-block product-info__variants_value" value="{{ value | escape }}" {% if value == selectedOptValue %} selected {% endif %}>
+                      {{ value }}{% if isDisabled == 1 %} ({{ langs.product.product_detail.sold_out | t }}){% endif %}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+        <div  class="product-info__qty_container">
+          <div class="qty-title product-info__qty_title">
+            {{ langs.product.product_detail.qty | t }}
+            {% assign is_stock_show = settings.is_stock_show | default: true %}
+            {% if is_stock_show %}
+              {% unless selectedVariant == nill %}
+                <span class="product-info__qty_stock">
+                {% if selectedVariant.inventory_quantity > 0 and product.inventory_tracking  %}
+                  {{langs.product.product_detail.in_stock | t: count:selectedVariant.inventory_quantity }}
+                {% endif %}
+                </span>
+            {% endunless %}
+            {% endif %}
+          </div>
+          <div class="product-info__qty {% if variant_type == 'dropdown' %}product-info__qty-dropdown{% endif %}">
+            <button type="button" class="btn product-info__qty_btn product-info__qty_decr" data-click="decrease" disabled="">-</button>
+            <input class="form-control product-info__qty_num" id="product_quantity_{{product.id}}" name="quantity" type="text" value="1">
+            <button type="button" class="btn product-info__qty_btn product-info__qty_incr" data-click="increase">+</button>
+          </div>
+        </div>
+      </div>
+      {% assign btns = 0 %}
+      {% if settings.is_add_to_cart_show %}
+        {% assign btns = btns | plus: 1 %}
+      {% endif %}
+      {% if settings.is_payment_btn_show %}
+        {% assign btns = btns | plus: 1 %}
+      {% endif %}
+      <div class="product-info__btn product-info__btn_{{btns}}">
+          {% if product.published and product.available %}
+            {% if settings.is_add_to_cart_show %}
+              <button type="button" {% unless settings.is_payment_btn_show %} class="btn btn-primary" {% else %} class="btn btn-secondary" {% endunless %} data-click="addToCart">
+                {{ langs.product.product_detail.add_to_cart | t }}
+              </button>
+            {% endif %}
+            <button type="button" class="btn btn-primary {% unless settings.is_payment_btn_show %}d-none{% endunless %} "  data-click="submit">{{ langs.product.product_detail.buy_now | t }}</button>
+          {% else %}
+            <button type="button" class="btn btn-primary" style="width: 100%;" disabled>{{ langs.product.product_detail.sold_out | t }}</button>
+          {% endif %}
+      </div>
+      {% if settings.is_paypal_btn_show %}
+        <div class="placeholder-paypal-express-button-container"></div>
+      {% endif %}
+      {% comment %} 加购信息补充区域 {% endcomment %}
+      {% if settings.additional_text or settings.additional_image_pc or settings.additional_image_mobile %}
+        {% unless REQUEST_URI contains "view=ajax" %}
+          <div class="product-info__additional">
+            {% if settings.additional_text %}
+              <div class="rich-text">{{ settings.additional_text}}</div>
+            {% endif %}
+            {% if settings.additional_image_pc %}
+              <div class="common__img-wrapper_lazy d-none d-md-block" style="padding-bottom: {{ 100 | divided_by: images[settings.additional_image_pc].aspect_ratio }}%;">
+                <img class="lazyload w-100" data-src="{{ settings.additional_image_pc | img_url }}" src="{{shop.default_img}}"/>
+              </div>
+            {% endif %}
+            {% if settings.additional_image_mobile %}
+              <div class="common__img-wrapper_lazy d-md-none" style="padding-bottom: {{ 100 | divided_by: images[settings.additional_image_mobile].aspect_ratio }}%;">
+                <img class="lazyload w-100" data-src="{{ settings.additional_image_mobile | img_url }}" src="{{shop.default_img}}"/>
+              </div>
+            {% endif %}
+          </div>
+        {% endunless %}
+      {% endif %}
+      {% capture desc_tab %}
+        {% comment %} view=ajax不加载tab {% endcomment %}
+        {% unless REQUEST_URI contains "view=ajax" %}
+          <div class="col-12 px-0 product-info__desc-tab product-info__desc {{ section.settings.description_position }}">
+            {% comment %} 移动端tab栏 {% endcomment %}
+              <div class="product-info__label_tabs">
+                <label class="xf_skin_text product-info__desc-tab-header product-info__label_tabs_checked" for="r-{{ section.id }}-1">
+                  {{ langs.product.product_detail.product_description | t }}
+                </label>
+                <label data-position="{{section.settings.description_position}}" class="xf_skin_text product-info__desc-tab-header product_detail_reviews_label d-none" for="r-{{ section.id }}-5">
+                  {{ langs.product.product_detail.review | t }}
+                </label>
+                {% if section.settings.page1.id %}
+                  <label class="xf_skin_text product-info__desc-tab-header" for="r-{{ section.id }}-2">
+                    {{ pages[section.settings.page1.id].title }}
+                  </label>
+                {% endif %}
+                {% if section.settings.page2.id %}
+                  <label class="xf_skin_text product-info__desc-tab-header" for="r-{{ section.id }}-3">
+                    {{ pages[section.settings.page2.id].title }}
+                  </label>
+                {% endif %}
+                {% if section.settings.page3.id %}
+                  <label class="xf_skin_text product-info__desc-tab-header" for="r-{{ section.id }}-4">
+                    {{ pages[section.settings.page3.id].title }}
+                  </label>
+                {% endif %}
+              </div>
+            <input type="checkbox" name="r-{{ section.id }}-1" class="d-none product-info__desc-tab-cb" id="r-{{ section.id }}-1" {% unless section.settings.description_position == "side_close" %} checked {% endunless %}   />
+            <label class="xf_skin_text product-info__desc-tab-header" for="r-{{ section.id }}-1">
+              {{ langs.product.product_detail.product_description | t }}
+              <i class="sep-font sep-font-angle-down-strong"></i>
+            </label>
+            <div class="product-info__desc-tab-content">{{ product.description | lazysizes }}</div>
+
+            {% comment %} 商品评论 {% endcomment %}
+            <input type="checkbox" name="r-{{ section.id }}-5" class="d-none product-info__desc-tab-cb" id="r-{{ section.id }}-5"/>
+            <label data-position="{{section.settings.description_position}}" class="xf_skin_text product-info__desc-tab-header product_detail_reviews_label d-none" for="r-{{ section.id }}-5">
+              {{ langs.product.product_detail.review | t }}
+              <i class="sep-font sep-font-angle-down-strong"></i>
+            </label>
+            <div class="product-info__desc-tab-content product_detail_reviews_content"></div>
+
+            {% if section.settings.page1.id %}
+              <input type="checkbox" name="r-{{ section.id }}-2" class="d-none product-info__desc-tab-cb" id="r-{{ section.id }}-2"  />
+              <label class="xf_skin_text product-info__desc-tab-header" for="r-{{ section.id }}-2">
+                {{ pages[section.settings.page1.id].title }}
+                <i class="sep-font sep-font-angle-down-strong"></i>
+              </label>
+              <div class="product-info__desc-tab-content">{{ pages[section.settings.page1.id].content }}</div>
+            {% endif %}
+
+            {% if section.settings.page2.id %}
+              <input type="checkbox" name="r-{{ section.id }}-3" class="d-none product-info__desc-tab-cb" id="r-{{ section.id }}-3" />
+              <label class="xf_skin_text product-info__desc-tab-header" for="r-{{ section.id }}-3">
+                {{ pages[section.settings.page2.id].title }}
+                <i class="sep-font sep-font-angle-down-strong"></i>
+              </label>
+              <div class="product-info__desc-tab-content">{{ pages[section.settings.page2.id].content }}</div>
+            {% endif %}
+
+            {% if section.settings.page3.id %}
+              <input type="checkbox" name="r-{{ section.id }}-4" class="d-none product-info__desc-tab-cb" id="r-{{ section.id }}-4" />
+              <label class="xf_skin_text product-info__desc-tab-header" for="r-{{ section.id }}-4">
+                {{ pages[section.settings.page3.id].title }}
+                <i class="sep-font sep-font-angle-down-strong"></i>
+              </label>
+              <div class="product-info__desc-tab-content">{{ pages[section.settings.page3.id].content }}</div>
+            {% endif %}
+          </div>
+        {% endunless %}
+      {% endcapture %}
+      {% if section.settings.description_position != "bottom" %}
+        {{ desc_tab }}
+      {% endif %}
+      {% comment %} 分享模块 {% endcomment %}
+      {% unless REQUEST_URI contains "view=ajax" %}
+      {% if section.settings.share_pinterest or section.settings.share_twitter or section.settings.share_facebook %}
+        <div class="product-info__social-sharing">
+          {% assign share_title = product.title %}
+          {% assign share_permalink = product.url %}
+          {% assign share_image = product.image.src %}
+          {% if section.settings.share_facebook %}
+            <a target="_blank"
+              href="//www.facebook.com/sharer.php?u={{ shop.url | append: share_permalink }}"
+              class="share-facebook xf_skin_text">
+              <i class="sep-font sep-font-facebook"></i>
+              <span class="share-title" aria-hidden="true">Share</span>
+            </a>
+          {% endif %}
+          {% if section.settings.share_twitter %}
+            <a target="_blank"
+              href="//twitter.com/share?text={{ share_title | url_param_escape }}&amp;url={{ shop.url | append: share_permalink }}"
+              class="share-twitter xf_skin_text">
+              <i class="sep-font sep-font-twitter"></i>
+              <span class="share-title" aria-hidden="true">Tweet</span>
+            </a>
+          {% endif %}
+          {% if section.settings.share_pinterest %}
+            <a target="_blank"
+              href="//pinterest.com/pin/create/button/?url={{ shop.url | append: share_permalink }}&amp;media={{ share_image | img_url: '1024x1024' }}&amp;description={{ share_title | url_param_escape }}"
+              class="share-pinterest xf_skin_text">
+              <i class="sep-font sep-font-pinterest"></i>
+              <span class="share-title" aria-hidden="true">Pin it</span>
+            </a>
+          {% endif %}
+
+        </div>
+      {% endif %}
+      {% endunless %}
+
+      {% if REQUEST_URI contains "view=ajax" %}
+        <div class="product-info__url">
+          <a href="{{ product.url }}">{{ langs.product.product_detail.view_product_detail | t }}</a>
+        </div>
+      {% endif %}
+
+    </form>
+
+    {% if section.settings.description_position == "bottom" %}
+      {{ desc_tab }}
+    {% endif %}
+
+    {% unless REQUEST_URI contains "view=ajax" %}
+        {% if section.settings.is_relative_product_show and recommendedProductsPosition == "line" and section.settings.description_position != 'bottom'%}
+        <div class="col-12 relative_product d-block d-md-none">
+          {% if section.settings.relative_title != '' %}
+            <div class="relative_product__title xf_skin_title_font position-relative">
+              {{ section.settings.relative_title}}
+              <span class="relative_product__change d-none">{{ langs.product.product_detail.not_like_these | t}}</span>
+            </div>
+          {% endif %}
+          <div class="relative_product__content row"></div>
+        </div>
+      {% endif %}
+      {% if section.settings.is_relative_product_show %}
+        {% comment %} 定义前端模板 {% endcomment %}
+        <script id="relative-product-art-tpl" type="text/html">
+          <% for(var i = 0; i < products.length; i++) { %>
+            <div class="col-6 <%= colMd %> common__product-gap">
+              <% include ('product_art_tpl', {
+                product: products[i]
+              }) %>
+            </div>
+          <% } %>
+        </script>
+        {% if recommendedProductsPosition == "bottom" or section.settings.description_position == 'bottom'%}
+          <div class="col-12 relative_product">
+            {% if section.settings.relative_title != '' %}
+              <div class="relative_product__title xf_skin_title_font position-relative">
+                {{ section.settings.relative_title}}
+                <span class="relative_product__change d-none">{{ langs.product.product_detail.not_like_these | t}}</span>
+              </div>
+            {% endif %}
+            <div class="relative_product__content row"></div>
+          </div>
+        {% endif %}
+      {% endif %}
+    {% endunless %}
+  </div>
+</div>
+{% include 'product_detail_css' %}
+{% include 'add_to_cart',product: product,selected:selectedVariant,vtype:variant_type,paypal_btn_show:settings.is_paypal_btn_show,settings:section.settings %}
+{%capture inline_js_code%}
+{{settings.inline_js_code}}
+  $(function () {
+    {% assign ajax = false %}
+    {% if REQUEST_URI contains "view=ajax" %}
+      {% assign ajax = true %}
+    {% endif %}
+    $(".product-detail-{{ section.id }}").product_detail({section_id:"{{ section.id }}",default_img:"{{ shop.default_img | img_url }}",product:{{ product | json: "description,meta_description,meta_keyword,meta_title,brief" }}, initialSlide: {{initialSlide}}, ajax: {{ajax}} });
+    {% unless REQUEST_URI contains "view=ajax" %}
+    {% assign count = section.settings.product_number | default: 3 %}
+    {% if section.settings.is_relative_product_show %}
+      var page = 1, per_page = 30, products = [], related_count = {{section.settings.product_number | default: 3}}, enableChangeCount = 10;
+        var $section = $('[data-section-id=' + {{section.id}} + ']');
+      {% comment %} 获取异步商品 {% endcomment %}
+      $.get('/api/products/tuijian?product_id={{product.id}}'+'&page='+page+'&per_page='+per_page+'&num='+related_count, function(res) {
+        if (!(res.state == 'ok' && res.data)) { return ; }
+        products = (res.data || []).filter(function(item) { return item.published; });
+        {% comment %} 可以切换推荐 {% endcomment %}
+        products.length > enableChangeCount && $section.find('.relative_product__change').removeClass('d-none');
+        {% if shop.env == 0 %}
+          $('.relative_product__title')[products.length?"show":"hide"]();
+        {% else %}
+          if (products.length < related_count) {
+            products = products.concat(Array.apply(null, Array(related_count - products.length)).map(function(){ return {
+              image: { src: '{{ shop.default_img }}', width: 100, height: 100 },
+              compare_at_price: '99.99',
+              price: '88.88',
+              available: true,
+              published: true,
+              isMock: true,
+              title: 'Product Title'
+            }; }));
+          }
+        {% endif %}
+        var colMd = 'col-md-6';
+        {% if recommendedProductsPosition == "bottom" or section.settings.description_position == 'bottom' %}
+          colMd = ["","col-md-6","col-md-6","col-md-4","col-md-3","col-md-2_4"][related_count] || colMd;
+        {% endif %}
+        var render = function () {
+          var count = 0;
+          products.length < related_count ? (count = products.length) : (count = related_count);
+          $section.find('.relative_product__content').html(window.template('relative-product-art-tpl', {
+            products:  new Array(count).fill(0).map(function (item, i) {
+              return products[((page-1)*related_count+i)%(products.length)];
+            }),
+            colMd: colMd
+          }));
+          page+=1;
+        };
+        render();
+        $(document).on('click', '.relative_product__change', render);
+      });
+    {% endif %}
+    {% endunless %}
+  });
+
+{%endcapture%}
+{% javascript %}{{inline_js_code}}{% endjavascript %}
+
+{% schema %}
+{
+  "name": "product_detail",
+  "max_blocks": 3,
+  "contentType": [
+    "products"
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Material display",
+        "zh-CN": "元素展示"
+      }
+    },
+    {
+      "type": "select",
+      "label": {
+        "zh-CN": "商品描述展示方式",
+        "en-US": "Description display style"
+      },
+      "id": "description_position",
+      "options": [
+        {
+          "value": "bottom",
+          "label": {
+            "en-US": "Below images",
+            "zh-CN": "图片下方"
+          }
+        },
+        {
+          "value": "side",
+          "label": {
+            "zh-CN": "图片右方且默认展开",
+            "en-US": "On the right of images, expanded as default"
+          }
+        },
+        {
+          "value": "side_close",
+          "label": {
+            "zh-CN": "图片右方且默认收起",
+            "en-US": "On the right of images, collapsed as default"
+          }
+        }
+      ],
+      "default": "bottom"
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Advanced settings",
+        "zh-CN": "高级设置"
+      }
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Share on Facebook",
+        "zh-CN": "可分享到facebook"
+      },
+      "id": "share_facebook",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Tweet on Twitter",
+        "zh-CN": "可分享到Twitter"
+      },
+      "id": "share_twitter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Pin on Pinterest",
+        "zh-CN": "可分享到Pinterest"
+      },
+      "id": "share_pinterest",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Show related recommendations",
+        "zh-CN": "显示相关推荐"
+      },
+      "id": "is_relative_product_show",
+      "default": false,
+      "info": {
+        "zh-CN": "推荐此商品所在专辑的其他商品",
+        "en-US": "Recommend other products on the same collection"
+      }
+    },
+    {
+      "type": "text",
+      "id": "relative_title",
+      "label": {
+        "en-US": "Recommended product title",
+        "zh-CN": "推荐商品标题"
+      },
+      "default": "You May Also Like",
+      "placeholder": "You May Also Like"
+    },
+    {
+      "type": "range",
+      "id": "product_number",
+      "step": 1,
+      "max": 5,
+      "min": 2,
+      "label": {
+        "zh-CN": "推荐产品数",
+        "en-US": "Show number of recommended products"
+      },
+      "default": 3,
+      "unit": ""
+    },
+    {
+      "type": "select",
+      "label": {
+        "zh-CN": "推荐商品位置",
+        "en-US": "Recommended products position"
+      },
+      "id": "recommended_products_position",
+      "options": [
+        {
+          "value": "line",
+          "label": {
+            "zh-CN": "商品详情并行",
+            "en-US": "In the tabs with description"
+          }
+        },
+        {
+          "value": "bottom",
+          "label": {
+            "zh-CN": "商品详情底部",
+            "en-US": "Below description"
+          }
+        }
+      ],
+      "default": "line"
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Additional content settings",
+        "zh-CN": "附加内容设置"
+      }
+    },
+    {
+      "type": "page",
+      "label": {
+        "en-US": "Content 1",
+        "zh-CN": "内容1"
+      },
+      "id": "page1"
+    },
+    {
+      "type": "page",
+      "label": {
+        "en-US": "Content 2",
+        "zh-CN": "内容2"
+      },
+      "id": "page2"
+    },
+    {
+      "type": "page",
+      "label": {
+        "en-US": "Content 3",
+        "zh-CN": "内容3"
+      },
+      "id": "page3"
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Add to Cart settings",
+        "zh-CN": "悬浮购物车"
+      }
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Open Status",
+        "zh-CN": "是否开启"
+      },
+      "id": "add_cart_status",
+      "default": true
+    },
+	{
+      "type": "select",
+      "label": {
+        "zh-CN": "操作类型",
+        "en-US": ""
+      },
+      "id": "add_cart_action",
+      "options": [
+        {
+          "value": 0,
+          "label": {
+            "en-US": "",
+            "zh-CN": "加入购物车"
+          }
+        },
+        {
+          "value": 1,
+          "label": {
+            "zh-CN": "立即购买",
+            "en-US": ""
+          }
+        }
+      ],
+      "default": 0
+    },
+	{
+      "type": "select",
+      "label": {
+        "zh-CN": "PC端样式",
+        "en-US": ""
+      },
+      "id": "add_cart_pc_style",
+      "options": [
+        {
+          "value": 1,
+          "label": {
+            "en-US": "Style 1",
+            "zh-CN": "样式一"
+          }
+        },
+        {
+          "value": 2,
+          "label": {
+            "zh-CN": "样式二",
+            "en-US": ""
+          }
+        },
+        {
+          "value": 3,
+          "label": {
+            "zh-CN": "样式三",
+            "en-US": ""
+          }
+        }
+      ],
+      "default": 1
+    },
+	{
+      "type": "select",
+      "label": {
+        "zh-CN": "手机端样式",
+        "en-US": ""
+      },
+      "id": "add_cart_mobile_style",
+      "options": [
+        {
+          "value": 1,
+          "label": {
+            "en-US": "Style 1",
+            "zh-CN": "样式一"
+          }
+        },
+        {
+          "value": 2,
+          "label": {
+            "zh-CN": "样式二",
+            "en-US": ""
+          }
+        },
+        {
+          "value": 3,
+          "label": {
+            "zh-CN": "样式三",
+            "en-US": ""
+          }
+        }
+      ],
+      "default": 1
+    }
+  ],
+  "presets": [
+    {
+      "name": "product_detail",
+      "cname": {
+        "zh-CN": "商品详情",
+        "en-US": "Product"
+      },
+      "category": {
+        "zh-CN": "基础",
+        "en-US": "Basic"
+      },
+      "ccategory": {
+        "zh-CN": "基础",
+        "en-US": "Basic"
+      },
+      "display": false,
+      "blocks": [],
+      "recommended_products_position": "line"
+    }
+  ]
+}
+{% endschema %}
+

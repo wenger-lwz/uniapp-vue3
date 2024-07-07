@@ -1,0 +1,135 @@
+{% include 'pagination' %}
+{% assign defaultImg = 'oss/operation/1468cb0e248c143782cd5161c2a81455.png' | img_url: '1080x' %}
+{% assign limit = 3 %}
+
+<style>
+  .blog_pagination{
+    margin-top: 34px;
+  }
+  @media (min-width: {{settings.breakpoint}}px) {
+    .blog_pagination{
+      margin-top: 68px;
+    }
+  }
+</style>
+
+<div class="blog_section">
+  <div class="tw-max-w-page tw-mx-auto tw-px-5 lg:tw-px-8 lg:tw-px-general-layout-spacing tw-py-10 lg:tw-py-20 tw-text-center blog_cotainer">
+    <div class="tw-text-title-color type-heading-font-family tw-text-center tw-text-lg lg:tw-text-3xl blog_collection_title tw-leading-none">{{blog.title}}</div>
+    <div class="blog_content tw-mt-7 lg:tw-mt-20">
+
+      {% paginate blog.articles by limit %}
+        {% for article in blog.articles %}
+          {% assign image = article.image.src | default: 'oss/operation/1468cb0e248c143782cd5161c2a81455.png' %}
+          {% assign url = article.url %}
+          {% assign title = article.title %}
+          {% assign excerpt = article.excerpt %}
+          {% assign author = article.author %}
+          {% assign published_at = article.published_at %}
+          <div class="tw-mt-10 lg:tw-mt-15 first:tw-mt-0 tw-grid lg:tw-grid-cols-1/2 blogs" style="column-gap: 5%;">
+            <div class="tw-relative" style="padding-bottom: {{ images[image].height | image_padding_bottom : images[image].width, origin: 'unlimit' }};">
+              <a href="{{ url }}"><img src="{{shop.default_img}}" class="tw-absolute tw-inset-0 lazyload tw-w-full {%if settings.general_style == 'round'%}tw-rounded-lg{%endif%}" data-src="{{ image | img_url: '{width}' }}" data-sizes="auto" alt="{{ images[image].alt | escape }}"></a>
+            </div>
+            <div class="tw-flex tw-flex-col tw-items-start tw-justify-center blog">
+              <a class="tw-no-underline" href="{{ url }}"><h2 class="tw-text-left type-heading-font-family text-xl lg:tw-text-3xl tw-mt-5 lg:tw-mt-0 tw-m-0 tw-text-title-color tw-leading-none blog_title">{{ title }}</h2></a>
+              <div class="tw-text-left tw-break-all tw-mt-2.5 tw-leading-5 tw-max-w-full blog_sub_title" style="color: {{ settings.color_general_light_text }};">
+                <span>{{ published_at | date: "%m.%d.%Y" }}</span>
+                <span class="tw-mx-3">|</span>
+                <span>{{ author }}</span>
+                {% for item in article.blogs %}
+                  <span class="tw-mx-3">|</span>
+                  <span>{{ item.title }}</span>
+                {% endfor %}
+              </div>
+              {% if excerpt %}
+                <p class="tw-text-left tw-m-0 tw-mt-4 lg:tw-mt-6 tw-text-text-color lg:tw-text-text-font-size type-text-font-family tw-leading-text-line-height blog_additional">{{ excerpt }}</p>
+              {% endif %}
+              <a class="tw-py-3 tw-px-6 lg:tw-px-10 tw-no-underline tw-mt-6.25 lg:tw-mt-10 tw-border-solid tw-text-btn-bg-color tw-bg-transparent tw-border tw-leading-none tw-border-btn-bg-color lg:tw-text-btn-font-size tw-tracking-btn-letter-spacing
+                {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%}
+                {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} hover:tw-text-btn-text-color hover:tw-bg-btn-bg-color
+                active:tw-text-btn-text-color active:tw-bg-btn-bg-color {%if settings.general_style == 'round'%}tw-rounded{%endif%} blog_btn"
+                href="{{ url }}">{{ langs.general.blog.read_more | t }}</a>
+            </div>
+          </div>
+        {% endfor %}
+      {% endpaginate %}
+
+    </div>
+    <div class="tw-py-2.5 blog_pagination">
+    </div>
+  </div>
+</div>
+
+<script id="blogs-tpl" type="text/html">
+  <div class="tw-mt-10 lg:tw-mt-15 first:tw-mt-0 tw-grid lg:tw-grid-cols-1/2 blogs" style="column-gap:5%;">
+    <% var src = article.image && article.image.src ? article.image.src : '{{defaultImg}}'; %>
+    <% var path = article.image && article.image.path ? article.image.path : ''; %>
+    <% var alt = "{{ images[path] }}" %>
+    <% var imgHeight = article.image && article.image.height ? article.image.height : {{ images[defaultImg].height }} %>
+    <% var imgWidth = article.image && article.image.width ? article.image.width : {{ images[defaultImg].width }} %>
+    <% var paddingBottom = imgHeight / imgWidth * 100 + '%' %>
+    <div class="tw-relative" style="padding-bottom: <%= paddingBottom  %>" >
+      <a href="<%= article.url %>"><img src="{{shop.default_img}}" class="tw-absolute tw-inset-0 lazyload tw-w-full {%if settings.general_style == 'round'%}tw-rounded-lg{%endif%}" data-src="<%= src %>" alt="<%= alt %>"></a>
+    </div>
+    <div class="tw-flex tw-flex-col tw-items-start tw-justify-center blog">
+      <a class="tw-no-underline" href="<%= article.url %>"><h2 class="tw-text-left type-heading-font-family text-xl lg:tw-text-3xl tw-mt-5 lg:tw-mt-0 tw-m-0 tw-text-title-color tw-leading-none blog_title"><%= article.title %></h2></a>
+      <div class="tw-text-left tw-break-all tw-mt-2.5 tw-leading-5 tw-max-w-full blog_sub_title" style="color: {{ settings.color_general_light_text }};">
+        <span><%= $imports.dateFormat($imports.toTimestamp(article.published_at), 'MM.dd.yyyy') %></span>
+        <span class="tw-mx-3">|</span>
+        <span><%= article.author %></span>
+        <% for (var i = 0; i < article.blogs.length; i++) { %>
+        <span class="tw-mx-3">|</span>
+        <span><%= article.blogs[i].title %></span>
+        <% } %>
+      </div>
+      <% if (article.excerpt) { %><p class="tw-text-left tw-m-0 tw-mt-4 lg:tw-mt-6 tw-text-text-color lg:tw-text-text-font-size type-text-font-family tw-leading-text-line-height blog_additional"><%= article.excerpt %></p> <% } %> 
+      <a class="tw-py-3 tw-px-6 lg:tw-px-10 tw-no-underline tw-mt-6.25 lg:tw-mt-10
+        tw-border-solid tw-text-btn-bg-color tw-bg-transparent tw-border tw-leading-none
+        tw-border-btn-bg-color lg:tw-text-btn-font-size tw-tracking-btn-letter-spacing
+        {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%}
+        {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} hover:tw-text-btn-text-color hover:tw-bg-btn-bg-color
+        active:tw-text-btn-text-color active:tw-bg-btn-bg-color {%if settings.general_style == 'round'%}tw-rounded{%endif%} blog_btn"
+        href="<%= article.url %>">{{ langs.general.blog.read_more | t }}</a>
+    </div>
+  </div>
+</script>
+
+
+<script type="text/javascript">
+$(function() {
+  var pageConfig = {
+    page: 1,
+    perPage: {{ limit }}
+  }
+  var blog = function() {
+    var slug = location.pathname.substr(location.pathname.lastIndexOf('/') + 1);
+    // render博客专辑页blog
+    var render = function(data) {
+      var html = data.map(function(item) {
+        return window.template("blogs-tpl", {article: item});
+      }).join('');
+      return html;
+    };
+
+    var load = function(pageConfig) {
+      var $blog_content = $('.blog_content');
+      $blog_content.empty();
+      $.get('/api/front/blogs/' + slug + '/articles?per_page=' + pageConfig.perPage + '&page=' + pageConfig.page, function(res) {
+        if (res && res.articles) {
+          $blog_content.empty().append(render(res.articles));
+        }
+      });
+    };
+    $('.blog_pagination').pagination({
+      page: 1,
+      delimiterPageSize: 5,
+      total: Math.ceil({{ blog.article_count }} / pageConfig.perPage),
+      onChange: function(e, data) {
+        pageConfig.page = data.page;
+        load(pageConfig)
+      }
+    });
+  };
+  blog();
+})
+</script>

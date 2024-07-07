@@ -1,0 +1,1154 @@
+{% assign announcement_on = false %}
+{% assign search_style = section.settings.search_style | default: 'default_expand' %}
+{% if section.settings.announcement_on and section.settings.announcement_content %}
+  {% if section.settings.announcement_position == 'all' or section.settings.announcement_position == template.name %}
+    {% assign announcement_on = true %}
+  {% endif %}
+{% endif %}
+{% comment %} 菜单同行(left-logo)，高度为头部高度，菜单不同行(center-logo)，高度为头部高度➕菜单高度 {% endcomment %}
+{% comment %} 头部导航PC端跟移动端字体都跟随设置 {% endcomment %}
+{% if section.settings.layout == 'center-logo' %}
+  {% assign nav_class = 'tw-justify-between tw-flex-wrap tw-bg-header-bg tw-header-text-color' %}
+  {% assign search_class = 'tw-w-1/3 tw-inline-flex tw-items-center tw-justify-start tw-order-1' %}
+  {% assign logo_class = 'tw-w-1/3 tw-inline-flex tw-items-center tw-justify-center tw-order-2 tw-flex-shrink-0' %}
+  {% assign account_class = 'tw-w-1/3 tw-inline-flex tw-items-center tw-justify-end tw-order-3' %}
+  {% assign menu_class = 'tw-w-screen tw-flex tw-justify-center tw-items-center tw-flex-wrap tw-order-4 tw-bg-header-menu-bg tw--mx-general-layout-spacing tw-header-menu-text-color tw-border-solid tw-border-0 tw-border-t tw-border-header-menu-border' %}
+  {% assign nav_height = section.settings.header_height | plus: section.settings.menu_height %}
+{% else %}
+  {% assign nav_class = 'tw-bg-header-bg tw-text-header-text-color' %}
+  {% assign search_class = 'tw-inline-flex tw-items-center tw-justify-start tw-order-3 tw-ml-auto' %}
+  {% assign logo_class = 'tw-inline-flex tw-items-center tw-justify-center tw-order-1 tw-mr-4 tw-flex-shrink-0' %}
+  {% assign account_class = 'tw-inline-flex tw-items-center tw-justify-end tw-order-4' %}
+  {% assign menu_class = 'tw-inline-flex tw-items-center tw-flex-wrap tw-order-2 tw-h-full' %}
+  {% assign nav_height = section.settings.header_height %}
+{% endif %}
+
+<style>
+  :root {
+    {% assign header_height = section.settings.header_height | default:"0" %}
+    {% if section.settings.layout == 'center-logo' %}
+      {% assign header_height = header_height | plus: section.settings.menu_height | default:"0" %}
+    {% endif %}
+    {% if announcement_on %}
+      {% assign header_height = header_height | plus: section.settings.announcement_min_height | default:"0" %}
+    {% endif %}
+    --header-height: {{header_height}}px;
+    --mobile-header-height: {{section.settings.mobile_header_height | default:"0"}}px;
+  }
+  [data-section-id="header_plus"] .header__search_input::-webkit-input-placeholder { opacity: 0.32; }
+  [data-section-id="header_plus"] .header__search_input::-moz-placeholder { opacity: 0.32; }
+  [data-section-id="header_plus"] .header__search_input:-ms-input-placeholder  { opacity: 0.32; }
+  [data-section-id="header_plus"] .header__announcement p {margin-top:0;margin-bottom:0;}
+  [data-section-id="header_plus"] .header__announcement a {color: inherit;}
+  .header__border-color{
+    {% if template.name == 'index' %}
+      border-color: var(--color-header-bg);
+    {% else %}
+      border-color: var(--color-header-border);
+    {% endif %}
+  }
+  .header__border-color-hide{
+    border-color: var(--color-header-bg);
+  }
+  .header__drawer{
+    transition: opacity .25s ease,transform .25s ease;
+  }
+  .header__menu-open{
+    {% assign text_font = settings.type_text_font_family %}
+    padding: 0;
+    font-family:{{text_font.family}},{{text_font.fallback_families}};
+    font-style:{{text_font.style}};
+    font-weight:{{text_font.weight}};
+    color: var(--color-general-text);
+  }
+  .header__menu-open>.header__submenu-title{
+    {% assign heading_font = settings.type_heading_font_family %}
+    padding-top: 16px;
+    padding-bottom: 16px;
+    font-family:{{heading_font.family}},{{heading_font.fallback_families}};
+    font-style:{{heading_font.style}};
+    font-weight:{{heading_font.weight}};
+    color: var(--color-general-light-text);
+  }
+  .header__menu-open>.header__submenu-title>i{
+    order: -1;
+    transform: rotateY(180deg);
+  }
+  .header__menu-open>.header__submenu{
+    display: block;
+  }
+  .drawer_open:after{
+    content: "";
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    z-index: 1040;
+    background-color: rgba(0,0,0,.3);
+  }
+  .header__search-drawer{
+    pointer-events: none;
+  }
+  .drawer_open .header__search-drawer{
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  @media (min-width: {{settings.breakpoint}}px) {
+    .header__border-color-hide{
+      border-color: {% if section.settings.layout == 'center-logo' %}var(--color-header-menu-bg){% else %}var(--color-header-bg){% endif %};
+    }
+    .header-title{
+      font-size: 26px;
+    }
+    .header__menu-item-second{
+      margin-left: -40px;
+      margin-top: 1px;
+    }
+    .header__menu-third{
+      margin-top: 1px;
+      max-height:calc( 100vh - var(--header-height,'0px') );
+    }
+    .header__menu-item-third{
+      max-width: 15%;
+    }
+    {% comment %} 动画和延迟 {% endcomment %}
+    .header-transition{
+      transition: visibility 0.6s, opacity 0.5s 0.1s;
+    }
+    .header__menu-transition:hover .header-transition{
+      transition: opacity 0.5s;
+    }
+    .header__menu-transition > a:after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      left: 0;
+      bottom: -1px;
+      z-index: 1;
+      background-color: var(--color-header-menu-text);
+      transition: width .25s .2s;
+    }
+    .header__menu-transition:hover > a:after {
+      width: 100%;
+      transition: width .25s;
+    }
+    .header__menu-transition ul li {
+      transition: transform .65s cubic-bezier(.165,.84,.44,1) .175s,
+        opacity .65s cubic-bezier(.165,.84,.44,1) .25s;
+    }
+    .header__menu-transition:hover ul li {
+      transition: transform .65s cubic-bezier(.165,.84,.44,1) .075s, opacity .65s cubic-bezier(.165,.84,.44,1) .15s;
+    }
+  }
+</style>
+
+<header class="tw-text-menu-font-size tw-tracking-menu-letter-spacing {%if settings.type_menu_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_menu_text_uppercase_on%}tw-uppercase{%endif%} header__wrapper">
+  {% comment %} 搜索 drawer {% endcomment %}
+  {% if section.settings.enable_search and search_style == 'click_expand' %}
+    <div class="tw-hidden lg:tw-block tw-fixed tw-w-full tw-z-modal tw-bg-bg-color tw-transform tw--translate-y-full tw-opacity-0 tw-transition-all tw-duration-300 header__search-drawer">
+      <div class="tw-max-w-page tw-mx-auto tw-px-5 lg:tw-px-general-layout-spacing">
+        <a href="javascript:;" class="tw-block tw-w-10 tw-mr-0 tw-ml-auto tw-text-center tw-text-0 tw-text-title-color tw-pt-8 tw-pb-5 drawer_close">
+          {% include 'icon_close_btn' %}
+        </a>
+        <form action="/search" method="get" class="tw-pt-9 tw-pb-18 ">
+          <div tabindex="-1" class="tw-relative tw-my-0 tw-mx-auto tw-cursor-pointer tw-w-180 tw-flex tw-items-center header__search">
+            <button type="submit" class="header__search-icon lg:hover:tw-opacity-40 tw-p-0 tw-m-0 tw-border-none tw-outline-none tw-bg-none tw-cursor-pointer tw-bg-transparent tw-absolute tw-right-0 tw-h-full tw-z-10" tabindex="-1">{% include 'icon_search_btn', icon_class: 'tw-text-title-color' %}</button>
+            <input name="q" type="text" class="tw-box-border tw-relative tw-py-3 tw-pr-5 tw-pl-0 tw-bg-none tw-border-solid tw-border-b tw-border-0 tw-border-title-color tw-block tw-w-180 tw-rounded-none focus:tw-outline-none tw-bg-transparent tw-text-inherit type-text-font-family tw-text-7 tw-leading-normal tw-placeholder-title-color header__search_input" style="letter-spacing: -0.5px;" placeholder="{{ langs.navigation.general.search_product | t }}" />
+          </div>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+  {% comment %} 公告栏 {% endcomment %}
+  {% if announcement_on %}
+    <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-px-5 lg:tw-px-general-layout-spacing tw-text-center tw-leading-1.3 type-text-font-family tw-normal-case header__announcement" style="min-height:{{section.settings.announcement_min_height}}px;color:{{section.settings.announcement_text_color}};background:{{section.settings.announcement_bg}};font-size:{{section.settings.announcement_font_size}}px;letter-spacing:{{section.settings.announcement_letter_spacing}}px">
+      {{section.settings.announcement_content}}
+    </div>
+  {% endif %}
+  <div class="tw-relative header__placeholder">
+    <div class="tw-w-full tw-border-solid tw-border-0 tw-border-b header__border-color header">
+      {% comment %} 插件坑位 {% endcomment %}
+      <div class="header__plugin-fixed-top"></div>
+      {% comment %} PC端 {% endcomment %}
+      <nav class="tw-hidden lg:tw-flex tw-text-header-text-color tw-box-border tw-items-center tw-px-general-layout-spacing {{ nav_class }} header__nav" {% if section.settings.layout == 'left-logo' %}style="height: {{ section.settings.header_height }}px;"{%endif%}>
+        <div class="{{ search_class }}" {% if section.settings.layout == 'center-logo' %}style="height: {{ section.settings.header_height }}px;"{%endif%}>
+          {% include 'header_search' %}
+        </div>
+
+        <div class="{{ logo_class }}" {% if section.settings.layout == 'center-logo' %}style="height: {{ section.settings.header_height }}px;"{%endif%}>
+          {% include 'header_logo', logo_image: section.settings.logo_image, logo_width: section.settings.logo_width, logo_h: section.settings.header_height  %}
+        </div>
+
+        <div class="tw-leading-none {{ account_class }}" {% if section.settings.layout == 'center-logo' %}style="height: {{ section.settings.header_height }}px;"{%endif%}>
+          {% comment %} 货币接入 {% endcomment %}
+          <div class="tw-relative tw-leading-none lg:tw-ml-6 empty:tw-hidden plugin__translate-header"></div>
+          <div class="tw-relative tw-leading-none multiply_currency"></div>
+          <div class="tw-group tw-relative tw-flex tw-text-inherit tw-no-underline tw-leading-none tw-cursor-pointer {% unless section.settings.enable_account %}tw-hidden{% endunless %} header__account">
+            {% if section.settings.account_style == 'icon' %}
+              <i class="tw-ml-6 tw-text-0 lg:tw-transition-opacity lg:tw-duration-300 lg:hover:tw-opacity-60">{% include 'icon_account' %}</i>
+            {% else %}
+              <span class="tw-ml-6">{{langs.navigation.general.account | t}}</span>
+            {% endif %}
+            <div class="header__account-popover tw-opacity-0 group-hover:tw-opacity-100 tw-h-0 group-hover:tw-h-auto tw-invisible group-hover:tw-visible tw-whitespace-nowrap tw-block tw-pt-4 tw-absolute tw-top-full tw-right-0 tw-z-popover tw-transition-opacity tw-ease-drop-down-in tw-duration-500">
+              <ul class="tw-list-none tw-m-0 tw-px-7.5 tw-py-4 tw-text-text-color tw-text-text-font-size type-text-font-family tw-leading-text-line-height tw-bg-bg-color tw-shadow-3 {%if settings.general_style == 'round'%}tw-rounded-lg{%endif%}">
+                {% if customer.id %}
+                  <li class="tw-leading-none tw-py-2.5 hover:tw-opacity-40"><a class="tw-w-full tw-inline-block tw-no-underline tw-text-inherit tw-normal-case" href="/account/order">{{ langs.navigation.general.my_orders | t }}</a></li>
+                  <li class="tw-leading-none tw-py-2.5 hover:tw-opacity-40"><a class="tw-w-full tw-inline-block tw-no-underline tw-text-inherit tw-normal-case" href="/account/addresses">{{ langs.navigation.general.address_book | t }}</a></li>
+                  <li class="tw-truncate tw-leading-none tw-py-2.5 hover:tw-opacity-40"><a class="tw-w-full tw-inline-block tw-no-underline tw-text-inherit tw-normal-case header__logout" href="javascript:;">{{ langs.navigation.general.log_out | t }}</a></li>
+                {% else %}
+                  <li class="tw-truncate tw-leading-none tw-py-2.5 hover:tw-opacity-40"><a class="tw-w-full tw-inline-block tw-no-underline tw-text-inherit tw-normal-case" href="/account/login">{{ langs.navigation.general.login | t }}</a></li>
+                  <li class="tw-truncate tw-leading-none tw-py-2.5 hover:tw-opacity-40"><a class="tw-w-full tw-inline-block tw-no-underline tw-text-inherit tw-normal-case" href="/account/register">{{ langs.navigation.general.register | t }}</a></li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+          {% include 'header_cart' %}
+        </div>
+        
+        <div class="{{ menu_class }} header__menu" {% if section.settings.layout == 'center-logo' %}style="height: {{ section.settings.menu_height }}px;"{%endif%}>
+          {% include "header_menu", menu_id: section.settings.menu_id.id %}
+        </div>
+      </nav>
+      {% comment %} 移动端 {% endcomment %}
+      <nav class="tw-flex lg:tw-hidden tw-justify-between tw-items-center tw-text-header-text-color tw-px-5 tw-bg-header-bg header__nav" style="height: {{ section.settings.mobile_header_height }}px;">
+        <a class="tw-flex tw-flex-1 tw-leading-none tw-text-inherit header__toggle" href="javascript:;">{% include 'icon_navigation' %}</a>
+        {% include 'header_logo', logo_image: section.settings.mobile_logo_image, logo_width: section.settings.mobile_logo_width, logo_h: section.settings.mobile_header_height %}
+        <div class="tw-flex-1 tw-text-right">{% include 'header_cart' %}</div>
+      </nav>
+      {% comment %} 弹窗公告插件坑位 {% endcomment %}
+      <div class="plugin__fixed-div header__plugin-fixed-bottom"></div>
+    </div>
+  </div>
+  {% comment %} 移动端侧边菜单 {% endcomment %}
+  <nav class="header__drawer tw-hidden tw-fixed tw-h-full tw-w-full tw-top-0 tw-z-popover tw-p-7.5 tw-box-border tw-bg-bg-color tw-transform tw--translate-x-full tw-opacity-0 tw-text-title-color tw-text-menu-font-size tw-tracking-menu-letter-spacing {%if settings.type_menu_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} tw-overflow-y-auto">
+    <a class="tw-flex tw-p-2 tw--mt-2 tw--ml-2 tw-mb-8 tw-text-inherit header__drawer-close" href="javascript:;">{% include 'icon_close_btn' %}</a>
+    <header>{% include 'header_search' %}</header>
+    
+    <div class="tw-px-0 tw-py-4 header__menu-side">
+      {% include "header_menu", menu_id: section.settings.menu_id.id %}
+    </div>
+
+    <div class="header__account">
+      <ul class="tw-px-0 tw-py-4 tw-m-0 tw-list-none tw-box-border tw-relative">
+        {% if customer.id %}
+          <li class="tw-leading-none header__menu-item header__menu-openable">
+            <a href="javascript:;" class="tw-flex tw-items-center tw-text-inherit tw-truncate tw-no-underline header__submenu-title">
+              <span class="tw-flex-1">{{langs.navigation.general.account | t}}</span>
+              <i class="tw-pl-4 tw-text-0">{% include 'icon_more', icon_class:"tw-transform tw--rotate-90" %}</i>
+            </a>
+            <ul class="tw-hidden tw-m-0 tw-px-0 tw-list-none tw-w-full tw-whitespace-nowrap header__submenu">
+              <li class="tw-flex tw-justify-between tw-items-center tw-py-4 tw-leading-none"><a href="/account/order" class="tw-text-inherit tw-truncate tw-no-underline tw-block" >{{ langs.navigation.general.my_orders | t }}</a></li>
+              <li class="tw-flex tw-justify-between tw-items-center tw-py-4 tw-leading-none"><a href="/account/addresses" class="tw-text-inherit tw-truncate tw-no-underline tw-block" >{{ langs.navigation.general.address_book | t }}</a></li>
+              <li class="header__logout tw-flex tw-justify-between tw-items-center tw-py-4 tw-leading-none"><a href="javascript:;" class="tw-text-inherit tw-truncate tw-no-underline tw-block" >{{ langs.navigation.general.log_out | t }}</a></li>
+            </ul>
+          </li>
+        {% else %}
+          <li class="tw-flex tw-justify-between tw-items-center tw-leading-none">
+            <a href="/account/login" class="tw-text-inherit tw-no-underline">{{ langs.navigation.general.login | t }}</a>
+            {% include 'icon_account' %}
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+
+    {% comment %} 货币接入 {% endcomment %}
+    <div class="tw-relative plugin__translate-header"></div>
+    <div class="tw-relative multiply_currency"></div>
+  </nav>
+  {% comment %} 弹窗公告插件坑位 {% endcomment %}
+  <div class="plugin__static-div"></div>
+</header>
+
+{% javascript %}
+  $(function() {
+    $.fn.header = function(){
+      var $body = $('body');
+      var $doc = $(document)
+      var isMobile = $(window).width() < window.breakpoint;
+      var $section = $('[data-section-id="{{ section.id }}"]');
+      var $placeholder = $section.find('.header__placeholder');
+      var $header = $section.find('.header');
+      var $headerNav = $section.find('.header__nav');
+      var enable_sticky_header = {{ section.settings.enable_sticky_header }};
+      return {
+        init: function(){
+          this.menu();
+          this.cart();
+          this.customer();
+          this.fixed(); 
+          this.search();
+          this.mask();
+        },
+        menu: function(){
+          $(document).off('click', '.header__toggle').on('click', '.header__toggle', function (e) {
+            e.preventDefault();
+            var $drawer = $section.find('.header__drawer');
+            $drawer.removeClass('tw-hidden')
+            setTimeout(function () {
+              $drawer.removeClass('tw--translate-x-full tw-opacity-0').addClass('tw-opacity-100 tw-translate-x-0');
+              $body.addClass('tw-overflow-hidden');
+            }, 10);
+          });
+
+          $body.off('click', '.header__drawer-close').on('click', '.header__drawer-close', function (e) {
+            e.preventDefault();
+            var $drawer = $section.find('.header__drawer');
+            $drawer.removeClass('tw-opacity-100 tw-translate-x-0').addClass('tw--translate-x-full tw-opacity-0');
+            setTimeout(function () {
+              $drawer.addClass('tw-hidden')
+            }, 250);
+            $body.removeClass('tw-overflow-hidden');
+          });
+
+          $body.off('click', '.header__drawer .header__menu-openable').on('click', '.header__drawer .header__menu-openable', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $('.header__menu-open>.header__submenu-title').addClass('tw-hidden');
+            $(this).removeClass('header__menu-openable').addClass('header__menu-open').siblings('.header__menu-item').addClass('tw-hidden');
+          });
+
+          $body.off('click', '.header__menu-open>.header__submenu-title').on('click', '.header__menu-open>.header__submenu-title', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var $submenu = $(this).parent('.header__menu-open');
+            $submenu.removeClass('header__menu-open').addClass('header__menu-openable').siblings('.header__menu-item').removeClass('tw-hidden');
+            $('.header__menu-open>.header__submenu-title').removeClass('tw-hidden');
+          });
+        },
+        fixed: function () {
+          if(enable_sticky_header || isMobile){
+            $(window).on(
+              "scroll",
+              (window.header_fix = $.throttle(
+                function () {
+                  var headerHeight = $header.outerHeight();
+                  var ifFixed = $(window).scrollTop() > $section.find('.header__wrapper').outerHeight();
+                  $placeholder.css({ "min-height": headerHeight });
+                  $header
+                    .toggleClass("tw-fixed tw-z-fixed tw-top-0 tw-shadow-5 header__border-color-hide header__fixed", ifFixed)
+                    .toggleClass("header__border-color", !ifFixed);
+                },
+                16, 16
+              ))
+            )
+            $(window).resize($.throttle(function () {
+              window.header_fix()
+            }, 16, 16));
+            window.header_fix()
+            return
+          }
+          window.header_fix = null;
+        },
+        customer: function(){
+          $body.off('click', '.header__logout').on('click', '.header__logout', function (e) {
+            $.ajax({
+              type: 'POST',
+              dataType: 'json',
+              url: shop_url+'account/logout',
+              data: {},
+              success: function (data) {
+                // 退出登陆埋点
+                $(document.body).trigger('xf.logout');
+                window.location.reload();
+              },
+              error: function () {
+                window.location.reload();
+              }
+            });
+          });
+        },
+        cart: function(){
+          $(document).on('xf.common.cart.change update_header_cart', function () {
+            $.get(shop_url+'cart/count', function (res) {
+              if (res && res.state == "success") {
+                // 设置购物车数量
+                var count = res.count;
+                $('.header__cart_count').html(count);
+                if(count > 0) {
+                  $('.header__cart_bubble').removeClass('tw-hidden');
+                } else {
+                  $('.header__cart_bubble').addClass('tw-hidden');
+                }
+              }
+            });
+          }).trigger('update_header_cart');
+        },
+        mask: function () {
+          // 点击"after"关闭
+          $doc.on('click.drawer_open', '.drawer_open', function (e) {
+            if ($(e.target)[0].tagName.toLowerCase() == 'body') {
+              $('body').removeClass('tw-overflow-hidden drawer_open');
+            }
+          })
+          $doc.on('click', '.drawer_close', function () {
+            $body.trigger('click.drawer_open');
+          })
+        },
+        search: function () {
+          $doc.on('click', '#search_expand_btn', function () {
+            $('body').addClass('tw-overflow-hidden drawer_open');
+          });
+        },
+      }
+    }
+    $('[data-section-id="{{ section.id }}"]').header().init();
+  })
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "header_plus",
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "zh-CN": "常规设置",
+        "en-US": "General"
+      }
+    },
+    {
+      "type": "select",
+      "label": {
+        "en-US": "Layout",
+        "zh-CN": "头部布局"
+      },
+      "id": "layout",
+      "default": "left-logo",
+      "options": [
+        {
+          "value": "left-logo",
+          "label": {
+            "zh-CN": "LOGO靠左",
+            "en-US": "Logo left-aligned"
+          }
+        },
+        {
+          "value": "center-logo",
+          "label": {
+            "zh-CN": "LOGO在中间，与菜单分两行",
+            "en-US": "Logo centered, menu in next line"
+          }
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "header_height",
+      "placeholder": {
+        "zh-CN": "头部高度",
+        "en-US": "Header height"
+      },
+      "label": {
+        "zh-CN": "头部高度",
+        "en-US": "Header height"
+      },
+      "props": {
+        "type": "number"
+      },
+      "default": "60"
+    },
+    {
+      "type": "text",
+      "id": "menu_height",
+      "visibleOn": " layout != 'left-logo' ",
+      "placeholder": {
+        "zh-CN": "菜单栏高度",
+        "en-US": "Menu height"
+      },
+      "label": {
+        "zh-CN": "菜单栏高度",
+        "en-US": "Menu height"
+      },
+      "props": {
+        "type": "number"
+      },
+      "default": "50"
+    },
+    {
+      "type": "text",
+      "id": "mobile_header_height",
+      "placeholder": {
+        "zh-CN": "移动端头部高度",
+        "en-US": "Mobile header height"
+      },
+      "label": {
+        "zh-CN": "移动端头部高度",
+        "en-US": "Mobile header height"
+      },
+      "props": {
+        "type": "number"
+      },
+      "default": "50"
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Enable sticky header",
+        "zh-CN": "开启头部置顶"
+      },
+      "id": "enable_sticky_header",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Enable search",
+        "zh-CN": "开启搜索"
+      },
+      "id": "enable_search",
+      "default": true
+    },
+    {
+      "type": "select",
+      "label": {
+        "zh-CN": "搜索样式",
+        "en-US": "Search styling"
+      },
+      "id": "search_style",
+      "default": "default_expand",
+      "visibleOn": "enable_search",
+      "options": [
+        {
+          "value": "default_expand",
+          "label": {
+            "en-US": "Default expand",
+            "zh-CN": "默认展开"
+          }
+        },
+        {
+          "value": "click_expand",
+          "label": {
+            "zh-CN": "点击后展开",
+            "en-US": "Click to expand"
+          }
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "zh-CN": "开启账户",
+        "en-US": "Sign up account"
+      },
+      "id": "enable_account",
+      "default": true
+    },
+    {
+      "type": "select",
+      "label": {
+        "en-US": "Account style",
+        "zh-CN": "账户样式"
+      },
+      "id": "account_style",
+      "visibleOn": "enable_account",
+      "default": "icon",
+      "options": [
+        {
+          "value": "text",
+          "label": {
+            "en-US": "Text",
+            "zh-CN": "文字"
+          }
+        },
+        {
+          "value": "icon",
+          "label": {
+            "en-US": "Icon",
+            "zh-CN": "图标"
+          }
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Announcement bar",
+        "zh-CN": "公告栏"
+      }
+    },
+    {
+      "type": "checkbox",
+      "id": "announcement_on",
+      "label": {
+        "en-US": "Activate",
+        "zh-CN": "启用"
+      },
+      "default": false
+    },
+    {
+      "type": "richtext",
+      "id": "announcement_content",
+      "visibleOn": "announcement_on",
+      "label": {
+        "en-US": "Content",
+        "zh-CN": "内容"
+      },
+      "default": "Free shipping on international order of $150+"
+    },
+    {
+      "type": "text",
+      "id": "announcement_min_height",
+      "visibleOn": "announcement_on",
+      "label": {
+        "en-US": "Min height",
+        "zh-CN": "最小高度"
+      },
+      "props": {
+        "type": "number"
+      },
+      "default": 40
+    },
+    {
+      "type": "color",
+      "id": "announcement_bg",
+      "visibleOn": "announcement_on",
+      "label": {
+        "en-US": "Background color",
+        "zh-CN": "背景颜色"
+      },
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "announcement_text_color",
+      "visibleOn": "announcement_on",
+      "label": {
+        "en-US": "Text color",
+        "zh-CN": "文本颜色"
+      },
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "announcement_font_size",
+      "visibleOn": "announcement_on",
+      "step": 1,
+      "max": 16,
+      "min": 12,
+      "unit": "px",
+      "label": {
+        "en-US": "Font size",
+        "zh-CN": "字号"
+      },
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "announcement_letter_spacing",
+      "visibleOn": "announcement_on",
+      "step": 0.1,
+      "max": 2,
+      "min": -2,
+      "unit": "px",
+      "label": {
+        "en-US": "Letter spacing",
+        "zh-CN": "字间距"
+      },
+      "default": 0
+    },
+    {
+      "type": "select",
+      "id": "announcement_position",
+      "visibleOn": "announcement_on",
+      "label": {
+        "en-US": "Display position",
+        "zh-CN": "显示位置"
+      },
+      "options": [
+        {
+          "value": "index",
+          "label": {
+            "zh-CN": "仅首页",
+            "en-US": "Homepage only"
+          }
+        },
+        {
+          "value": "all",
+          "label": {
+            "en-US": "All pages",
+            "zh-CN": "所有页面"
+          }
+        }
+      ],
+      "default": "index"
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Menu",
+        "zh-CN": "菜单"
+      }
+    },
+    {
+      "type": "link_list",
+      "id": "menu_id",
+      "label": {
+        "en-US": "Navigation settings",
+        "zh-CN": "菜单导航设置"
+      },
+      "default": {
+        "id": "header",
+        "type": "menu",
+        "title": {}
+      }
+    },
+    {
+      "type": "link_list",
+      "id": "mobile_menu_id",
+      "label": {
+        "en-US": "Mobile navigation settings",
+        "zh-CN": "移动端菜单导航设置"
+      },
+      "default": {
+        "id": "header",
+        "type": "menu",
+        "title": {}
+      }
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Logo",
+        "zh-CN": "Logo"
+      }
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_image",
+      "label": {
+        "zh-CN": "PC端LOGO图片",
+        "en-US": "Desktop logo"
+      },
+      "info": {
+        "zh-CN": "建议上传LOGO图片的尺寸为设置的LOGO宽度的2倍",
+        "en-US": "Recommended logo size for uploading should be twice the width of original size."
+      },
+      "default": ""
+    },
+    {
+      "type": "text",
+      "id": "logo_width",
+      "placeholder": {
+        "zh-CN": "PC端LOGO宽度",
+        "en-US": "Logo width at PC device"
+      },
+      "label": {
+        "zh-CN": "PC端LOGO宽度",
+        "en-US": "Logo width at PC device"
+      },
+      "info": {
+        "en-US": "Logo width in px",
+        "zh-CN": "LOGO宽度单位为px"
+      },
+      "props": {
+        "type": "number"
+      },
+      "default": 80
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_logo_image",
+      "label": {
+        "zh-CN": "移动端LOGO图片",
+        "en-US": "Mobile logo image"
+      },
+      "info": {
+        "zh-CN": "建议上传LOGO图片的尺寸为设置的LOGO宽度的2倍",
+        "en-US": "The size of the logo image to be uploaded should be twice the width of the logo set"
+      },
+      "default": ""
+    },
+    {
+      "type": "text",
+      "id": "mobile_logo_width",
+      "placeholder": {
+        "en-US": "Mobile Logo width",
+        "zh-CN": "移动端LOGO宽度"
+      },
+      "label": {
+        "en-US": "Mobile Logo width",
+        "zh-CN": "移动端LOGO宽度"
+      },
+      "info": {
+        "en-US": "Logo width in px",
+        "zh-CN": "LOGO宽度单位为px"
+      },
+      "props": {
+        "type": "number"
+      },
+      "default": 80
+    },
+    {
+      "type": "header",
+      "content": {
+        "zh-CN": "混合菜单广告位",
+        "en-US": "Mega menu"
+      }
+    },
+    {
+      "type": "paragraph",
+      "content": {
+        "zh-CN": "仅在有三级菜单时生效",
+        "en-US": "Only effective when a third-level menu is available."
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "ads",
+      "name": {
+        "zh-CN": "广告位",
+        "en-US": "Ads placement"
+      },
+      "settings": [
+        {
+          "type": "text",
+          "id": "menu",
+          "label": {
+            "en-US": "Mega menu trigger",
+            "zh-CN": "触发的混合菜单"
+          },
+          "info": {
+            "zh-CN": "名字需与一级菜单名字保持一致，不区分大小写",
+            "en-US": "The name must match the name of the first directory, not case sensitive"
+          },
+          "default": "",
+          "placeholder": "Please input mega menu trigger"
+        },
+        {
+          "type": "select",
+          "label": {
+            "en-US": "Position",
+            "zh-CN": "位置"
+          },
+          "id": "position1",
+          "default": "right",
+          "options": [
+            {
+              "value": "left",
+              "label": {
+                "en-US": "Left",
+                "zh-CN": "左边"
+              }
+            },
+            {
+              "value": "right",
+              "label": {
+                "en-US": "Right",
+                "zh-CN": "右边"
+              }
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "label": {
+            "en-US": "Type",
+            "zh-CN": "类型"
+          },
+          "id": "type1",
+          "default": "custom",
+          "options": [
+            {
+              "value": "custom",
+              "label": {
+                "en-US": "Custom content",
+                "zh-CN": "自定义内容"
+              }
+            },
+            {
+              "value": "product",
+              "label": {
+                "en-US": "Product",
+                "zh-CN": "商品"
+              }
+            }
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "image1",
+          "visibleOn": "type1 == 'custom'",
+          "label": {
+            "zh-CN": "图片",
+            "en-US": "Image"
+          },
+          "default": ""
+        },
+        {
+          "type": "text",
+          "id": "title1",
+          "visibleOn": "type1 == 'custom'",
+          "label": {
+            "zh-CN": "标题",
+            "en-US": "Heading"
+          },
+          "default": "",
+          "placeholder": {
+            "zh-CN": "输入标题",
+            "en-US": "Enter heading"
+          }
+        },
+        {
+          "type": "textarea",
+          "id": "desc1",
+          "visibleOn": "type1 == 'custom'",
+          "label": {
+            "en-US": "Description",
+            "zh-CN": "描述"
+          },
+          "placeholder": {
+            "zh-CN": "请输入描述",
+            "en-US": "Enter description"
+          },
+          "default": ""
+        },
+        {
+          "type": "url",
+          "id": "link1",
+          "visibleOn": "type1 == 'custom'",
+          "label": {
+            "zh-CN": "链接",
+            "en-US": "Link"
+          },
+          "default": ""
+        },
+        {
+          "type": "product",
+          "visibleOn": "type1 == 'product'",
+          "id": "product1"
+        },
+        {
+          "type": "select",
+          "label": {
+            "en-US": "Position 2",
+            "zh-CN": "位置2"
+          },
+          "id": "position2",
+          "default": "right",
+          "options": [
+            {
+              "value": "left",
+              "label": {
+                "en-US": "Left",
+                "zh-CN": "左边"
+              }
+            },
+            {
+              "value": "right",
+              "label": {
+                "en-US": "Right",
+                "zh-CN": "右边"
+              }
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "label": {
+            "en-US": "Type 2",
+            "zh-CN": "类型2"
+          },
+          "id": "type2",
+          "default": "custom",
+          "options": [
+            {
+              "value": "custom",
+              "label": {
+                "en-US": "Custom content",
+                "zh-CN": "自定义内容"
+              }
+            },
+            {
+              "value": "product",
+              "label": {
+                "en-US": "Product",
+                "zh-CN": "商品"
+              }
+            }
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "image2",
+          "visibleOn": "type2 == 'custom'",
+          "label": {
+            "zh-CN": "图片2",
+            "en-US": "Image 2"
+          },
+          "default": ""
+        },
+        {
+          "type": "text",
+          "id": "title2",
+          "visibleOn": "type2 == 'custom'",
+          "label": {
+            "en-US": "Title 2",
+            "zh-CN": "标题2"
+          },
+          "default": "",
+          "placeholder": {
+            "zh-CN": "输入标题",
+            "en-US": "Input heading"
+          }
+        },
+        {
+          "type": "textarea",
+          "id": "desc2",
+          "visibleOn": "type2 == 'custom'",
+          "label": {
+            "en-US": "Description2",
+            "zh-CN": "描述2"
+          },
+          "placeholder": {
+            "zh-CN": "请输入描述",
+            "en-US": "Input description"
+          },
+          "default": ""
+        },
+        {
+          "type": "url",
+          "id": "link2",
+          "visibleOn": "type2 == 'custom'",
+          "label": {
+            "zh-CN": "链接2",
+            "en-US": "Link 2"
+          },
+          "default": ""
+        },
+        {
+          "type": "product",
+          "visibleOn": "type2 == 'product'",
+          "id": "product2"
+        },
+        {
+          "type": "select",
+          "label": {
+            "en-US": "Position3",
+            "zh-CN": "位置3"
+          },
+          "id": "position3",
+          "default": "right",
+          "options": [
+            {
+              "value": "left",
+              "label": {
+                "en-US": "Left",
+                "zh-CN": "左边"
+              }
+            },
+            {
+              "value": "right",
+              "label": {
+                "en-US": "Right",
+                "zh-CN": "右边"
+              }
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "label": {
+            "en-US": "Type 3",
+            "zh-CN": "类型3"
+          },
+          "id": "type3",
+          "default": "custom",
+          "options": [
+            {
+              "value": "custom",
+              "label": {
+                "en-US": "Custom content",
+                "zh-CN": "自定义内容"
+              }
+            },
+            {
+              "value": "product",
+              "label": {
+                "en-US": "Product",
+                "zh-CN": "商品"
+              }
+            }
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "image3",
+          "visibleOn": "type3 == 'custom'",
+          "label": {
+            "zh-CN": "图片3",
+            "en-US": "Image 3"
+          },
+          "default": ""
+        },
+        {
+          "type": "text",
+          "id": "title3",
+          "visibleOn": "type3 == 'custom'",
+          "label": {
+            "en-US": "Title 3",
+            "zh-CN": "标题3"
+          },
+          "default": "",
+          "placeholder": {
+            "zh-CN": "输入标题",
+            "en-US": "Enter subheading"
+          }
+        },
+        {
+          "type": "textarea",
+          "id": "desc3",
+          "visibleOn": "type3 == 'custom'",
+          "label": {
+            "en-US": "Description 3",
+            "zh-CN": "描述3"
+          },
+          "placeholder": {
+            "zh-CN": "请输入描述",
+            "en-US": "Input description"
+          },
+          "default": ""
+        },
+        {
+          "type": "url",
+          "id": "link3",
+          "visibleOn": "type3 == 'custom'",
+          "label": {
+            "zh-CN": "链接3",
+            "en-US": "Link 3"
+          },
+          "default": ""
+        },
+        {
+          "type": "product",
+          "visibleOn": "type3 == 'product'",
+          "id": "product3"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    {
+      "name": "header",
+      "cname": {
+        "en-US": "Navigation",
+        "zh-CN": "导航"
+      },
+      "category": {
+        "en-US": "Navigation",
+        "zh-CN": "导航"
+      },
+      "ccategory": {
+        "en-US": "Navigation",
+        "zh-CN": "导航"
+      },
+      "display": false,
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}

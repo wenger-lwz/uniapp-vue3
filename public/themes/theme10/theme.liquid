@@ -1,0 +1,56 @@
+{% if REQUEST_URI contains "view=ajax" %}{{ content_for_layout }}{% else %}<!doctype html>
+<html class="no-js" lang="{{ shop.locale }}" {% if shop.locale == "ar-SA" %}dir="rtl"{% endif %}>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+    {{ content_for_header }}
+    {% include 'settings' %}
+    {% include 'theme_css' %}
+    <script>
+      {% assign off = langs.product.product_detail.off | t | json | replace: '{{ count }}', '{ count }' %}
+      {% assign save_html = langs.product.product_detail.save_html | t | json | replace: '{{ saved_amount }}', '{ saved_amount }' %}
+      window.SHOP_PARAMS = {
+        customer_id:'{{customer.id}}',
+		theme_name:"{{template.name}}",
+		theme_version:"{{template.version}}",
+        finance: '{{shop.finance}}',
+        finance_symbol: '{{shop.finance_symbol}}',
+        cdn_domain: '{{shop.cdn_domain}}',
+        shop_name: '{{shop.name | escape}}',
+        theme_id: '{{theme.id}}',
+        shop_id: '{{shop.id}}',
+        shop_env: '{{shop.env}}',
+        default_img: '{{shop.default_img}}',
+        template_name:"{{template.name}}",
+        template_type:"{{template.type}}",
+        form_lang: { invalid_characters:{{ langs.checkout.form.invalid_characters | t | json }} },
+        product_settings: {
+          add_to_cart_process:{{ settings.add_to_cart_process | default: "to_toast" | json }},
+          quick_view_process:{{ settings.quick_view_process | default: "to_quick_view" | json }},
+        },
+        product_lang: {
+          added_to_cart_successfully:{{ langs.product.product_detail.added_to_cart_successfully | t  | json }},
+          select_variant:{{ langs.product.product_detail.select_variant | t | json}},
+          off: {{ off }},
+          save_html: {{ save_html }}
+        },
+        is_select_default_variants: {{ settings.is_select_default_variants | default: 'false' }}
+      }
+      window.product_reviews_star_color = "{{ settings.product_reviews_star_color }}";
+    </script>
+  </head>
+  <body class="xf_skin_bg xf_skin_body" >
+	{% include 'lazysizes' %}
+	{% include 'verder_js' %}
+    <div class="page_container">{{ content_for_layout }}</div>
+    {% include 'product_info_tpl' %}
+    {% include 'product_art_tpl' %}
+    {{ content_for_js }}
+	{% include  "cart_modal" %}
+  {% if settings.is_quick_view_btn_show or template.page == 'product' %}
+	{% include  "product_detail_js"  %}
+  {% endif %}
+  </body>
+</html>
+{% endif %}

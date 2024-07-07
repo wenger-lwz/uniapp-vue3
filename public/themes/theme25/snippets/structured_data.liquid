@@ -1,0 +1,82 @@
+{% comment %}
+  Product structured data
+  https://developers.google.com/search/docs/data-types/products
+{% endcomment %}
+
+{% if template contains 'product' %}
+  {% assign selectedVariantId = "" %}
+  {% assign selectedVariant = product.variants[0] %}
+  {% for variant in product.variants %}
+    {% if forloop.index0 == 0 %}
+      {% assign selectedVariantId = variant.id %}
+    {% endif %}
+    {% if variant.available_quantity > 0 %}
+      {% assign selectedVariantId = variant.id %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+
+  {% assign paramVariantId = '' %}
+  {% assign params = REQUEST_URI | split: "?" | last | split: "&" %}
+  {% for p in params %}
+    {% assign pair = p | split: "=" %}
+    {% if pair[0] contains "variant" and pair[1] != '' %}
+      {% assign selectedVariantId = pair[1] %}
+      {% assign paramVariantId = pair[1] %}
+    {% endif  %}
+  {% endfor %}
+
+  {% for variant in product.variants %}
+    {% if variant.id == selectedVariantId %}
+      {% assign selectedVariant = variant %}
+    {% endif %}
+  {% endfor %}
+
+  {% assign selectedVariantImg = selectedVariant.image.src | default: product.image.src %}
+
+  {% assign description = product.description  %}
+  <script type="application/ld+json">
+  {
+    "@context": "http://schema.org/",
+    "@type": "Product",
+    "name": {{ product.title | json }},
+    "image": {{ selectedVariantImg | prepend: 'https:' | json }},
+    {% if product.description != blank %}
+      "description": {{ product.description | strip_html | json }},
+    {% endif %}
+    {% if product.vendor %}
+      "brand": {
+        "@type": "Thing",
+        "name": {{ product.vendor | json }}
+      },
+    {% endif %}
+    {% if selected_variant.sku != blank %}
+      "sku": {{ selectedVariant.sku | json }},
+    {% endif %}
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": {{ shop.currency | json }},
+      "price": {{ selectedVariant.price | times: 1 | json }},
+      "availability": "http://schema.org/{% if selectedVariant.available %}InStock{% else %}OutOfStock{% endif %}",
+      "seller": {
+        "@type": "Organization",
+        "name": {{ shop.name | json }}
+      }
+    }
+  }
+  </script>
+{% endif %}
+
+{% comment %}
+  Store information
+  https://developers.google.com/search/docs/data-types/sitename
+{% endcomment %}
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "{{ shop.name | escape}}",
+    "url": "{{ shop.url }}"
+  }
+</script>

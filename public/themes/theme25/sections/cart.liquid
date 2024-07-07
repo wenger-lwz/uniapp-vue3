@@ -1,0 +1,181 @@
+{% include 'free_shipping' %}
+{% capture checkoutBtn %}
+  {% comment %} Checkout 按钮 {% endcomment %}
+  <button href="javascript:;" data-track="checkout-submit" class="tw-outline-none {%if settings.general_style == 'round'%}tw-rounded{%endif%} tw-cursor-pointer lg:hover:tw-opacity-75 lg:active:tw-opacity-75 md:tw-my-5 lg:tw-mt-7.5 lg:tw-mb-4 tw-w-full tw-h-12.5 tw-text-btn-text-color tw-bg-btn-bg-color tw-border-none tw-text-sm tw-leading-none tw-tracking-normal tw-relative {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} cart__checkout <% if (count==0 || selected_count==0) { %>cart__checkout_disabled<% } %>"  <% if (count==0) { %>disabled<% } %> >{{ langs.bag.general.check_out | t | upcase }}</button>
+{% endcapture %}
+{% capture extraImg %}
+  <img class="tw-w-full" src="{{ settings.cart_settings_secure_payment_img | img_url: '1000x' }}" alt="{{images[settings.cart_settings_secure_payment_img].alt | escape}}">
+{% endcapture %}
+{% capture continueShipping %}
+  <a data-track="cart-continue-shopping" class="tw-text-text-color tw-text-sm tw-leading-none tw-tracking-normal tw-no-underline tw-block tw-text-center" href="/">{{ langs.bag.general.continue_shopping | t | upcase }}</a>
+{% endcapture %}
+<div id="cart"  class="tw-relative" style="min-height: 50vh;"></div>
+<script id="cart-art-tpl" type="text/html">
+  <% var _LIMIT = 60; %>
+  <% if(available_items_count == 0) { %>
+    {% comment %} 购物车无商品 {% endcomment %}
+    <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-py-25">
+      {% include 'icon_empty_bag' %}
+      <div class="tw-tracking-normal tw-leading-1.1 tw-my-6 tw-text-text-font-size">{{ langs.bag.general.empty | t }}</div>
+      <a class="tw-inline-flex tw-items-center tw-justify-center tw-no-underline tw-text-btn-text-color tw-bg-btn-bg-color tw-border tw-border-btn-bg-color {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} lg:hover:tw-opacity-75 lg:active:tw-opacity-75 tw-text-sm tw-leading-none tw-tracking-normal tw-min-h-10 {%if settings.general_style == 'round'%}tw-rounded{%endif%} " href="/" data-track="cart-continue-shopping" style="min-width: 190px">{{ langs.bag.general.continue_shopping | t }}</a>
+    </div>
+  <% } else { %>
+    {% comment %} 购物车有商品 {% endcomment %}
+    <div class="lg:tw-max-w-page lg:tw-mx-auto lg:tw-px-general-layout-spacing cart__discount-container tw-pt-10 lg:tw-pt-15 empty:tw-hidden"></div>
+    <div class="lg:tw-max-w-page lg:tw-mx-auto lg:tw-px-general-layout-spacing tw-pt-5 tw-pb-10 lg:tw-py-15 lg:tw-pt-0 lg:tw-flex lg:tw-flex-row-reverse lg:tw-justify-center">
+      {% comment %} 移动购物车结算 {% endcomment %}
+      <div class="lg:tw-hidden tw-pt-5 tw-flex tw-justify-between tw-sticky tw-z-sticky checkout__sticky_amount tw-px-5 tw-bg-bg-color">
+        <div class="tw-text-title-color type-heading-font-family tw-text-sm tw-leading-1.4 tw-tracking-normal">
+        {{ langs.bag.general.your_bag | t | upcase }} <% if (available_items_count > 0) { %>(<%=available_items_count%>)<% } %>
+        </div>
+        <div class="tw-text-sm tw-leading-1.3 tw-tracking-normal">
+          {{ langs.bag.general.total | t }}: <span class="tw-font-bold plugin__bundle__cart__total-price money"><%= $imports.finance_money_with_symbol(total_price) %></span>
+        </div>
+      </div>
+      <% if (total_discount > 0) { %>
+        <div class="lg:tw-hidden tw-flex tw-justify-between tw-mt-5 tw-px-5 tw-bg-bg-color">
+          <div class="tw-text-title-color type-heading-font-family tw-text-sm tw-leading-1.4 tw-tracking-normal">
+            {{ langs.bag.general.discount | t }}:
+          </div>
+          <div class="notranslate">- <span class="tw-text-sm tw-leading-1.3 tw-tracking-normal money"><%= $imports.finance_money_with_symbol(total_discount) %></span></div>
+        </div>
+        <div class="tw-block lg:tw-hidden tw-mt-5 lg:tw-mt-0 tw-px-5 tw-bg-bg-color"><div class="empty:tw-hidden plugin__bundle__cart__save"></div></div>
+        <div class="lg:tw-hidden tw-flex tw-justify-between tw-mt-5 lg:tw-mt-0 tw-px-5 tw-bg-bg-color">
+          <div class="tw-text-title-color type-heading-font-family tw-text-sm tw-leading-1.4 tw-tracking-normal">
+            {{ langs.bag.general.subtotal | t }}:
+                </div>
+          <div class="tw-text-sm tw-leading-1.3 tw-tracking-normal money"><%= $imports.finance_money_with_symbol(line_price) %></div>
+            </div>
+              <% } %>
+      {% if settings.cart_settings_postage_on and settings.cart_settings_postage_value %}
+        <div class="cart__free_shipping lg:tw-hidden tw-mt-6 tw-px-5 tw-bg-bg-color">
+          {% include 'free_shipping_js' %}
+            </div>
+      {% endif %}
+      <div class="lg:tw-hidden tw-sticky tw-z-dropdown checkout__sticky_btn tw-px-5 tw-bg-bg-color">
+        {{checkoutBtn}}
+          </div>
+      {% assign paypal_express_enabled = shop.payment_settings.paypal_express_enabled %}
+      {% if paypal_express_enabled %}
+        <div class="cart-placeholder-paypal-express-button-container lg:tw-hidden tw-mb-4 tw-mx-5 tw-bg-bg-color"></div>
+      {% endif %}
+      <div class="lg:tw-hidden tw-px-5 tw-bg-bg-color">
+        {{continueShipping}}
+      </div>
+
+      {% comment %} PC购物车结算 {% endcomment %}
+      <div class="tw-hidden lg:tw-block tw-m-0 tw-p-0 tw-w-1/3">
+        <div class="cart_order_summary tw-sticky tw-z-dropdown tw-top-0 tw-pt-15">
+          {% comment %} 免邮进度条 {% endcomment %}
+          {% if settings.cart_settings_postage_on and settings.cart_settings_postage_value %}
+            <div class="cart__free_shipping tw-mb-7.5">
+              {% include 'free_shipping_js' %}
+            </div>
+          {% endif %}
+          {% comment %} Order Summary {% endcomment %}
+          <div class="tw-border tw-border-solid tw-border-light-border-color tw-p-10 {%if settings.general_style == 'round'%}tw-rounded{%endif%}">
+            <div class="tw-text-title-color type-heading-font-family tw-text-base tw-leading-1.3 tw-tracking-normal">
+              {{ langs.bag.general.order_summary | t }}
+            </div>
+            <% if (total_discount > 0) { %>
+              <div class="tw-flex tw-justify-between tw-mt-5">
+                <div class="tw-text-title-color type-heading-font-family tw-text-sm tw-leading-1.4 tw-tracking-normal">
+                  {{ langs.bag.general.subtotal | t }}:
+                </div>
+                <div class="tw-text-sm tw-leading-1.3 tw-tracking-normal money"><%= $imports.finance_money_with_symbol(line_price) %></div>
+              </div>
+              <div class="tw-flex tw-justify-between tw-mt-4">
+                <div class="tw-text-title-color type-heading-font-family tw-text-sm tw-leading-1.4 tw-tracking-normal">
+                  {{ langs.bag.general.discount | t }}:
+                </div>
+                <div class="notranslate">- <span class="tw-text-sm tw-leading-1.3 tw-tracking-normal money"><%= $imports.finance_money_with_symbol(total_discount) %></span></div>
+              </div>
+            <% } %>
+            <div class="tw-mt-4 empty:tw-hidden plugin__bundle__cart__save"></div>
+            <div class="tw-flex tw-justify-between tw-mt-4">
+              <div class="tw-text-title-color type-heading-font-family tw-text-sm tw-leading-1.4 tw-tracking-normal">
+                {{ langs.bag.general.total | t }}:
+              </div>
+              <div class="tw-text-sm tw-leading-1.3 tw-tracking-normal">
+                <span class="tw-font-bold plugin__bundle__cart__total-price money"><%= $imports.finance_money_with_symbol(total_price) %></span>
+              </div>
+            </div>
+            {{checkoutBtn}}
+            {% if paypal_express_enabled %}
+              <div class="cart-placeholder-paypal-express-button-container tw-mb-4 tw-bg-bg-color"></div>
+            {% endif %}
+            {{continueShipping}}
+          </div>
+          {% comment %} 货币结算提示( {% endcomment %}
+          <div class="tw-mt-5 tw-text-sm tw-tracking-normal tw-leading-1.4">{{ langs.bag.general.shipping_taxes | t: currency: shop.currency }}</div>
+          {% if settings.cart_settings_secure_payment_img %}
+            <div class="tw-mt-10 tw-text-0">{{extraImg}}</div>
+          {% endif %}
+        </div>
+      </div>
+      {% comment %} 购物车清单 {% endcomment %}
+      <div class="tw-mt-7.5 tw-pt-7.5 tw-border-0 tw-border-solid tw-border-t tw-border-light-border-color tw-max-w-page tw-mx-auto tw-px-5 lg:tw-w-2/3 lg:tw-m-0 lg:tw-p-0 lg:tw-border-none lg:tw-pr-28.5 lg:tw-mt-15 tw-relative">
+        <div class="md:tw-hidden tw-text-title-color type-heading-font-family tw-text-sm tw-leading-1.4 tw-tracking-normal tw-mb-7.5">
+          {{ langs.bag.general.your_bag | t | upcase }} <% if (available_items_count > 0) { %>(<%=available_items_count%>)<% } %>
+        </div>
+        <% var count = 0 %>
+        <% for(var j = 0; available_items && j < available_items.length; j++){ %>
+          <% var item = available_items[j] %>
+          <% var variant_id = item.variant_id; %>
+          <% count += (item.available!=false?((~~item.quantity)||0):0) ; %>
+          <% var maxAvailable = item.available_quantity; %>
+          <% var properties = $imports.JSON.parse(item.properties || "{}") %>
+          <div class="cart__item <% if (item.available != false) { %>cart__item_enabled<% } %> tw-grid tw-grid-cols-cart-grid-min lg:tw-grid-cols-cart-grid-max tw-gap-x-px-15 lg:tw-gap-x-5" data-id="<%=item.variant_id%>" data-track="item" data-track-id="<%=item.product_id%>" data-cart-id="<%=item.id%>" data-track-number="<%=item.quantity%>" data-track-price="<%=item.price%>" data-track-name="<%=item.product_title%>" data-track-type="<%=item.type%>" data-properties="<%=item.properties%>"  >
+            {% comment %} 商品图片 {% endcomment %}
+            <a class="tw-text-0" href="<%=item.product_url%>" data-track-type="image" data-track-product_id="<%=item.variant_id%>">
+              <img class="{%if settings.general_style == 'round'%}tw-rounded-lg{%endif%} tw-w-full" alt="<%=item.name%>" src="<%= $imports.reset_image(item.image.src, '420x') %>">
+            </a>
+            {% comment %} 商品标题/款式/++--/Edit {% endcomment %}
+            <div class="tw-inline-flex tw-flex-col">
+              <a class="tw-mb-3 tw-block tw-no-underline tw-text-sm tw-text-title-color type-heading-font-family tw-leading-1.3 tw-tracking-normal {%if settings.type_snippet_text_uppercase_on%} tw-uppercase {%endif%}" href="<%=item.product_url%>"><%=item.product_title%></a>
+              <div class="tw-mb-3 empty:tw-hidden">
+                <% for(var k = 0; k < item.options.length; k++){ %>
+                  <% var toggle = item.options[k].name.length + item.options[k].value.length > _LIMIT; %>
+                  <% if (toggle) { %>
+                    <input type="checkbox" class="text_toggle tw-hidden" id="text_limit_<%= j %><%= k %>"/>
+                  <% } %>
+                  <div class="tw-mb-1.25 last:tw-mb-0 tw-text-light-text-color tw-text-sm tw-tracking-normal tw-leading-none tw-relative tw-pr-4 <% if (toggle) { %> three_line_text_truncate<% } %>">
+                    <span style="color: #212121;"><%=item.options[k].name%></span>: <%=item.options[k].value%>
+                    <% if (toggle) { %><label for="text_limit_<%= j %><%= k %>" class="tw-top-0 tw-right-0 tw-absolute tw-transition-all tw-duration-300 tw-w-3 tw-h-3">{% include 'icon_more' %}</label><% } %>
+                  </div>
+                <% } %>
+              </div>
+              <div class="tw-flex tw-mt-auto tw-w-24 tw-h-7.5 tw-box-border tw-border tw-border-solid tw-border-btn-bg-color {%if settings.general_style == 'round'%}tw-rounded{%endif%}">
+                <a href="javascript:;" data-track="cart-minus-quantity" data-track-type="button" data-track-product_id="<%=item.variant_id%>" data-track-url="/cart/update.js" def="<%=item.variant_id%>" class="cart__counter tw-flex tw-text-btn-bg-color tw-items-center tw-justify-center tw-w-1/3 tw-h-full tw-text-center " alt="-">{%include 'icon_minus',icon_width:'12',icon_height:'12'%}</a>
+                <input data-track-type="input" data-track-product_id="<%=item.variant_id%>" data-track-url="/cart/update.js" ss="<%=item.variant_id%>" class="cart__qty-input tw-bg-transparent tw-text-sm tw-text-text-color tw-border-none tw-text-center tw-outline-none tw-w-1/3 tw-h-full tw-p-0 " name="update[<%=item.variant_id%>]" count="<%=item.variant_id%>" def="<%=item.variant_id%>" type="number" step="1" value="<%=item.quantity%>" min="0" max="<%=maxAvailable%>" />
+                <a href="javascript:;" data-track="cart-add-quantity" data-track-type="button" data-track-product_id="<%=item.variant_id%>" data-track-url="/cart/update.js" def="<%=item.variant_id%>" class="cart__counter tw-text-btn-bg-color tw-flex tw-items-center tw-justify-center tw-w-1/3 tw-h-full tw-text-center <% if (item.quantity >= maxAvailable) { %>cart__counter_disabled<% } %> " alt="+" max="<%=maxAvailable%>">{%include 'icon_plus',icon_width:'12',icon_height:'12'%}</a>
+              </div>
+            </div>
+            {% comment %} 商品价格 {% endcomment %}
+            <div class="tw-inline-flex tw-flex-col tw-text-right tw-items-end">
+              <div class="tw-mb-1.25 tw-block tw-text-price-color tw-text-sm tw-tracking-normal tw-leading-none {%if settings.type_price_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} money"><%= $imports.finance_money_with_symbol(item.price) %></div>
+              <% if (item.compare_at_price * 1 > item.price * 1) { %>
+                <del class="tw-mb-1.25 tw-block tw-text-compare-at-price-color tw-text-sm tw-tracking-normal tw-leading-none {%if settings.type_price_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} money"><%= $imports.finance_money_with_symbol(item.compare_at_price) %></del>
+              <% } %>
+              <% if (item.options && item.options.length) { %>
+                <a data-track="switch-variant" data-action="switch-variant" data-track-product-id="<%=item.product_id%>" data-product-handle="<%=item.product_handle%>" data-product-variant="<%=item.variant_id%>" data-product-variant-qty="<%=item.quantity%>" data-param='{"id": "<%=item.id%>","product_id":"<%=item.product_id%>","variant_id":"<%=item.variant_id%>","quantity":"<%=item.quantity%>"}' class="tw-inline-flex tw-items-center tw-justify-center tw-uppercase tw-min-w-15 tw-box-border tw-border tw-border-solid tw-border-btn-bg-color tw-text-sm tw-text-btn-bg-color tw-leading-none tw-tracking-normal tw-mt-auto tw-no-underline tw-cursor-pointer lg:hover:tw-text-btn-text-color lg:hover:tw-bg-btn-bg-color active:tw-text-btn-text-color active:tw-bg-btn-bg-color {%if settings.general_style == 'round'%}tw-rounded{%endif%}" style="min-height:30px;">{{ langs.bag.general.edit | t }}</a>
+              <% } %>
+            </div>
+          </div>
+          <hr <% if (j == available_items.length - 1) { %>style="display: none;"<% } %> class="tw-hidden lg:tw-block tw-border-light-border-color tw-mt-7.5 tw-mb-0 tw-border-t-0"/>
+        <% } %>
+        {% if settings.cart_settings_secure_payment_img %}
+          <div class="lg:tw-hidden tw-mt-10 tw-text-0">{{extraImg}}</div>
+        {% endif %}
+        {% include 'cart_loading' %}
+      </div>
+    </div>
+  <% } %>
+</script>
+{% include 'cart_js', wrapper: '#cart' %}
+
+<script>
+	setTimeout(function(){
+		$.cart.init(window.cartObj || {});
+	},500);
+</script>

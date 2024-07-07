@@ -1,0 +1,276 @@
+<footer class="footer-{{section.id}}  xf_skin_footer footer-plus footer-plus__settings">
+	{% assign links = linklists[section.settings.menu.id].links %}
+{% if links.size <= 4 %}
+  {% assign navClass = "footer-plus__list_one" %}
+{% else %}
+  {% assign navClass = "footer-plus__list_two" %}
+  {% capture smMarginIndex %}{{ links.size | divided_by:2 | ceil }}{% endcapture %}
+{% endif %}
+
+{% assign facebook = section.settings.facebook_url %}
+{% assign twitter = section.settings.twitter_url %}
+{% assign instagram = section.settings.instagram_url %}
+{% assign pinterest = section.settings.pinterest_url %}
+{% assign youtube = section.settings.youtube_url %}
+{% assign listNum = 0 %}
+{% if links.size > 0 or facebook != "" or instagram != "" or twitter != "" or pinterest != "" or youtube != "" %}
+  {% increment listNum %}
+{% endif %}
+
+<div class="container">
+  <div class="row">
+    {% if listNum > 0 %}
+      <div class="col-12 col-md-8 footer-plus__left">
+        {% if links.size > 0 %}
+        <div class="footer-plus__list {{navClass}}">
+          {% for link in links %}
+            <div class="footer-plus__list_item text-truncate {% if forloop.index0 == smMarginIndex %}footer-plus__list_bar {% endif %}">
+              <a {% if link.url %} href="{{link.url}}" {% endif %} {% unless link.type != "web" or link.url contains shop.domain %} target="_blank" {% endunless %} class="xf_skin_link">
+                {{link.name}}
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if facebook  or instagram  or twitter or pinterest or youtube %}
+          <div class="footer-plus__nav {% if links.size == '' or links.size == 0 %}footer-plus__nav_nomargin{% endif %}">
+            {% if instagram  %}
+              <div class="footer-plus__list_item text-truncate">
+                <a
+                  {% if settings.instagram_url %}
+                    href="{{settings.instagram_url}}"
+                    target="_blank"
+                  {% endif %}
+                  class="xf_skin_link"
+                >
+                  <i class="sep-font sep-font-instagram xf_skin_link"></i><span>Instagram</span>
+                </a>
+              </div>
+            {% endif %}
+            {% if facebook %}
+              <div class="footer-plus__list_item text-truncate">
+                <a
+                  {% if settings.facebook_url %}
+                    href="{{settings.facebook_url}}"
+                    target="_blank"
+                  {% endif %}
+                  class="xf_skin_link"
+                >
+                  <i class="sep-font sep-font-facebook xf_skin_link"></i><span>Facebook</span>
+                </a>
+              </div>
+            {% endif %}
+            {% if twitter %}
+              <div class="footer-plus__list_item text-truncate">
+                <a
+                  {% if settings.twitter_url %}
+                    href="{{settings.twitter_url}}"
+                    target="_blank"
+                  {% endif %}
+                  class="xf_skin_link"
+                >
+                  <i class="sep-font sep-font-twitter xf_skin_link"></i><span>Twitter</span>
+                </a>
+              </div>
+            {% endif %}
+            {% if pinterest %}
+              <div class="footer-plus__list_item text-truncate">
+                <a
+                  {% if settings.pinterest_url %}
+                    href="{{settings.pinterest_url}}"
+                    target="_blank"
+                  {% endif %}
+                  class="xf_skin_link"
+                >
+                  <i class="sep-font sep-font-pinterest xf_skin_link"></i><span>Pinterest</span>
+                </a>
+              </div>
+            {% endif %}
+            {% if youtube %}
+              <div class="footer-plus__list_item text-truncate">
+                <a
+                  {% if settings.youtube_url %}
+                    href="{{settings.youtube_url}}"
+                    target="_blank"
+                  {% endif %}
+                  class="xf_skin_link"
+                >
+                  <i class="sep-font sep-font-youtube xf_skin_link"></i><span>Youtube</span>
+                </a>
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+    {% if section.settings.copyright or section.settings.footer_payment_icon  %}
+      <div class="col-12 {% if listNum > 0 %} col-md-4 {% else %} footer-plus__center {% endif %}">
+        {% if section.settings.copyright %}
+          <div class="footer-plus__copyright flex-wrap d-flex align-items-center ">
+            {{ section.settings.copyright }}
+          </div>
+        {% endif %}
+        {% if section.settings.footer_payment_icon and payment_icon.size > 0 %}
+          <div class="footer-plus__payment">
+              <ul>
+                {% for icon in payment_icon %}
+                    <li>
+                      {% include 'lazyimg', src: icon, %}
+                    </li>
+                  {% endfor %}
+              </ul>
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+	</div>
+</div>
+</footer>
+{% include 'footer_plus_js' %}
+<style>
+  [data-section-id='{{section.id}}'] .footer-plus__settings {
+    background: {{section.settings.footer_bg_color}};
+    color: {{section.settings.footer_text_color}}
+  }
+  [data-section-id='{{section.id}}'] .footer-plus__settings a {
+    font-size: 14px;
+    color: {{section.settings.footer_text_color}};
+  }
+  .footer-plus{width:100%;padding:2.1875rem 0}@media (max-width:767.98px){.footer-plus{text-align:center}}.footer-plus__list_one{width:37.5%;-moz-columns:1;columns:1}@media (max-width:767.98px){.footer-plus__list_one{width:100%}}.footer-plus__list_two{-moz-columns:2;columns:2;-moz-column-gap:0;column-gap:0;width:75%}@media (max-width:767.98px){.footer-plus__list_two{-moz-columns:1;columns:1;width:100%}}.footer-plus__list_item{line-height:1.2;margin-bottom:.9375rem;margin-right:1.875rem}.footer-plus__list_item:last-of-type{margin-bottom:0}@media (max-width:767.98px){.footer-plus__list_item{margin-right:0}}@media (max-width:767.98px){.footer-plus__list_bar{margin-top:3.3125rem}}.footer-plus__left{display:flex}@media (max-width:767.98px){.footer-plus__left{flex-direction:column}}.footer-plus__nav{width:33%}@media (max-width:767.98px){.footer-plus__nav{width:100%;margin-top:3.75rem}}@media (max-width:767.98px){.footer-plus__nav_nomargin{margin-top:0}}@media (max-width:767.98px){.footer-plus__nav div{margin:0;display:inline-block;margin-right:1.25rem}.footer-plus__nav div:last-of-type{margin-right:0}}.footer-plus__nav div span{margin-left:.9375rem}@media (max-width:767.98px){.footer-plus__nav div span{display:none}}.footer-plus__nav i{vertical-align:top;font-weight:900}@media (min-width:768px){.footer-plus__nav i{font-size:1.125rem!important}}@media (max-width:767.98px){.footer-plus__nav i{font-size:1.375rem!important}}.footer-plus__center{text-align:center}.footer-plus__copyright{font-size:1rem;line-height:1.2;margin-bottom:6px;justify-content:flex-end}@media (max-width:767.98px){.footer-plus__copyright{justify-content:center}}.footer-plus__copyright p{margin:0}.footer-plus__payment ul{padding:0;margin:0}.footer-plus__payment ul li{list-style:none;display:inline-block;height:24px;margin-top:10px;margin-left:10px}.footer-plus__payment ul li:last-of-type{margin-right:0}.footer-plus__payment ul li:first-of-type{margin-left:0}.footer-plus__payment ul li img{height:100%;vertical-align:top}.footer-plus__settings .xf_skin_link{font-size:1rem}.footer-plus__settings .xf_skin_link:hover{opacity:1;text-decoration:underline!important}.footer-plus .col-md-8{padding-left:0}@media (max-width:767.98px){.footer-plus .col-md-8{padding-left:15px;margin-bottom:3.75rem}}.footer-plus .col-md-4{padding-right:0;text-align:right}@media (max-width:767.98px){.footer-plus .col-md-4{padding-right:15px;text-align:center}}
+</style>
+
+
+{% schema %}
+{
+  "name": "footer_plus",
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Settings",
+        "zh-CN": "设置"
+      }
+    },
+    {
+      "type": "checkbox",
+      "id": "footer_payment_icon",
+      "label": {
+        "en-US": "Show payment icons",
+        "zh-CN": "显示付款图标"
+      },
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "footer_bg_color",
+      "label": {
+        "en-US": "Background",
+        "zh-CN": "背景"
+      },
+      "default": "#F7F7F7"
+    },
+    {
+      "type": "color",
+      "id": "footer_text_color",
+      "label": {
+        "en-US": "Text",
+        "zh-CN": "正文"
+      },
+      "default": "#777777"
+    },
+    {
+      "type": "richtext",
+      "id": "copyright",
+      "label": {
+        "en-US": "Copyright",
+        "zh-CN": "版权"
+      },
+      "default": ""
+    },
+    {
+      "type": "header",
+      "content": {
+        "zh-CN": "菜单导航设置",
+        "en-US": "Navigation"
+      }
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": {
+        "zh-CN": "选择菜单",
+        "en-US": "Select menu"
+      },
+      "default": {
+        "id": "footer",
+        "type": "menu",
+        "title": {
+          "en-US": "Footer menu",
+          "zh-CN": "页尾菜单"
+        }
+      }
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Content",
+        "zh-CN": "内容"
+      },
+      "info": {
+        "zh-CN": "图标跳转链接请点击全局配置填写",
+        "en-US": "Click \"Theme settings\" to set the jump link for icon."
+      }
+    },
+    {
+      "type": "checkbox",
+      "id": "instagram_url",
+      "label": "Instagram link",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "facebook_url",
+      "label": "Facebook link",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "twitter_url",
+      "label": "Twitter link",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "pinterest_url",
+      "label": "Pinterest link",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "youtube_url",
+      "label": "Youtube link",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "footer_plus",
+      "cname": {
+        "en-US": "Footer",
+        "zh-CN": "页尾"
+      },
+      "category": {
+        "en-US": "Navigation",
+        "zh-CN": "导航"
+      },
+      "ccategory": {
+        "en-US": "Navigation",
+        "zh-CN": "导航"
+      },
+      "display": false,
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}

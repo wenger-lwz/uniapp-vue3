@@ -1,0 +1,78 @@
+<ul class="lg:tw-flex tw-h-full tw-p-0 tw-m-0 lg:tw-text-header-menu-text-color tw-leading-none tw-list-none lg:tw-flex-wrap">
+  {% assign firstLinks = linklists[menu_id].links %}
+  {% for firstLink in firstLinks %}
+    {% assign secondLinks = firstLink.son %}
+    <li class="tw-group tw-h-full tw-py-4 lg:tw-p-0 lg:tw-mx-4 {% if secondLinks %}header__menu-openable{% endif %} header__menu-item header__menu-transition">
+      <a href="{{ firstLink.url | default: 'javascript:;' }}" {% unless firstLink.type != "web" or firstLink.url contains shop.domain %}target="_blank"{% endunless %} class="tw-relative tw-flex tw-items-center tw-h-full tw-text-inherit tw-no-underline header__submenu-title">
+        <span class="tw-flex-1">{{ firstLink.name }}</span>
+        {% if secondLinks %}<i class="lg:tw-hidden tw-pl-4 tw-text-0">{% include 'icon_more', icon_class:"tw-transform tw--rotate-90" %}</i>{% endif %}
+      </a>
+      {% if secondLinks %}
+        {% comment %} 判断是有没有3级 {% endcomment %}
+        {% assign treeType = 'two' %}
+        {% for secondLink in secondLinks %}
+          {% if  secondLink.son.size > 0 %}
+            {% assign treeType = 'three' %}
+          {% endif %}
+        {% endfor %}
+        {% if treeType == 'two' %}
+          {% comment %} 只有2级 {% endcomment %}
+          <ul class="lg:tw-absolute tw-hidden lg:tw-flex lg:tw-m-0 tw-p-0 lg:tw-pl-10 lg:tw-pr-0 lg:tw-py-7 lg:tw-invisible lg:group-hover:tw-visible lg:tw-opacity-0 lg:group-hover:tw-opacity-100 lg:tw-bg-bg-color lg:tw-z-popover lg:tw-shadow-3 lg:tw-text-text-color lg:tw-text-text-font-size type-text-font-family lg:tw-leading-text-line-height {%if settings.general_style == 'round'%}lg:tw-rounded-lg{%endif%} tw-text-left tw-list-none header-transition header__menu-item-second header__submenu">
+            {% for secondLink in secondLinks %}
+              {% comment %} 每六个子菜单另起一列 {% endcomment %}
+              {% assign loop_index = forloop.index | modulo: 6 %}
+              {% if loop_index == 1 %}<li class="lg:tw-transform lg:tw-translate-y-3 lg:group-hover:tw-translate-y-0 lg:tw-opacity-0 lg:group-hover:tw-opacity-100">{% endif %}
+                <a class="tw-text-inherit tw-block tw-py-4 lg:tw-py-2 lg:tw-max-w-50 lg:tw-mr-10 tw-cursor-pointer lg:hover:tw-opacity-40 tw-no-underline lg:tw-normal-case"
+                  href="{{ secondLink.url | default: 'javascript:;' }}"
+                  {% unless secondLink.type != "web" or secondLink.url contains shop.domain %}target="_blank"{% endunless %}
+                >
+                  {{ secondLink.name }}
+                </a>
+              {% if loop_index == 0 %}</li>{% endif %}
+            {% endfor %}
+          </ul>
+        {% elsif treeType == 'three' %}
+          {% comment %} 2级下有3级 {% endcomment %}
+          <div class="lg:tw-absolute tw-hidden lg:tw-block lg:tw-right-0 lg:tw-left-0 lg:tw-bg-bg-color lg:tw-z-popover lg:tw-shadow-6 lg:tw-overflow-y-auto lg:tw-invisible lg:group-hover:tw-visible lg:tw-opacity-0 lg:group-hover:tw-opacity-100 header__menu-third header__submenu header-transition">
+            <div class="lg:tw-max-w-page lg:tw-mx-auto lg:tw-px-5 lg:tw-pb-10 lg:tw-px-general-layout-spacing lg:tw-overflow-hidden">
+              <ul class="lg:tw-flex lg:tw-justify-center lg:tw-flex-wrap lg:tw--mx-5 tw-p-0 tw-list-none">
+                {% comment %} 广告位 {% endcomment %}
+                {% for block in section.blocks %}
+                  {% assign menu = block.settings.menu | downcase %}
+                  {% assign firstLinkTitle = firstLink.name | downcase %}
+                  {% if firstLinkTitle == menu %}
+                    {% include 'header_ads', position: block.settings.position1, type: block.settings.type1, image: block.settings.image1, title: block.settings.name1, desc: block.settings.desc1, link: block.settings.link1, product: block.settings.product1 %}
+                    {% include 'header_ads', position: block.settings.position2, type: block.settings.type2, image: block.settings.image2, title: block.settings.name2, desc: block.settings.desc2, link: block.settings.link2, product: block.settings.product2 %}
+                    {% include 'header_ads', position: block.settings.position3, type: block.settings.type3, image: block.settings.image3, title: block.settings.name3, desc: block.settings.desc3, link: block.settings.link3, product: block.settings.product3 %}
+                    {% break %}
+                  {% endif %}
+                {% endfor %}
+                {% comment %} 菜单 {% endcomment %}
+                {% for secondLink in secondLinks %}
+                  {% assign thirdLinks = secondLink.son %}
+                  <li class="lg:tw-mx-5 lg:tw-pt-10 lg:tw-text-xs lg:tw-transform lg:tw-translate-y-3 lg:group-hover:tw-translate-y-0 {% if thirdLinks %}header__menu-openable{% endif %} header__menu-item header__menu-item-third">
+                    <a class="tw-flex tw-items-center lg:tw-block tw-py-4 lg:tw-pb-2 lg:tw-pt-0 tw-text-inherit lg:tw-text-title-color lg:tw-uppercase tw-no-underline lg:hover:tw-opacity-40 {% if thirdLinks %}header__submenu-title{% endif %}"
+                      href="{{ secondLink.url | default: 'javascript:;' }}"
+                      {% unless secondLink.type != "web" or secondLink.url contains shop.domain %}target="_blank"{% endunless %}
+                    >
+                      <span class="tw-flex-1">{{ secondLink.name }}</span>
+                      {% if thirdLinks %}<i class="lg:tw-hidden tw-pl-4 tw-text-0">{% include 'icon_more', icon_class: "tw-transform tw--rotate-90" %}</i>{% endif %}
+                    </a>
+                    {% for thirdLink in thirdLinks %}
+                      <a class="tw-hidden lg:tw-block tw-py-4 lg:tw-py-0 lg:tw-mt-4 tw-text-inherit lg:tw-text-text-color lg:tw-text-text-font-size type-text-font-family lg:tw-leading-1.2 tw-no-underline tw-tracking-normal lg:tw-normal-case lg:hover:tw-opacity-40 header__submenu"
+                        href="{{ thirdLink.url | default: 'javascript:;' }}"
+                        {% unless thirdLink.type != "web" or thirdLink.url contains shop.domain %}target="_blank"{% endunless %}
+                      >
+                        {{ thirdLink.name }}
+                      </a>
+                    {% endfor %}
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>

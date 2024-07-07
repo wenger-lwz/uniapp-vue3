@@ -1,0 +1,362 @@
+{% unless REQUEST_URI contains "view=ajax" %}
+{% if settings.add_cart_status %}
+	{% assign action = settings.add_cart_action | default: 0 %}
+	{% assign pc_style = settings.add_cart_pc_style | default: 1 %}
+	{% assign mobile_style = settings.add_cart_mobile_style | default: 1 %}	
+<style type="text/css">
+.plugin-container__bottom-fixed {position:fixed;bottom:0;z-index:100;width:100%;display:flex;flex-direction:column;}
+.xfcart-add-to-cart__container{width:100%;margin-right:auto;margin-left:auto;padding-left:40px;padding-right:40px;padding-left:var(--general-layout-spacing,40px);padding-right:var(--general-layout-spacing,40px);max-width:var(--general-layout-width)}@media (max-width:767.98px){.xfcart-add-to-cart__container{padding:0 15px;padding-bottom:12px}}.xfcart-add-to-cart{width:100%;transition:all .8s;background:#e4e4e4;z-index:999;order:2}.xfcart-add-to-cart *{box-sizing:border-box}.xfcart-add-to-cart .d-none{display:none}@media (min-width:768px){.xfcart-add-to-cart{padding:5px 0 5px;box-shadow:0 2px 4px 0 #0000000f}.xfcart-add-to-cart .d-md-none{display:none}.xfcart-add-to-cart .d-md-block{display:block}}.xfcart-add-to-cart__layout{display:flex;justify-content:space-between;flex-wrap:nowrap;align-items:center}@media (min-width:768px){.xfcart-add-to-cart__layout{height:60px}}@media (max-width:767.98px){.xfcart-add-to-cart__layout{flex-direction:column;padding:15px}}.xfcart-add-to-cart__layout_item{display:flex;justify-content:space-between}@media (max-width:767.98px){.xfcart-add-to-cart__layout_item{width:100%}}.xfcart-add-to-cart__inf{display:flex;align-items:center;height:60px}@media (max-width:767.98px){.xfcart-add-to-cart__inf__wrapper{display:flex;flex-direction:column}}.xfcart-add-to-cart__inf__image{max-height:100%;max-width:80px}@media (max-width:320.98px){.xfcart-add-to-cart__inf__image{max-width:55px}}.xfcart-add-to-cart__inf__title{padding-left:20px;padding-right:10px;font-size:16px;color:#000;line-height:21px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}@media (max-width:767.98px){.xfcart-add-to-cart__inf__title{font-size:14px;line-height:16px;max-width:160px}}@media (max-width:320.98px){.xfcart-add-to-cart__inf__title{max-width:100px;padding-left:10px;padding-right:10px}}.xfcart-add-to-cart__inf__price-wrapper{padding-left:20px;max-width:150px;overflow:hidden;text-overflow:ellipsis}@media (max-width:320.98px){.xfcart-add-to-cart__inf__price-wrapper{max-width:100px;padding-left:10px;padding-right:10px}}.xfcart-add-to-cart__inf__price{font-size:18px;font-weight:700;color:#e8433b;line-height:21px;padding-right:4px}@media (min-width:768px){.xfcart-add-to-cart__inf__price{padding-left:20px}}@media (max-width:767.98px){.xfcart-add-to-cart__inf__price{font-size:14px;line-height:17px}}@media (max-width:320.98px){.xfcart-add-to-cart__inf__price{display:block;margin-top:5px}}.xfcart-add-to-cart__inf__compare_at_price{font-size:18px;font-weight:300;color:#929292;line-height:21px;padding-left:8px}@media (max-width:767.98px){.xfcart-add-to-cart__inf__compare_at_price{font-size:14px;line-height:17px;padding-left:0}}@media (max-width:320.98px){.xfcart-add-to-cart__inf__compare_at_price{font-size:12px;display:block}}.xfcart-add-to-cart__select{display:flex;align-items:center;height:60px;width:100%;user-select:none;color:#000;font-size:14px;font-weight:500}@media (max-width:767.98px){.xfcart-add-to-cart__select{height:auto;align-items:flex-start}}.xfcart-add-to-cart__select_item{display:flex;flex-wrap:nowrap}@media (max-width:320.98px){.xfcart-add-to-cart__select_item{justify-content:space-between}}.xfcart-add-to-cart__add{display:flex;align-items:center;height:60px}.xfcart-add-to-cart__btn{padding:0 22px;height:42px;background:#e8433b;border-radius:2px!important;outline:0!important;border:none;font-size:16px;font-weight:700;color:#fff;line-height:19px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}.xfcart-add-to-cart__btn:hover{opacity:.8}.xfcart-add-to-cart__btn:active{opacity:.95}@media (max-width:767.98px){.xfcart-add-to-cart__btn{flex:1 0 120px;white-space:pre-wrap;height:54px;font-size:13px;line-height:15px}}@media (max-width:320.98px){.xfcart-add-to-cart__btn{width:126px}}.xfcart-add-to-cart__btn-disabled{background:#999!important;color:#fff!important}.xfcart-add-to-cart__fixed-up{position:fixed;top:-100%}.xfcart-add-to-cart__fixed-down{bottom:-100%}.xfcart-add-to-cart__popover{position:relative;display:block}.xfcart-add-to-cart__popover .cart__popover_content{display:none;position:absolute;z-index:9;white-space:nowrap;max-height:217px}.xfcart-add-to-cart__popover .rotate_180{display:inline-block;transform:rotate(180deg)}.xfcart-add-to-cart__popover .transform_left{left:100%;transform:translateX(-100%)}.xfcart-add-to-cart__popover .transform_top{color:red}.xfcart-add-to-cart__product__select{display:flex;align-items:center;height:42px;background:#fff;border-radius:26px;position:relative;user-select:none;cursor:pointer;padding:0 20px;padding-right:30px;margin-right:10px}@media (min-width:768px){.xfcart-add-to-cart__product__select{width:110px}}.xfcart-add-to-cart__product__select::after{content:'';position:absolute;width:0;height:0;border-width:5px;border-radius:2px;border-style:solid;border-color:transparent;border-top-color:inherit;right:16px;top:16px}.xfcart-add-to-cart__product__select_content{min-width:100%;max-width:192px;padding:10px 0}.xfcart-add-to-cart__btn_minus{left:0}.xfcart-add-to-cart__btn_plus{right:0}.xfcart-add-to-cart-square{background-color:rgba(255,255,255,.98)}@media (min-width:768px){.xfcart-add-to-cart-square{padding:5px 0 5px;box-shadow:0 2px 4px 0 #0000000f}.xfcart-add-to-cart-square.xfcart-add-to-cart__fixed-up{border-bottom:1px solid #ddd}.xfcart-add-to-cart-square.xfcart-add-to-cart__fixed-down{border-top:1px solid #ddd}}.xfcart-add-to-cart-square__layout{display:flex;justify-content:space-between;flex-wrap:nowrap;align-items:center}@media (min-width:768px){.xfcart-add-to-cart-square__layout{height:60px}}@media (max-width:767.98px){.xfcart-add-to-cart-square__layout{flex-direction:column;padding:0}}.xfcart-add-to-cart-square__layout_item{display:flex;justify-content:space-between}@media (max-width:767.98px){.xfcart-add-to-cart-square__layout_item{width:100%}}.xfcart-add-to-cart-square__layout_select{display:flex;justify-content:flex-end;flex-wrap:nowrap;align-items:center}@media (min-width:768px){.xfcart-add-to-cart-square__layout_select{margin-left:20px;flex:1}}.xfcart-add-to-cart-square__select{display:flex;align-items:center;justify-content:end;height:60px;width:100%;user-select:none;color:#000;font-size:14px;font-weight:500}@media (max-width:767.98px){.xfcart-add-to-cart-square__select{height:auto;align-items:flex-start}}.xfcart-add-to-cart-square__inf{display:flex;align-items:center;padding-right:20px}.xfcart-add-to-cart-square__inf__image{max-height:60px;max-width:62px;margin-right:20px}.xfcart-add-to-cart-square__inf__title{font-size:16px;color:#000;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;margin-bottom:6px!important}@media (max-width:767.98px){.xfcart-add-to-cart-square__inf__title{font-size:14px;line-height:16px;max-width:160px}}@media (max-width:320.98px){.xfcart-add-to-cart-square__inf__title{max-width:100px;padding-left:10px;padding-right:10px}}.xfcart-add-to-cart-square__inf__price-wrapper{display:flex}@media (max-width:320.98px){.xfcart-add-to-cart-square__inf__price-wrapper{max-width:100px;padding-left:10px;padding-right:10px}}.xfcart-add-to-cart-square__inf__price{font-size:16px;font-weight:700;color:#e8433b;margin-right:6px}@media (max-width:767.98px){.xfcart-add-to-cart-square__inf__price{font-size:14px;line-height:17px}}@media (max-width:320.98px){.xfcart-add-to-cart-square__inf__price{display:block;margin-top:5px}}.xfcart-add-to-cart-square__inf__compare_at_price{font-size:12px!important;font-weight:300;color:#929292}.xfcart-add-to-cart-square__btn{width:100%;min-height:45px;padding:0 22px;outline:0!important;border:none;font-size:14px!important;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;border-radius:0!important}@media (min-width:768px){.xfcart-add-to-cart-square__btn{flex:1;max-width:200px;min-width:130px;margin-left:15px!important;min-height:36px;border-radius:2px!important;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:pre-wrap}}.xfcart-add-to-cart-square__popover{position:relative;display:block;flex:1}.xfcart-add-to-cart-square__popover .cart__popover_content-square{display:none;position:absolute;z-index:9;white-space:nowrap;max-height:217px}.xfcart-add-to-cart-square__popover .rotate_180{display:inline-block;transform:rotate(180deg)}.xfcart-add-to-cart-square__popover .transform_left{left:100%;transform:translateX(-100%)}.xfcart-add-to-cart-square__popover .transform_top{color:red}.xfcart-add-to-cart-square__product__select{display:flex;align-items:center;min-height:36px;background:#fff;border-radius:26px;position:relative;user-select:none;cursor:pointer;padding:0 10px;padding-right:30px}@media (min-width:768px){.xfcart-add-to-cart-square__product__select{max-width:200px;min-width:125px}}.xfcart-add-to-cart-square__product__select_content{min-width:100%;max-width:192px;padding:10px 0}@media (max-width:767.98px){.xfcart-add-to-cart-square__select_counter{width:50%;flex-basis:33%;flex-shrink:0}}.xfcart-add-to-cart-square__prefix{font-size:14px;color:#929292;text-transform:uppercase;min-width:30%;max-width:70%;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:pre-wrap;word-break:break-word}.xfcart-add-to-cart-square__value{flex-shrink:0;max-width:70%;min-width:30%;overflow:hidden;padding-left:6px;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:pre-wrap;word-break:break-word}.xfcart-add-to-cart-square__product__content{width:100%;min-height:36px;background-color:#fefefe;border:1px solid #d9d9d9;border-radius:2px;padding:0 4px 0 10px;display:flex;align-items:center}@media (max-width:767.98px){.xfcart-add-to-cart-square__product__content{height:48px}}.xfcart-add-to-cart-square__product__content input{width:80%;height:100%;border:unset;border:none;outline:0;color:inherit;display:block;background-color:transparent}.xfcart-add-to-cart-square__variant__content{width:92%;height:46px;border-radius:2px;padding:0 20px 0 10px;display:flex;align-items:center;appearance:none;-webkit-appearance:none;background:#fff;box-sizing:border-box;position:relative;outline:0}@media (min-width:768px){.xfcart-add-to-cart-square__variant__content{height:36px}}.xfcart-add-to-cart-square__variant__content input{width:100%;height:100%;border:unset;border:none;outline:0;color:inherit;display:block;background-color:transparent;display:none}.xfcart-add-to-cart-simple{background-color:#fff}@media (min-width:768px){.xfcart-add-to-cart-simple{box-shadow:0 2px 4px 0 #0000000f}}.xfcart-add-to-cart-simple.xfcart-add-to-cart__fixed-up{border-bottom:1px solid #ddd}.xfcart-add-to-cart-simple.xfcart-add-to-cart__fixed-down{border-top:1px solid #ddd}.xfcart-add-to-cart-simple__layout{display:flex;justify-content:space-between;align-items:center}@media (min-width:768px){.xfcart-add-to-cart-simple__layout{height:60px}}.xfcart-add-to-cart-simple__left{display:flex;flex-direction:row;align-items:center}.xfcart-add-to-cart-simple__image{max-width:62px;max-height:62px;margin-right:20px}.xfcart-add-to-cart-simple__info{display:flex;flex-direction:column}.xfcart-add-to-cart-simple__title{text-align:left;margin-right:70px;line-height:22px;font-size:16px;text-align:left;color:#000;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;word-break:break-all}.xfcart-add-to-cart-simple__sku{margin-top:8px;max-width:500px;text-align:left;line-height:18px;font-size:16px;font-weight:600;color:#000;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all}.xfcart-add-to-cart-simple__right{display:flex;align-items:center;flex-shrink:0}.xfcart-add-to-cart-simple__currency{margin-right:8px}.xfcart-add-to-cart-simple__compare_at_price{margin-right:20px;font-size:14px;line-height:18px;font-weight:300;text-decoration:line-through;color:#929292}.xfcart-add-to-cart-simple__price{min-width:120px;margin-right:12px;font-size:18px;line-height:18px;font-weight:700;color:#000}.xfcart-add-to-cart-simple__btn{padding:0 22px;height:42px;line-height:42px;border-radius:0;font-size:14px;font-weight:600;text-align:center}@media (max-width:767.98px){.xfcart-add-to-cart-simple__btn{width:100%;height:54px;font-size:1.25em;line-height:50px}}@media (max-width:767.98px){.xfcart-add-to-cart-simple{border-top:none}}@media (min-width:768px){.plugin-container__bottom-fixed .xfcart-add-to-cart,.plugin-container__bottom-fixed .xfcart-add-to-cart-simple,.plugin-container__bottom-fixed .xfcart-add-to-cart-square{box-shadow:0 -2px 4px 0 #0000000f}}.xfcart-add-to-cart-square__product__content{background-color:#fff;color:#212b36}.xfcart-add-to-cart-square__variant__content{background-color:#fff;color:#212b36}.xfcart-add-to-cart-simple__sku,.xfcart-add-to-cart-simple__title,.xfcart-add-to-cart-square__inf__title,.xfcart-add-to-cart__inf__title{color:#212b36}.xfcart-add-to-cart-square__product__select,.xfcart-add-to-cart__product__select{background:#fff;color:#212b36;border:solid 1px #ddd;border-radius:0}.xfcart-add-to-cart-square__product__select::after,.xfcart-add-to-cart__product__select::after{border-top-color:#212b36}.xfcart-add-to-cart-simple__compare_at_price,.xfcart-add-to-cart-square__inf__compare_at_price,.xfcart-add-to-cart__inf__compare_at_price{color:#9ca0b0}.xfcart-add-to-cart-square__prefix{color:#939393}.xfcart-add-to-cart__btn{color:#fff;background-color:#ff5a00}.xfcart-add-to-cart-square__inf__price,.xfcart-add-to-cart__inf__price{color:#f5222d}.xfcart-add-to-cart-simple__price{color:#f5222d}
+.xfcart-add-to-cart {background: #ffffff}
+.xfcart-add-to-cart-square__product__content {background-color: #ffffff;color: #212B36}
+.xfcart-add-to-cart__inf__title, .xfcart-add-to-cart-simple__title, .xfcart-add-to-cart-square__inf__title, .xfcart-add-to-cart-simple__sku {color: #212B36;}
+.xfcart-add-to-cart__product__select, .xfcart-add-to-cart-square__product__select {background: #ffffff;color: #212B36;border: solid 1px #ddd;border-radius: 0;}
+</style>
+
+<div class="plugin-container__bottom-fixed bootstrap">
+<form class="product-info product-info-{{product.id}}" onsubmit="return false;" style="padding:0">
+<input type="hidden" name="product_id" value="{{ product.id }}" />
+<input type="hidden" name="variant_id" class="selected_variant_id_{{product.id}}" value="{% if selected !='' and selected.available_quantity > 0 %}{{ selected.id }}{% endif %}"/>
+  <div class="bootstrap xfcart-add-to-cart xfcart-add-to-cart-square xfcart-add-to-cart__fixed-down" style="top:unset;bottom:-100%;z-index:98;max-height:0px;position:initial;">
+    {% if mobile_style == 1 %}
+    <div class="d-md-none" style="padding-bottom:constant(safe-area-inset-bottom);padding-bottom: env(safe-area-inset-bottom);">	  
+	  <div style="width: 100%">
+		<input type="hidden" name="quantity" value="1"/>	  
+        <button data-click="{% if action == 1 %}submit{% else %}addToCart{% endif %}" class="btn btn-primary xfcart-add-to-cart__btn xfcart-add-to-cart-square__btn">
+            {% if action == 1 %}
+			{{ langs.product.product_detail.buy_now | t }}
+		   {% else %}
+            {{ langs.product.product_detail.add_to_cart | t }}
+		   {% endif %}
+        </button>
+      </div>	  
+    </div>
+    {% endif %}  
+    {% if mobile_style == 2 %}
+	<div class="d-md-none" style="padding-bottom:constant(safe-area-inset-bottom);padding-bottom: env(safe-area-inset-bottom);">
+      <div class="xfcart-add-to-cart__container xfcart-add-to-cart-square__layout">
+        <div class="xfcart-add-to-cart-square__layout_item xfcart-add-to-cart-square__layout_select">
+			{% for opt in product.options %}
+			{% assign optIdx = forloop.index | downcase | prepend: 'option'  %}
+            {% if selectedVariant != nill %}
+              {% assign selectedOptValue = selectedVariant[optIdx]  %}
+            {% endif  %}
+			{% if selectedVariant != nill %}
+				{% assign selectedOptValue = selectedVariant[optIdx]  %}
+				{% if selectedOptValue == nill %}
+					{% for opt in selectedVariant %}			
+						{% if opt[0] == optIdx %}
+						  {% assign selectedOptValue = opt[1]  %}
+						{% endif %}
+					{% endfor %}	
+				{% endif %}			
+            {% endif  %}
+			<div class="notranslate xfcart-add-to-cart-square__wrap_{{ forloop.index0 }}" style="border: 1px solid #d9d9d9; overflow: hidden; flex: 1">
+			<select class="xfcart-add-to-cart-square__variant__content" style="border:none">
+					{% for value in opt.values %} <option id="{{ optIdx }}-{{ forloop.index0 }}-{{product.id}}" class="text-center d-inline-block product-info__variants_value" value="{{ value | escape }}" {% if value == selectedOptValue %} selected {% endif %}>
+                    {{ value }}</option>
+					{% endfor %}
+                </select>
+            </div>
+            {% endfor %}
+          <div class="xfcart-add-to-cart-square__select_counter" style="width: 100%">
+            <div class="xfcart-add-to-cart-square__product__content">
+              <input type="tel" min="1" value="1" class="product-info__qty_num" name="quantity"/>
+              <span style="font-size: 18px; color: #a0a0a0">+</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="width: 100%">
+        <button data-click="{% if action == 1 %}submit{% else %}addToCart{% endif %}" class="btn btn-primary xfcart-add-to-cart__btn xfcart-add-to-cart-square__btn">
+          {% if action == 1 %}
+			{{ langs.product.product_detail.buy_now | t }}
+		   {% else %}
+            {{ langs.product.product_detail.add_to_cart | t }}
+		   {% endif %}
+        </button>
+      </div>
+    </div>
+    {% endif %}
+  
+    {% if mobile_style == 3 %}
+  <div class="d-md-none" style="padding-bottom:constant(safe-area-inset-bottom);padding-bottom: env(safe-area-inset-bottom);">
+    <div class="xfcart-add-to-cart__container xfcart-add-to-cart__layout">
+      <div class="xfcart-add-to-cart__layout_item">
+        <div class="d-md-none">
+          <div class="xfcart-add-to-cart__inf">
+			{% include 'lazyimg', src:product.image.src,class:'xfcart-add-to-cart__inf__image ls-is-cached',alt: ''%}
+            <div class="xfcart-add-to-cart__inf__wrapper">
+              <div class="xfcart-add-to-cart__inf__price-wrapper notranslate" style="margin-top: -5px; margin-bottom: 7px">
+                <span class="xfcart-add-to-cart__inf__price xf_skin_product_detail_price money">{% if selected != nil %}{{selected.price | money_with_symbol}}{% else %}{{product.price | money_with_symbol}}{% endif %}
+                </span>
+                <del class="xfcart-add-to-cart__inf__compare_at_price xf_skin_product_compare_at_price money" style="font-weight: 400">		{{product.compare_at_price | money_with_symbol}}
+                </del>
+              </div>
+              <span class="vartitle xfcart-add-to-cart__inf__title notranslate">{{ selected.title | escape }}</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="xfcart-add-to-cart__add">		  
+			<input type="hidden" name="quantity" value="1"/>
+            <button data-click="{% if action == 1 %}submit{% else %}addToCart{% endif %}" class="btn btn-primary xfcart-add-to-cart__btn xfcart-add-to-cart-square__btn">{% if action == 1 %}
+			{{ langs.product.product_detail.buy_now | t }}
+		   {% else %}
+            {{ langs.product.product_detail.add_to_cart | t }}
+		   {% endif %}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    {% endif %}
+  
+    {% if pc_style == 1 %}
+	<div class="d-none d-md-block">
+    <div class="xfcart-add-to-cart__container xfcart-add-to-cart__layout">
+      <div class="xfcart-add-to-cart__layout_item" style="max-width: 50%; overflow: hidden">
+        <div class="d-none d-md-block" style="width: 100%">
+          <div class="xfcart-add-to-cart__inf">
+			{% include 'lazyimg', src:product.image.src,class:'xfcart-add-to-cart__inf__image',alt: ''%}
+            <span class="xfcart-add-to-cart__inf__title">{{ product.title | escape }}</span>
+            <span class="xfcart-add-to-cart__inf__price xf_skin_product_detail_price money notranslate">
+			{% if selected != nil %}{{selected.price | money_with_symbol}}{% else %}{{product.price | money_with_symbol}}{% endif %}
+            </span>
+            <del class="xfcart-add-to-cart__inf__compare_at_price xf_skin_product_compare_at_price money notranslate">			{{product.compare_at_price | money_with_symbol}}
+            </del>
+          </div>
+        </div>
+      </div>
+      <div class="xfcart-add-to-cart__layout_item" style="padding-left: 70px">	  
+     <div class="xfcart-add-to-cart__select notranslate">
+          <div class="xfcart-add-to-cart__select_item">
+		  {% for opt in product.options %}
+		  {% assign optIdx = forloop.index | downcase | prepend: 'option'  %}
+            {% if selectedVariant != nill %}
+              {% assign selectedOptValue = selectedVariant[optIdx]  %}
+            {% endif  %}
+			{% if selectedVariant != nill %}
+				{% assign selectedOptValue = selectedVariant[optIdx]  %}
+				{% if selectedOptValue == nill %}
+					{% for opt in selectedVariant %}			
+						{% if opt[0] == optIdx %}
+						  {% assign selectedOptValue = opt[1]  %}
+						{% endif %}
+					{% endfor %}	
+				{% endif %}			
+            {% endif  %}
+			<select class="xfcart-add-to-cart__product__select">
+				{% for value in opt.values %}
+				<option id="{{ optIdx }}-{{ forloop.index0 }}-{{product.id}}" class="text-center d-inline-block product-info__variants_value" value="{{ value | escape }}" {% if value == selectedOptValue %} selected {% endif %}>
+				{{ value }}</option>
+				{% endfor %}
+			</select>
+            {% endfor %}
+          </div>
+        </div>
+        <div>
+          <div class="xfcart-add-to-cart__add">
+			<input type="hidden" name="quantity" value="1"/>
+            <button data-click="{% if action == 1 %}submit{% else %}addToCart{% endif %}" class="btn btn-primary xfcart-add-to-cart__btn">{% if action == 1 %}
+			{{ langs.product.product_detail.buy_now | t }}
+		   {% else %}
+            {{ langs.product.product_detail.add_to_cart | t }}
+		   {% endif %}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    {% endif %}
+  
+    {% if pc_style == 2 %}
+    <div class="d-none d-md-block">
+      <div class="xfcart-add-to-cart__container xfcart-add-to-cart-square__layout">
+        <div class="xfcart-add-to-cart-square__layout_item" style="max-width: 40%; overflow: hidden">
+          <div class="d-none d-md-block">
+            <div class="xfcart-add-to-cart-square__inf">
+			{% include 'lazyimg', src:product.image.src,class:'xfcart-add-to-cart-square__inf__image',alt: ''%}
+              <div class="xfcart-add-to-cart-square__inf__wrapper">
+                <p class="xfcart-add-to-cart-square__inf__title">
+                  {{ product.title | escape }}
+                </p>
+                <div class="notranslate">
+                  <span class="xfcart-add-to-cart-square__inf__price xf_skin_product_detail_price money">	{% if selected != nil %}{{selected.price | money_with_symbol}}{% else %}{{product.price | money_with_symbol}}{% endif %}
+                  </span>
+
+                  <del class="xfcart-add-to-cart-square__inf__compare_at_price xf_skin_product_compare_at_price money">			{{product.compare_at_price | money_with_symbol}}
+                  </del>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="xfcart-add-to-cart-square__layout_item xfcart-add-to-cart-square__layout_select">
+          <div style="display: flex; flex: 5">
+            <div class="xfcart-add-to-cart-square__select">		  
+			   {% for opt in product.options %}
+			   {% assign optIdx = forloop.index | downcase | prepend: 'option'  %}
+				{% if selectedVariant != nill %}
+				  {% assign selectedOptValue = selectedVariant[optIdx]  %}
+				{% endif  %}
+				{% if selectedVariant != nill %}
+					{% assign selectedOptValue = selectedVariant[optIdx]  %}
+					{% if selectedOptValue == nill %}
+						{% for opt in selectedVariant %}			
+							{% if opt[0] == optIdx %}
+							  {% assign selectedOptValue = opt[1]  %}
+							{% endif %}
+						{% endfor %}	
+					{% endif %}			
+				{% endif  %}
+                <select class="xfcart-add-to-cart__product__select">
+					{% for value in opt.values %}
+                    <option id="{{ optIdx }}-{{ forloop.index0 }}-{{product.id}}" class="text-center d-inline-block product-info__variants_value" value="{{ value | escape }}" {% if value == selectedOptValue %} selected {% endif %}>
+                    {{ value }}</option>
+					{% endfor %}
+                </select>
+				{% endfor %}
+            </div>
+          </div>
+          <div class="xfcart-add-to-cart-square__select_counter">
+            <div class="xfcart-add-to-cart-square__product__content">
+              <span class="xfcart-add-to-cart-square__prefix" style="white-space: nowrap">{{ langs.product.product_detail.qty | t }}:</span>
+              <input type="tel" min="1" value="1" class="product-info__qty_num" name="quantity" style="width: 50px"/>
+            </div>
+          </div>
+          <button data-click="{% if action == 1 %}submit{% else %}addToCart{% endif %}" class="btn btn-primary xfcart-add-to-cart__btn" style="margin-left: 15px">
+			{% if action == 1 %}
+			{{ langs.product.product_detail.buy_now | t }}
+		   {% else %}
+            {{ langs.product.product_detail.add_to_cart | t }}
+		   {% endif %}
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  
+    {% if pc_style == 3 %}
+    <div class="d-none d-md-block">
+      <div class="xfcart-add-to-cart__container xfcart-add-to-cart-simple__layout">
+        <div class="xfcart-add-to-cart-simple__left">
+		{% include 'lazyimg', src:product.image.src,class:'xfcart-add-to-cart-simple__image',alt: ''%}
+          <div class="xfcart-add-to-cart-simple__info">
+            <div class="xfcart-add-to-cart-simple__title">
+              {{ product.title | escape }}
+            </div>
+            <div class="vartitle xfcart-add-to-cart-simple__sku notranslate">
+			{{ selected.title | escape }}</div>
+          </div>
+        </div>
+        <div class="xfcart-add-to-cart-simple__right">
+          <div class="xfcart-add-to-cart-simple__price notranslate">
+            <!--<span class="xfcart-add-to-cart-simple__currency">USD</span>--->
+            <span class="xf_skin_product_detail_price money">{% if selected != nil %}{{selected.price | money_with_symbol}}{% else %}{{product.price | money_with_symbol}}{% endif %}</span>
+          </div>
+          <del class="xfcart-add-to-cart-simple__compare_at_price xf_skin_product_compare_at_price money">
+			{{product.compare_at_price | money_with_symbol}}
+          </del>
+			<input type="hidden" name="quantity" value="1"/>
+          <button data-click="{% if action == 1 %}submit{% else %}addToCart{% endif %}" class="btn btn-primary xfcart-add-to-cart__btn xfcart-add-to-cart-simple__btn">		  
+			{% if action == 1 %}
+			{{ langs.product.product_detail.buy_now | t }}
+		   {% else %}
+            {{ langs.product.product_detail.add_to_cart | t }}
+		   {% endif %}
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  </form>
+</div>
+<script>
+$(function () {
+	var variant_type = '{{vtype}}';
+	$('.product-info__variants_items select').change(function(e){
+		var texs = [];		
+		setTimeout(function () {
+			$('.product-info__variants_items select').find("option:selected").each(function(){
+				texs.push($(this).text());
+			});
+			$('.vartitle').html(texs.join('/'));	
+		},500);	
+		if(!e.originalEvent){return;}
+		var val = $(this).val();
+		var id = $(this).find("option:selected").attr('id');
+		$('.xfcart-add-to-cart select').find('option[id="'+id+'"][value="'+val+'"]').prop("selected",true);
+	});
+	$('.product-info__variants_value label').click(function(e){
+		var texs = [];
+		setTimeout(function () {
+			$('.product-info__variants_value input[type="radio"]:checked').each(function(){
+				texs.push($(this).val());
+			});
+			$('.vartitle').html(texs.join('/'));
+		},500);
+		if(!e.originalEvent){return;}
+		var val = $(this).attr('data-variants-value');
+		var id = $(this).attr('for');
+		$('.xfcart-add-to-cart select').find('option[id="'+id+'"][value="'+val+'"]').prop("selected",true);
+	});
+	$('.xfcart-add-to-cart select').change(function(){
+		var val = $(this).val();
+		var id = $(this).find("option:selected").attr('id');
+		if(variant_type == 'button'){
+			$('.product-info__variants_value').find('label[for="'+id+'"][data-variants-value="'+val+'"]').trigger('click');
+		}else{
+			$('.product-info__variants_items select').find('option[id="'+id+'"][value="'+val+'"]').prop("selected",true).trigger('change');
+		}
+	});
+	var isshow = false;
+	$(window).on('scroll',function(){
+		var top = $(window).scrollTop();
+		var btntop = $('.product-info__btn').offset().top;
+		if(btntop<top){
+			if(isshow)return;
+			isshow = true;
+			$('.xfcart-add-to-cart').css({'top':'unset','bottom':'0px','z-index':'98','max-height':'300px','position':'unset'});
+		}else{
+			if(!isshow)return;
+			isshow = false;	
+			$('.xfcart-add-to-cart').css({'top':'unset','bottom':'-100%','z-index':'98','max-height':'0px','position':'initial'});
+		}
+	});
+});
+</script>
+{% endif %}
+{% endunless %}
+{% if paypal_btn_show %}
+<script>
+$(function(){
+	var prodid = $('input[name="product_id"]').val();	
+	var params = {render:'.placeholder-paypal-express-button-container',proid:prodid,varid:$(".selected_variant_id_"+prodid).val(),num:$("#product_quantity_"+prodid).val()};
+	$.getJSON(shop_url+'payment/get_pp_account?s=product&k='+key_o+'&t={{product.price}}',function(res){
+		if(res.code == 1){
+			var paypal_style = pp_style();
+			paypal_style.shape = 'rect';
+			paypal_style.height = 50;
+			paypal_style.label = 'buynow';	
+			load_pp_btn({render_btn:params.render,burl:base_url,okey:key_o,env:res.data.env,client_id:res.data.client_id,intent:res.data.intent,style:paypal_style,currency_code:cur_code,funding:'all'},function(){
+			var tprice = 0;
+			var formData = new FormData();
+			formData.append('proid', params.proid);
+			formData.append('varid', params.varid);
+			formData.append('num', params.num);
+			formData.append('source', 'product_pp'); 
+			formData.append('key_o', key_o);
+			formData.append('handling_fee', 0);
+			formData.append('insurance_fee', 0);
+			formData.append('combos', '');
+			return formData;},res.data.mchid);
+			$(params.render).show();
+		}else if(res.code == 2){
+			$(params.render).html(res.html);
+			$(params.render).show();
+		}
+	});
+});
+</script>
+{% endif %}

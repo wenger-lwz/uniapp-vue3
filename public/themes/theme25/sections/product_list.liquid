@@ -1,0 +1,446 @@
+{% comment %}
+商品列表
+商品分栏: lg:tw-grid-cols-2 lg:tw-grid-cols-3 lg:tw-grid-cols-4 lg:tw-grid-cols-5 lg:tw-grid-cols-6
+{% endcomment %}
+{% assign collection = collections[section.settings.collection.id] %}
+{% assign products = collection.products %}
+{% assign productsSize = products.size %}
+{% assign limit = section.settings.rows | times: section.settings.columns %}
+{% assign text_layout = 'product_list-' | append: section.id | append: '-layout' %}
+{% assign padding_top = section.settings.padding.top | default: "0" %}
+{% assign padding_bottom = section.settings.padding.bottom | default: "0" %}
+{% if section.settings.padding.right == blank and section.settings.padding.left == blank %}
+  {% assign padding_right = section.settings.padding.right | default: settings.general_layout_spacing %}
+  {% assign padding_left = section.settings.padding.left | default: settings.general_layout_spacing %}
+{% else %}
+  {% assign padding_right = section.settings.padding.right | default: 0 %}
+  {% assign padding_left = section.settings.padding.left | default: 0 %}
+{% endif %}
+<style>
+  .{{text_layout}}{
+    text-align: {{section.settings.text_layout}};
+  }
+  .product_list-{{section.id}}-container{
+    max-width:{% if section.settings.max_container_width == blank %}var(--general-layout-width){% else %}{{section.settings.max_container_width}}px{% endif %};
+    padding-top:{{padding_top | times: 0.6 }}px;
+    padding-bottom:{{padding_bottom | times: 0.6 }}px;
+  }
+  @media (min-width: {{settings.breakpoint}}px) {
+    .product_list-{{section.id}}-container{
+      padding-top:{{padding_top}}px;
+      padding-right:{{padding_right}}px;
+      padding-bottom:{{padding_bottom}}px;
+      padding-left:{{padding_left}}px;
+    }
+    .product_list-{{section.id}}-title{
+      font-size: {{section.settings.title_font_size}}px;
+      letter-spacing:{{section.settings.title_letter_spacing}}px;
+    }
+    .product_list-{{section.id}}-desc{
+      font-size:{{section.settings.desc_font_size}}px;
+      letter-spacing:{{section.settings.desc_letter_spacing}}px;
+      line-height:{{section.settings.desc_line_height}};
+    }
+    .product_list-{{section.id}}-content{
+      grid-column-gap: {{section.settings.spacing}};
+      column-gap: {{section.settings.spacing}};
+    }
+  }
+</style>
+<div class="tw-text-center" style="background:{{section.settings.color_section_bg}}">
+  <div class="tw-px-5 tw-mx-auto product_list-{{section.id}}-container">
+    {% unless section.settings.title == blank %}
+      <h3
+        class="tw-m-0 tw-text-lg tw-leading-none type-heading-font-family {%if section.settings.title_uppercase_on%}tw-uppercase{%endif%} product_list-{{section.id}}-title"
+        style="color:{{section.settings.color_title_text}};">
+        {{section.settings.title}}
+      </h3>
+    {% endunless %}
+    {% unless section.settings.desc == blank %}
+      <div class="tw-max-w-150 tw-mt-3 lg:tw-mt-4 tw-mx-auto tw-text-sm tw-leading-1.3 product_list-{{section.id}}-desc"
+        style="color:{{section.settings.color_desc_text}};">
+        {{section.settings.desc}}
+      </div>
+    {% endunless %}
+    <div class="tw-grid md:tw-gap-x-px-15 tw-grid-cols-2 lg:tw-grid-cols-{{section.settings.columns}} tw-gap-y-7.5 lg:tw-gap-y-15 tw-pt-6 lg:tw-pt-10 product_list-{{section.id}}-content">
+      {% for product in products limit:limit %}
+        {% include 'product', product: product, item_class: text_layout %}
+      {% endfor %}
+      {% if productsSize == nil or productsSize == 0 or collection.products_count == 0 %}
+        {% for i in (1..limit) %}
+          {% include 'product', product: default_product, item_class: text_layout %}
+        {% endfor %}
+      {% endif %}
+    </div>
+    {% if section.settings.view_more_on and productsSize > limit %}
+      <a href="{{ section.settings.collection.url }}">
+        <button class="tw-w-50 tw-h-10 tw-mt-10 tw-outline-none tw-cursor-pointer tw-border-solid
+                tw-border lg:tw-text-btn-font-size tw-tracking-btn-letter-spacing {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%}
+                lg:hover:tw-opacity-75 active:tw-opacity-75 {%if settings.general_style == 'round'%}tw-rounded{%endif%}"
+          style="border-color:{{section.settings.color_btn_border}};background:{{section.settings.color_btn_bg}};color:{{section.settings.color_btn_text}}">
+          {{ langs.general.product.view_more_products | t }}
+        </button>
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "product_list",
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Content",
+        "zh-CN": "内容"
+      }
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": {
+        "en-US": "Add collection",
+        "zh-CN": "添加专辑"
+      }
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Settings",
+        "zh-CN": "设置"
+      }
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": {
+        "en-US": "Title",
+        "zh-CN": "标题"
+      },
+      "placeholder": {
+        "zh-CN": "请输入标题",
+        "en-US": "Input title"
+      },
+      "default": "One Stop Shop"
+    },
+    {
+      "type": "textarea",
+      "id": "desc",
+      "label": {
+        "en-US": "Description",
+        "zh-CN": "描述"
+      },
+      "placeholder": {
+        "zh-CN": "请输入描述",
+        "en-US": "Enter description"
+      },
+      "default": "Hundreds of products from the same manufacturers as the top luxury brands at unparalleled prices."
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "zh-CN": "查看更多商品",
+        "en-US": "View more"
+      },
+      "id": "view_more_on",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "text_layout",
+      "label": {
+        "en-US": "Text layout",
+        "zh-CN": "文字布局"
+      },
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": {
+            "zh-CN": "居左",
+            "en-US": "Left"
+          }
+        },
+        {
+          "value": "center",
+          "label": {
+            "zh-CN": "居中",
+            "en-US": "Center"
+          }
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "spacing",
+      "label": {
+        "en-US": "Space",
+        "zh-CN": "格子间距"
+      },
+      "default": "30px",
+      "options": [
+        {
+          "value": "15px",
+          "label": {
+            "en-US": "15px",
+            "zh-CN": "15px"
+          }
+        },
+        {
+          "value": "20px",
+          "label": {
+            "en-US": "20px",
+            "zh-CN": "20px"
+          }
+        },
+        {
+          "value": "30px",
+          "label": {
+            "en-US": "30px",
+            "zh-CN": "30px"
+          }
+        },
+        {
+          "value": "40px",
+          "label": {
+            "en-US": "40px",
+            "zh-CN": "40px"
+          }
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "step": 1,
+      "max": 6,
+      "min": 2,
+      "label": {
+        "en-US": "Columns",
+        "zh-CN": "商品分栏"
+      },
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "rows",
+      "step": 1,
+      "max": 3,
+      "min": 1,
+      "label": {
+        "zh-CN": "商品行数",
+        "en-US": "Number of rows"
+      },
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Typography",
+        "zh-CN": "字体排版"
+      }
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "zh-CN": "开启标题全大写",
+        "en-US": "Uppercase heading"
+      },
+      "id": "title_uppercase_on",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "step": 1,
+      "max": 48,
+      "min": 12,
+      "label": {
+        "zh-CN": "标题字号",
+        "en-US": "Heading text size"
+      },
+      "default": 28,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "title_letter_spacing",
+      "step": 0.1,
+      "max": 2,
+      "min": -2,
+      "label": {
+        "en-US": "Title letter spacing",
+        "zh-CN": "标题字间距"
+      },
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "desc_font_size",
+      "step": 1,
+      "max": 18,
+      "min": 12,
+      "label": {
+        "zh-CN": "描述字号",
+        "en-US": "Description text size"
+      },
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "desc_letter_spacing",
+      "step": 0.1,
+      "max": 2,
+      "min": -2,
+      "label": {
+        "en-US": "Description letter spacing",
+        "zh-CN": "描述字间距"
+      },
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "desc_line_height",
+      "step": 0.1,
+      "max": 3,
+      "min": 1,
+      "label": {
+        "en-US": "Description line height",
+        "zh-CN": "描述行高"
+      },
+      "default": 1.7
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Color",
+        "zh-CN": "颜色"
+      }
+    },
+    {
+      "type": "color",
+      "id": "color_section_bg",
+      "label": {
+        "en-US": "Background",
+        "zh-CN": "背景"
+      },
+      "default": "#ffffff",
+      "info": {
+        "zh-CN": "请使用浅色背景",
+        "en-US": "Use a light background"
+      }
+    },
+    {
+      "type": "color",
+      "id": "color_title_text",
+      "label": {
+        "zh-CN": "标题",
+        "en-US": "Heading"
+      },
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "color_desc_text",
+      "label": {
+        "en-US": "Description",
+        "zh-CN": "描述"
+      },
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "color_btn_border",
+      "label": {
+        "en-US": "Button border",
+        "zh-CN": "按钮边框"
+      },
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "color_btn_bg",
+      "label": {
+        "en-US": "Button background",
+        "zh-CN": "按钮背景"
+      },
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "color_btn_text",
+      "label": {
+        "en-US": "Button text",
+        "zh-CN": "按钮文字"
+      },
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Layout",
+        "zh-CN": "布局"
+      }
+    },
+    {
+      "type": "padding",
+      "id": "padding",
+      "label": {
+        "en-US": "Content space",
+        "zh-CN": "内容留白"
+      },
+      "default": {
+        "top": "80",
+        "right": "",
+        "bottom": "80",
+        "left": ""
+      },
+      "info": {
+        "zh-CN": "内容留白单位为px",
+        "en-US": "Content space unit in px"
+      }
+    },
+    {
+      "type": "text",
+      "id": "max_container_width",
+      "label": {
+        "en-US": "Max content width",
+        "zh-CN": "最大内容宽度"
+      },
+      "default": "",
+      "props": {
+        "type": "number"
+      },
+      "placeholder": {
+        "zh-CN": "请输入最大内容宽度",
+        "en-US": "Enter Max content width"
+      },
+      "info": {
+        "zh-CN": "最大内容宽度单位为px",
+        "en-US": "Max content width unit in px"
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "product_list",
+      "cname": {
+        "zh-CN": "商品列表",
+        "en-US": "Products grid"
+      },
+      "category": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "ccategory": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "icon": "oss/operation/b950c409371f126944b7b9ef9a8db876.svg",
+      "display": true
+    }
+  ]
+}
+{% endschema %}

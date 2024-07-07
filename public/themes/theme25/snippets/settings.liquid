@@ -1,0 +1,95 @@
+<style type="text/css">
+:root {
+  {% for s in settings %}{% if s[0] and s[1] != nil and s[1] != 'true' and s[1] != false and s[1] != 'Liquid\Object\Font' and s[0] != 'sections' and s[0] != 'inline_js_code' %}--{{s[0] | replace:"_","-" }}:{{s[1]}}{% if s[0] contains '_size' or s[0] contains '_spacing' or s[0] contains '_width' %}px{% endif %};
+  {% endif %}{% endfor %}
+  --color-general-light-border:{{settings.color_general_light_border | default: '#e5e5e5'}};
+}
+
+{% for s in settings %}{% if s[0] contains '_font_family' %}.{{s[0] | replace:"_","-" }}{
+  font-family:{{s[1].family}},{{s[1].fallback_families}};
+  font-style:{{s[1].style}};
+  font-weight:{{s[1].weight}};
+}{% endif %}{% endfor %}
+
+{% assign fonts = '' %}{% for s in settings %}{% if s[0] contains '_font_family' %}{% assign fonts = fonts | append: s[1].font_face | append :"|" %}{% endif %}{% endfor %}{% assign arr = fonts | split:"|" | uniq %}{% for f in  arr  %}{{ f }}{% endfor %}
+</style>
+
+
+{% comment %}
+  容器宽度
+  tw-max-w-page tw-mx-auto tw-px-5 lg:tw-px-general-layout-spacing
+
+  标题(颜色+字体)
+  tw-text-title-color type-heading-font-family
+
+  文本(颜色,字号,字体,行高)
+  tw-text-text-color tw-text-text-font-size type-text-font-family tw-leading-text-line-height
+
+  菜单(字号,字间距,字体,大小写)
+  tw-text-menu-font-size tw-tracking-menu-letter-spacing {%if settings.type_menu_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_menu_text_uppercase_on%}tw-uppercase{%endif%}
+
+  页尾(字号,字间距,字体,大小写)
+  tw-text-footer-font-size tw-tracking-footer-letter-spacing {%if settings.type_footer_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_footer_text_uppercase_on%}tw-uppercase{%endif%}
+
+  商品详情标题(字号【包含移动端】,字间距,行高,大小写)
+  tw-text-xl lg:tw-text-product-detail-heading-font-size tw-tracking-product-detail-heading-letter-spacing tw-leading-product-detail-heading-line-height {%if settings.type_product_text_uppercase_on%}tw-uppercase{%endif%}
+
+  商品列表(字号【包含移动端】,字间距,行高,大小写)
+  tw-text-sm lg:tw-text-snippet-font-size tw-tracking-snippet-letter-spacing tw-leading-snippet-line-height {%if settings.type_snippet_text_uppercase_on%}tw-uppercase{%endif%}
+
+  小工具标题(字号,字间距,大小写)
+  tw-text-widget-font-size tw-tracking-widget-letter-spacing {%if settings.type_widget_text_uppercase_on%}tw-uppercase{%endif%}
+
+  原价(颜色,字号【包含移动端】,字体)
+  tw-text-compare-at-price-color tw-text-sm lg:tw-text-price-font-size {%if settings.type_price_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%}
+
+  现价(颜色,字号【包含移动端】,字体)
+  tw-text-price-color tw-text-sm lg:tw-text-price-font-size {%if settings.type_price_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%}
+
+  主要按钮(颜色,背景,边框,字号,字间距,字体,大小写)
+  tw-text-btn-text-color tw-bg-btn-bg-color tw-border tw-border-btn-bg-color tw-text-btn-font-size tw-tracking-btn-letter-spacing {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%}
+
+  次要按钮(颜色,背景,边框,字号,字间距,字体,大小写)
+  tw-text-btn-bg-color tw-bg-transparent tw-border tw-border-btn-bg-color tw-text-btn-font-size tw-tracking-btn-letter-spacing {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%}
+
+  状态标签(字号,字间距,字体,大小写)
+  lg:tw-text-status-label-font-size tw-tracking-status-label-letter-spacing {%if settings.type_status_label_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_status_label_text_uppercase_on%}tw-uppercase{%endif%}
+
+  hover/active 变化
+  主要按钮：hover:tw-opacity-75 active:tw-opacity-75
+  次要按钮：hover:tw-text-btn-text-color hover:tw-bg-btn-bg-color active:tw-text-btn-text-color active:tw-bg-btn-bg-color
+
+  圆角(特殊情况：移动端的详情大图只有直角情况)
+    标签+免运费(100%)
+      {%if settings.general_style == 'round'%}tw-rounded-full{%endif%}
+    按钮,缩略图(4px)
+      {%if settings.general_style == 'round'%}tw-rounded{%endif%}
+    图片(8px)
+      {%if settings.general_style == 'round'%}tw-rounded-lg{%endif%}
+
+  Input标签placeholder
+    input::-webkit-input-placeholder { opacity: 0.32; color: {{ settings.color_general_text }}; }
+    input::-moz-placeholder { opacity: 0.32; color: {{ settings.color_general_text }}; }
+    input:-ms-input-placeholder  { opacity: 0.32; color: {{ settings.color_general_text }}; }
+    @media(min-width:{{settings.breakpoint}}px){
+      input::-webkit-input-placeholder { opacity: 0.32; color: {{ settings.color_header_text }}; }
+      input::-moz-placeholder { opacity: 0.32; color: {{ settings.color_header_text }}; }
+      input:-ms-input-placeholder  { opacity: 0.32; color: {{ settings.color_header_text }}; }
+    }
+
+  提示背景和文字颜色:
+    normal: tw-text-toast-text-normal-color tw tw-bg-toast-bg-normal-color
+    warning: tw-text-toast-text-warning-color tw-bg-toast-bg-warning-color
+    success: tw-text-toast-text-success-color tw-bg-toast-bg-success-color
+    error: tw-text-toast-text-error-color tw-bg-toast-bg-error-color
+
+  z-index 约定:
+    $zindex-dropdown:          1000 !default;
+    $zindex-sticky:            1020 !default;
+    $zindex-fixed:             1030 !default;
+    $zindex-modal-backdrop:    1040 !default;
+    $zindex-modal:             1050 !default;
+    $zindex-popover:           1060 !default;
+    $zindex-tooltip:           1070 !default;
+
+{% endcomment %}

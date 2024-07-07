@@ -1,0 +1,13 @@
+{% if section.settings.enable_search %}
+  <form action="/search" method="get" {% if search_style == 'click_expand' %}class="tw-block lg:tw-hidden"{% endif %}>
+    <div tabindex="-1" class="header__search tw-relative tw-cursor-pointer tw-w-full lg:tw-w-50 lg:tw-flex tw-items-center">
+      <button type="submit" class="header__search-icon lg:hover:tw-opacity-40 tw-p-0 tw-m-0 tw-border-none tw-outline-none tw-bg-none tw-cursor-pointer tw-bg-transparent tw-absolute tw-right-0 tw-h-full tw-z-10" tabindex="-1">{% include 'icon_search_btn', icon_class: 'tw-text-title-color lg:tw-text-header-text-color' %}</button>
+      <input name="q" type="text" class="tw-box-border tw-relative tw-p-0 tw-pr-5 tw-bg-none tw-border-solid tw-border-b tw-border-0 tw-border-title-color lg:tw-border-header-text-color tw-block tw-w-full lg:tw-w-50 tw-h-7 tw-rounded-none focus:tw-outline-none tw-bg-transparent tw-text-inherit tw-text-text-font-size type-text-font-family tw-leading-4 tw-placeholder-title-color lg:tw-placeholder-header-text-color header__search_input" placeholder="{{ langs.navigation.general.search_product | t }}" />
+    </div>
+  </form>
+  {% if search_style == 'click_expand' %}
+    <button type="button" id="search_expand_btn" class="tw-hidden lg:tw-block lg:hover:tw-opacity-40 tw-p-0 tw-m-0 tw-border-none tw-outline-none tw-bg-none tw-cursor-pointer tw-bg-transparent tw-right-0 tw-h-full tw-z-10 header__search-icon" tabindex="-1">
+      {% include 'icon_search_btn', icon_class: 'tw-text-title-color lg:tw-text-header-text-color' %}
+    </button>
+  {% endif %}
+{% endif %}

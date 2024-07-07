@@ -1,0 +1,793 @@
+<style type="text/css">
+  .tag-active[data-color=false] label {
+    color: var(--color-button-text);
+    background: var(--color-button-bg);
+    border-color: var(--color-button-bg);
+  }
+  @media (max-width: {{settings.breakpoint}}px) {
+    .tag-active[data-color=false]:hover {
+      opacity: 0.75 !important;
+    }
+  }
+  .tag-active[data-color=true] label {
+    border-color: var(--color-general-bg);
+    box-shadow: inset 0px 0px 0px 1px #000, inset 0px 0px 0px 3px #fff;
+  }
+  {% if section.settings.filter_type == 'hide' %}
+    #collection-filter__wrapper .tags_input ~ .collection-filter__item-select {
+      display: none;
+    }
+    #collection-filter__wrapper .tags_input ~ label > svg {
+      display: block;
+      transform: rotate(-90deg);
+    }
+    #collection-filter__wrapper .tags_input:checked ~ .collection-filter__item-select {
+      display: block;
+    }
+    #collection-filter__wrapper .tags_input:checked ~ label > svg {
+      display: block;
+      transform: rotate(0);
+    }
+  {% endif %}
+
+  @media (min-width: {{settings.breakpoint}}px) {
+    #collection-sort__drawer, #collection-filter__drawer {
+      top: 100% !important;
+    }
+    #collection-filter__drawer{
+      width: {% if section.settings.fliter_width %}{{section.settings.fliter_width}}px{% else %}100%{% endif %};
+    }
+    #collection__mask {
+      display: none !important;
+    }
+  }
+  .link_active:after {
+    content: "";
+    width: 25px;
+    height: 2px;
+    position: absolute;
+    background: var(--color-general-text);
+    bottom: -10px;
+    transform: translateX(-50%);
+    left: 50%;
+  }
+  #collection-sort__drawer:before, #collection-filter__drawer:before {
+    content: "";
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    z-index: -1;
+  }
+  .collection_widget_fixed {
+    position: fixed;
+    left: 0;
+    right: 0;
+  }
+  @media(max-width: {{settings.breakpoint}}px) {
+    .collection_widget_fixed {
+      padding: 0px 20px 20px 20px;
+    }
+    body.is-fixed-sort, body.is-fixed-tags {
+      overflow: hidden;
+    }
+  }
+  @media(min-width: {{settings.breakpoint}}px) {
+    .collection_widget_fixed {
+      padding-top: 16px;
+      padding-bottom: 16px;
+    }
+  }
+  .is-fixed-sort .collection-sort-switch svg, .is-fixed-tags .collection-filter__switch svg {
+    transform: rotate(180deg);
+  }
+  .is-fixed-sort #collection__mask,
+  .is-fixed-tags #collection__mask,
+  .is-fixed-sort #collection-sort__drawer,
+  .is-fixed-tags #collection-filter__drawer{
+    display: block;
+  }
+  .is-fixed-sort #collection__widget,
+  .is-fixed-tags #collection__widget {
+    z-index: 1000;
+  }
+</style>
+{% assign top_product_ids = "" %}
+{% assign has_valid_top_product = false %}
+{% assign price = '' %}
+{% assign sort_by = 'manual' %}
+{% assign params = REQUEST_URI | split: "?" | last | split: "&" %}
+{% for p in params %}
+  {% assign pair = p | split: "=" %}
+  {% if pair[0] == "ids" and pair[1] != '' %}
+    {% assign top_product_ids = pair[1] %}
+  {% endif  %}
+  {% if pair[0] == "price" and pair[1] != '' %}
+    {% assign price = pair[1] %}
+  {% endif  %}
+  {% if pair[0] == "sort_by" and pair[1] != '' %}
+    {% assign sort_by = pair[1] %}
+  {% endif  %}
+  {% if pair[0] == "page" and pair[1] != "1" and REQUEST_URI contains 'show_page=first_page' %}
+    {% assign top_product_ids = "" %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+{% include 'colors' %}
+
+<div class="tw-py-10 lg:tw-py-15">
+  {% comment %} 专辑标题,商品数量 {% endcomment %}
+  <div class="tw-max-w-page tw-mx-auto tw-px-5 lg:tw-px-general-layout-spacing tw-text-center tw-text-title-color type-heading-font-family tw-text-4.5 lg:tw-text-7 tw-tracking-normal tw-leading-none collection__title">{{collection.title}}</div>
+
+  <div class="{% if collection.products_count == 0 %}tw-opacity-0{% endif %} tw-max-w-page tw-mx-auto tw-px-5 lg:tw-px-general-layout-spacing tw-text-center tw-text-light-text-color type-heading-font-family tw-my-4 tw-text-sm tw-tracking-normal tw-leading-none collection_count">
+    {% if collection.products_count == 1 %}{{ langs.collection.collection_detail.product | t: count: collection.products_count }}
+    {% else %}{{ langs.collection.collection_detail.products | t: count: collection.products_count }}{%endif%}
+  </div>
+
+  {% assign per_row = section.settings.rows %}
+  {% assign paginate_by = per_row | times: section.settings.columns %}
+
+    <div class="tw-max-w-page tw-mx-auto tw-px-5 lg:tw-px-general-layout-spacing tw-flex" id="collection__wrapper">
+      {% for block in section.blocks %}
+        {% assign tags_config = block.settings.tags | split: ',' | uniq %}
+        {% assign tags = '' %}
+        {% for tag in tags_config %}
+          {% assign downcaseTag = tag | downcase | strip %}
+          {% if collection.tags contains downcaseTag %}
+            {% if forloop.index0 == 0 %}
+              {% assign tags = tags | append: tag %}
+            {% else %}
+              {% assign tags = tags | append: ',' | append: tag %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        {% assign tags = tags | split: ',' | uniq %}
+        {% if tags.size > 0 and block.settings.title %}{% assign has_tags = true %}{% endif %}
+      {% endfor %}
+      {% capture collection_tags %}
+        {% for block in section.blocks %}
+          {% assign tags_config = block.settings.tags | split: ',' | uniq %}
+          {% assign tags = '' %}
+          {% for tag in tags_config %}
+            {% assign downcaseTag = tag | downcase | strip %}
+            {% if collection.tags contains downcaseTag %} 
+              {% if forloop.index0 == 0 %}
+                {% assign tags = tags | append: tag %}
+              {% else %}
+                {% assign tags = tags | append: ',' | append: tag %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% assign tags = tags | split: ',' | uniq %}
+          {% assign tag_title = block.settings.title | downcase %}
+          {% if tag_title and tags.size > 0 %}
+            {% assign is_color = false %} {% if tag_title contains 'color' or tag_title contains 'colour' %}{% assign is_color = true %}{% endif %}
+            <div class="{% unless section.settings.menu.id %}lg:first:tw-mt-0{%endunless%} {% if forloop.index0 == 0 %}tw-mt-2.5{%else%}tw-mt-7.5{%endif%} lg:tw-mt-10 collection-filter__item tw-normal-case" data-type="{{block.type}}">
+              {% if section.settings.filter_type == 'hide' %}<input type="checkbox" class="tags_input tw-hidden" id="{{block.settings.title}}_label"/>{%endif%}
+              <label for="{{block.settings.title}}_label" class="tw-text-widget-font-size tw-tracking-widget-letter-spacing {%if settings.type_widget_text_uppercase_on%}tw-uppercase{%endif%} tw-leading-none tw-text-title-color type-heading-font-family tw-cursor-pointer tw-select-none tw-flex tw-justify-between tw-items-center">
+                {{block.settings.title}}{% if section.settings.filter_type == 'hide' %}{% include 'icon_more',icon_class: "tw-transform tw-hidden" %}{%endif%}
+              </label>
+              <div data-tag="{{block.settings.title}}_label" class="collection-filter__item-select tw-flex tw-flex-wrap lg:tw--mr-4 tw-text-0">
+                {% for tag in tags %}
+                  {% assign formattedTag = tag | downcase | strip %}
+                  {% assign tag_arr = current_tags | split: ',' %}
+                  {% assign checked = '' %}
+                  {% for t in tag_arr %}{% if t == formattedTag %} {% assign checked = 'checked' %} {% endif %}{% endfor %}
+                  {% if is_color %}
+                    {% if colors[formattedTag] %}
+                      <div data-value="{{formattedTag}}" data-color="{{is_color}}" class="lg:hover:tw-opacity-75 {%if checked%}tag-active{%endif%} tw-inline-block tw-mt-4 tw-mr-3 tw-text-sm tw-leading tw-align-middle custom-checkbox">
+                        <label style="background: {{colors[formattedTag]}};" class="tw-block tw-cursor-pointer tw-rounded-full tw-h-7.5 tw-w-7.5 tw-outline-none"></label>
+                      </div>
+                    {% endif %}
+                  {% elsif formattedTag %}
+                    <div data-value="{{formattedTag}}" data-color="{{is_color}}" class="lg:hover:tw-opacity-40 {%if checked%}tag-active{%endif%} tw-inline-block tw-mt-4 tw-mr-2.5 tw-align-middle custom-checkbox">
+                      <label class="tw-flex tw-items-center tw-justify-center tw-tracking-normal tw-box-border tw-truncate tw-min-w-14 lg:tw-min-w-20 tw-text-center tw-cursor-pointer  tw-select-none tw-min-w-12 tw-px-3 tw-h-7.5 tw-border tw-border-solid tw-outline-none tw-border-light-border-color tw-text-text-font-size {%if settings.general_style == 'round'%}tw-rounded{%endif%}">{{tag}}</label>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endcapture %}
+      {% comment %} 侧边栏 {% endcomment %}
+      {% if section.settings.side_menu_on %}
+        {% if section.settings.menu.id or has_tags %}
+          <div class="tw-mr-15 tw-flex-shrink-0 tw-hidden lg:tw-block" id="collection-filter__wrapper" style="width: 170px">
+            <div class="tw-sticky tw-top-0 tw-transition-all tw-duration-75">
+              {% comment %} 侧边栏菜单 {% endcomment %}
+              {% if section.settings.menu.id %}
+                {% assign links = linklists[section.settings.menu.id].links %}
+                {% if section.settings.menu_title %}<h4 class="tw-text-widget-font-size tw-tracking-widget-letter-spacing {%if settings.type_widget_text_uppercase_on%}tw-uppercase{%endif%} tw-leading-none tw-text-title-color type-heading-font-family tw-mb-5 lg:tw-mt-0">{{section.settings.menu_title}}</h4>{% endif %}
+                <ul class="tw-m-0 tw-list-none tw-p-0 {% if has_tags %}tw-mb-10{% endif %}">
+                  {% for firstLinks in links %}
+                    {% assign link = linklists[firstLinks.id] %}
+                    <li class="tw-text-text-color tw-text-text-font-size type-text-font-family {% if forloop.index0 != 0 %}tw-mt-4{% endif %}">
+                      <a class="tw-leading-1.3 tw-tracking-normal tw-block lg:hover:tw-opacity-40 tw-text-current tw-no-underline {% if forloop.index0 != 0 %}tw-mt-3{% endif %}" {% if firstLinks.url %} href="{{ firstLinks.url }}" {% endif %}
+                        {% unless firstLinks.type != "web" or firstLinks.url contains shop.domain %}
+                          target="_blank"
+                        {% endunless %}
+                        >
+                        {{ firstLinks.title }}
+                      </a>
+                      {% if link.links %}
+                        {% assign secondLinks = link.links %}
+                        {% for subLink in secondLinks %}
+                          <a class="tw-tracking-normal tw-leading-4 lg:hover:tw-opacity-40 tw-text-current tw-block tw-ml-2.5 tw-no-underline tw-mt-3"
+                            {% if subLink.url %}href="{{ subLink.url }}"{% endif %}
+                            {% unless subLink.type != "web" or subLink.url contains shop.domain %}target="_blank"{% endunless %}
+                          >{{ subLink.title }}</a>
+                        {% endfor %}
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+              {% comment %} 标签筛选 {% endcomment %}
+              {% if has_tags %}
+                <div class="tw-flex-1">
+                  {{collection_tags}}
+                </div>
+                <button data-toggle class="lg:tw-hidden lg:hover:tw-bg-btn-bg-color lg:hover:tw-text-btn-text-color lg:hover:tw-border-text-bg-color collection-filter-clear tw-w-full tw-cursor-pointer tw-text-btn-bg-color tw-bg-transparent tw-border tw-border-solid tw-border-btn-bg-color tw-text-btn-font-size tw-tracking-btn-letter-spacing {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} tw-outline-none tw-p-0 tw-h-10 tw-leading-4 lg:hover:tw-opacity-75 tw-mt-15 tw-uppercase {%if settings.general_style == 'round'%}tw-rounded{%endif%} ">{{ langs.collection.collection_detail.remove_all | t }}</button>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+
+      <div class="tw-w-full">
+        {% comment %} 筛选器/排序 {% endcomment %}
+        <div id="collection__widget-wrapper">
+          {% if has_tags or section.settings.sort_on %}
+            <div id="collection__widget-content" class="tw-bg-bg-color">
+              <div id="collection__widget" class="tw-grid {%if has_tags and section.settings.sort_on %}tw-grid-cols-2 {%else%}tw-grid-cols-1{%endif%} tw-gap-4 lg:tw-flex lg:tw-justify-between lg:tw-items-center md:tw-px-0 lg:tw-px-0 lg:tw-relative tw-pt-5 tw-leading-4 lg:tw-py-0 tw-sticky tw-bg-bg-color tw-box-border">
+                {% if has_tags %}
+                  <div class="{% if section.settings.side_menu_on %}lg:tw-hidden{% endif %} tw-border tw-border-solid tw-border-gray-350 tw-w-full lg:tw-w-auto lg:tw-border-none tw-leading-none tw-flex tw-items-center tw-justify-center tw-cursor-pointer collection-filter__switch tw-select-none tw-py-3 lg:tw-py-0 tw-text-btn-font-size tw-tracking-btn-letter-spacing {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} {%if settings.general_style == 'round'%}tw-rounded{%endif%}">
+                    <span class="tw-leading-none">{{ langs.collection.collection_detail.refine_by | t }}</span>&nbsp;&nbsp;{% include 'icon_more',icon_class: "tw-transform" %}
+                    {% comment %}通屏的Filter{% endcomment %}
+                    <div class="tw-box-border md:tw-fixed lg:tw-absolute lg:tw-top-full tw-z-50 tw-left-0 md:tw-right-0 tw-bg-bg-color tw-shadow-3 tw-flex-1 tw-mx-auto lg:tw-pb-10 tw-px-5 lg:tw-px-general-layout-spacing lg:tw-mt-4 {%if settings.general_style == 'round'%}lg:tw-rounded{%endif%} tw-hidden tw-overflow-y-auto" style="max-height: 80vh;" id="collection-filter__drawer">
+                      <div class="tw-sticky tw-top-0 tw-bg-bg-color lg:tw-hidden tw-flex tw-justify-between tw-py-5 {%if settings.general_style == 'round'%}tw-rounded{%endif%}">
+                        <div class="{%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} tw-text-light-text-color lg:hover:tw-opacity-40 tw-text-btn-font-size tw-tracking-btn-letter-spacing">{{ langs.collection.collection_detail.refine_by | t }}</div>
+                        <div class="tw-cursor-pointer lg:hover:tw-opacity-40 tw-p-5 tw-pr-0 tw-absolute tw-right-0 tw-top-0 collection-filter__switch">{% include 'icon_close_btn', icon_width: '16', icon_height: '16' %}</div>
+                      </div>
+                      {{collection_tags}}
+                      <div class="lg:tw-hidden tw-sticky tw-bottom-0 tw-bg-bg-color tw-mt-6.25 tw-pb-6">
+                        <hr class="tw-border tw-border-t-0 tw-border-gray-300 tw-w-screen tw--ml-5 tw-border-l-0 tw-border-r-0">
+                        <button class="tw-block tw-mx-auto tw-mt-6 collection-filter-clear tw-bg-transparent tw-min-w-28 tw-ml-auto tw-cursor-pointer tw-text-btn-bg-color tw-border tw-border-solid tw-border-btn-bg-color tw-text-btn-font-size tw-tracking-btn-letter-spacing {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} tw-outline-none tw-p-0 tw-h-10  tw-leading-4 lg:hover:tw-opacity-40 tw-uppercase {%if settings.general_style == 'round'%}tw-rounded{%endif%}" >{{ langs.collection.collection_detail.remove_all | t }}</button>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+                {% unless section.settings.side_menu_on %}
+                  <button data-toggle class="md:tw-hidden lg:tw-hidden tw-absolute lg:hover:tw-bg-btn-bg-color lg:hover:tw-text-btn-text-color lg:hover:tw-border-text-bg-color collection-filter-clear tw-w-30 tw-h-10 tw-cursor-pointer tw-text-btn-bg-color tw-bg-transparent tw-border tw-border-solid tw-border-btn-bg-color tw-text-sm tw-tracking-normal tw-leading-none {%if settings.type_button_same_with == 'heading'%}type-heading-font-family{%else%}type-text-font-family{%endif%} {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} tw-outline-none tw-p-0 tw-leading-4 tw-uppercase {%if settings.general_style == 'round'%}tw-rounded{%endif%} " style="left: 112px;">{{ langs.collection.collection_detail.remove_all | t }}</button>
+                {% endunless %}
+                {% if section.settings.sort_on %}
+                  <div class="tw-border tw-text-center lg:tw-text-right tw-border-solid tw-border-gray-350 tw-w-full lg:tw-w-auto lg:tw-border-none tw-flex tw-items-center tw-justify-center tw-ml-auto collection__sort-select tw-cursor-pointer collection-sort-switch tw-select-none tw-py-3 lg:tw-py-0 {%if settings.general_style == 'round'%}tw-rounded{%endif%} tw-box-border tw-text-btn-font-size tw-tracking-btn-letter-spacing {%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%}">
+                    <span class="tw-leading-none">{{ langs.collection.collection_detail.sort_by | t }}</span>&nbsp;&nbsp;{% include 'icon_more', icon_class: "tw-transform" %}
+                    <ul id="collection-sort__drawer" class="tw-text-left tw-hidden tw-whitespace-nowrap tw-bg-bg-color tw-list-none tw-z-50 tw-py-5 tw-pb-6.25 tw-px-5 lg:tw-px-7.5 lg:tw-py-7 lg:tw-pt-0 tw-shadow-3 tw-m-0 tw-top-0 tw-left-0 tw-right-0 lg:tw-right-0 lg:tw-left-auto lg:tw-top-full md:tw-fixed lg:tw-absolute lg:tw-mt-4 tw-normal-case {%if settings.general_style == 'round'%}lg:tw-rounded{%endif%}">
+                      <div class="tw-flex tw-justify-between lg:tw-hidden">
+                        <div class="{%if settings.type_button_text_uppercase_on%}tw-uppercase{%endif%} tw-text-light-text-color lg:hover:tw-opacity-40 tw-text-btn-font-size tw-tracking-btn-letter-spacing">{{ langs.collection.collection_detail.sort_by | t }}</div>
+                        <div class="tw-cursor-pointer lg:hover:tw-opacity-40 tw-p-5 tw-pr-4 tw-absolute tw-right-0 tw-top-0 collection-sort-switch">{% include 'icon_close_btn', icon_width: '16', icon_height: '16' %}</div>
+                      </div>
+                      <li value="manual" class="tw-text-text-color tw-text-text-font-size type-text-font-family tw-leading-1 tw-list-none tw-tracking-normal tw-mt-6.25 lg:tw-mt-7 tw-cursor-pointer {% if sort_by == "manual" %}tw-opacity-40{%else%}lg:hover:tw-opacity-50{% endif %}" >{{langs.collection.collection_detail.recommend | t}}</li>
+                      <li value="price-ascending" class="w-text-text-color tw-text-text-font-size type-text-font-family tw-leading-1 tw-list-none tw-tracking-normal tw-mt-6.25 lg:tw-mt-4 tw-cursor-pointer {% if sort_by == "price-ascending" %}tw-opacity-40{%else%}lg:hover:tw-opacity-50{% endif %}"  >{{langs.collection.collection_detail.low_to_high | t}}</li>
+                      <li value="price-descending" class="tw-text-text-color tw-text-text-font-size type-text-font-family tw-leading-1 tw-list-none tw-tracking-normal tw-mt-6.25 lg:tw-mt-4 tw-cursor-pointer {% if sort_by == "price-descending" %}tw-opacity-40{%else%}lg:hover:tw-opacity-50{% endif %}"  >{{langs.collection.collection_detail.high_to_low | t}}</li>
+                      <li value="published-descending" class="tw-text-text-color tw-text-text-font-size type-text-font-family tw-leading-1 tw-list-none tw-tracking-normal tw-mt-6.25 lg:tw-mt-4 tw-cursor-pointer {% if sort_by == "published-descending" %}tw-opacity-40{%else%}lg:hover:tw-opacity-50{% endif %}"  >{{langs.collection.collection_detail.newest | t}}</li>
+                      <li value="best-selling" class="tw-text-text-color tw-text-text-font-size type-text-font-family tw-leading-1 tw-list-none tw-tracking-normal tw-mt-6.25 lg:tw-mt-4 tw-cursor-pointer {% if sort_by == "best-selling" %}tw-opacity-40{%else%}lg:hover:tw-opacity-50{% endif %}"  >{{langs.collection.collection_detail.sales_descending | t}}</li >
+                      <li value="add_to_cart_count" class="tw-text-text-color tw-text-text-font-size type-text-font-family tw-leading-1 tw-list-none tw-tracking-normal tw-mt-6.25 lg:tw-mt-4 tw-cursor-pointer {% if sort_by == "add_to_cart_count" %}tw-opacity-40{%else%}lg:hover:tw-opacity-50{% endif %}"  >{{langs.collection.collection_detail.add_to_cart_count_descending | t}}</li >
+                      <li value="views" class="tw-text-text-color tw-text-text-font-size type-text-font-family tw-leading-1 tw-list-none tw-tracking-normal tw-mt-6.25 lg:tw-mt-4 tw-cursor-pointer {% if sort_by == "views" %}tw-opacity-40{%else%}lg:hover:tw-opacity-50{% endif %}"  >{{langs.collection.collection_detail.views_descending | t}}</li >
+                    </ul>
+                  </div>
+                {% endif %}
+                <div id="collection__mask" class="tw-hidden lg:tw-hidden tw-fixed tw-top-0 tw-right-0 tw-left-0 tw-bottom-0 tw-bg-black tw-opacity-30 tw-z-10"></div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+        {% comment %} 商品列表 {% endcomment %}
+        {% comment %}
+          布局: tw-text-left tw-text-center
+          商品分栏: lg:tw-grid-cols-2 lg:tw-grid-cols-3 lg:tw-grid-cols-4 lg:tw-grid-cols-5 lg:tw-grid-cols-6
+          商品gap: lg:tw-gap-x-px-15 lg:tw-gap-x-10 lg:tw-gap-x-7.5 lg:tw-gap-x-5
+        {% endcomment %}
+        {% assign spacing = 'px-15' %}
+        {% if section.settings.spacing == '40px' %}
+          {% assign spacing = 10 %}
+        {% elsif section.settings.spacing == '30px' %}
+          {% assign spacing = 7.5 %}
+        {% elsif section.settings.spacing == '20px' %}
+          {% assign spacing = 5 %}
+        {% endif %}
+        <div class="tw-grid md:tw-gap-x-px-15 lg:tw-gap-x-{{spacing}} tw-grid-cols-2 lg:tw-grid-cols-{{section.settings.columns}} tw-gap-y-7.5 lg:tw-gap-y-15 tw-pt-5 lg:tw-pt-7.5 empty:tw-hidden" id="collection_products" data-top-products-flag="enabled">
+          {% comment %} 置顶商品 {% endcomment %}
+          {% if top_product_ids != "" %}
+            {% assign top_product_ids_arr = top_product_ids | url_decode | split: "," %}
+            {% for product_id in top_product_ids_arr %}
+              {% if product_id != "" %}
+                {% assign product = all_products[product_id] %}
+                {% if product.published %}
+                  {% assign has_valid_top_product = true %}
+                    {% include 'product', product: product, item_class: 'top-product' %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% for product in collection.products %}
+            {% unless top_product_ids contains product.id %}
+              {% include 'product', product: product %}
+            {% endunless %}
+          {% endfor %}
+        </div>
+
+        {% if section.settings.pagination_type == 'digital' %}
+          {% comment %} 数字分页 {% endcomment %}
+          <div class="collection_digital">
+            {% if paginate.pages > 1 %}
+              <nav role="navigation" class="tw-pt-10 lg:tw-pt-15 tw-max-w-page tw-mx-auto tw-px-5 lg:tw-px-general-layout-spacing tw-flex tw-justify-center tw-items-center tw-pb-2.5">
+                <div class="tw-flex tw-items-center tw-justify-center">
+                  {% assign enabledColor = 'tw-text-text-color tw-opacity-25' %}
+                  {% assign currentColor = 'tw-text-text-color' %}
+				  {% assign ppage =  paginate.current_page | minus: 1 %}
+                  <a {% if paginate.current_page != 1 %}href="/collections/{{ collection.handle }}?page={{ppage}}" data-track="num_pagination"{%endif%} class="tw-px-3 tw-no-underline tw-inline-flex tw-w-3">
+                    {% assign icon_class = currentColor | append: ' tw-transform tw-rotate-90' %}
+                    {% if paginate.current_page == 1 %}
+                      {% assign icon_class = enabledColor | append: ' tw-transform tw-rotate-90' %}
+                    {% endif %}
+                    {% include 'icon_more', icon_class: icon_class %}
+                  </a>
+                  {% for part in paginate.parts %}
+                    {% if part.is_link %}
+                      <a class="tw-leading-4 tw-px-3 tw-text-center tw-font-bold tw-no-underline {{enabledColor}}" href="/collections/{{ collection.handle }}?page={{ part.url }}" data-track="num_pagination">{{ part.title }}</a>
+                    {% else %}
+                      <span class="tw-leading-4 tw-px-3 tw-text-center tw-font-bold {%if part.title == paginate.current_page%}tw-relative link_active{%endif%} {%unless part.title > 0%}{{enabledColor}}{%endunless%}">{{ part.title }}</span>
+                    {% endif %}
+                  {% endfor %}
+				  {% assign npage =  paginate.current_page | plus: 1 %}
+                  <a {% if paginate.current_page != paginate.pages %}href="/collections/{{ collection.handle }}?page={{npage}}" data-track="num_pagination"{%endif%} class="tw-px-3 tw-no-underline tw-inline-flex tw-w-3">
+                    {% assign icon_class = currentColor | append: ' tw-transform tw--rotate-90' %}
+                    {% if paginate.current_page == paginate.pages %}
+                      {% assign icon_class = enabledColor | append: ' tw-transform tw--rotate-90' %}
+                    {% endif %}
+                    {% include 'icon_more', icon_class: icon_class %}
+                  </a>
+                </div>
+              </nav>
+            {% endif %}
+          </div>
+        {% else %}
+          <div id="collection__none" class="tw-flex tw-items-center tw-mt-3 lg:tw-mt-7.5 tw-mb-10 lg:tw-mb-20 tw-rounded tw-h-12.5 tw-text-sm tw-px-4 lg:tw-px-7 {% unless collection.products_count == 0 and has_valid_top_product != true  %}tw-hidden{% endunless %} tw-text-toast-text-error-color tw-bg-toast-bg-error-color">{{ langs.collection.collection_detail.no_result | t }}</div>
+
+          <div class="tw-relative tw-mt-10 lg:tw-mt-15 tw-mx-auto common__load-more-loading empty:tw-hidden" id="collection_products_loading"></div>
+          <div id="search_end" class="tw-hidden tw-text-sm tw-tracking-normal tw-leading-none tw-text-center tw-pt-10 lg:tw-pt-15">{{ langs.collection.collection_detail.search_end | t }}</div>
+        {% endif %}
+
+      </div>
+    </div>
+</div>
+<script id="collection-art-tpl" type="text/html">
+  <% for(var i = 0; i < products.length; i++) { %>
+    <div>
+      <% include ('product_art_tpl', {
+        product: products[i]
+      }) %>
+    </div>
+  <% } %>
+</script>
+{% javascript %}
+  $(function () {
+    var keyword = '{{search.terms | url_encode}}';
+    var loading = false;
+    var hasMore = true;
+    var params = $.params();
+    var page = params.page || 1;
+    var handle ="{{ collection.handle }}";
+    var tag  = "{{ current_tags }}";
+    var sort_by = "{{sort_by}}";
+    var scrollPosition = 0; // 滚动位置
+    var stickyTop = undefined; // 侧边栏top
+
+    var getFixedTop = function () {
+      return $('.header__fixed').length ? $('.header__fixed').outerHeight() : '0';
+    }
+
+    {% if section.settings.pagination_type == 'pull' %}
+      $(document).off('scroll.collection').on('scroll.collection',$.throttle(function(){
+        var $collection_widget = $('#collection__widget');
+        var $collection_widget_content = $('#collection__widget-content');
+        var $headerFixed = $('.header__fixed');
+        var $collection_sidebar = $('#collection-filter__wrapper > .tw-sticky');
+        var isMobile = $(window).width() < window.breakpoint;
+        var isHeaderFixed = $('.header__fixed').length;
+        var headerBoxShadow = $headerFixed.css('box-shadow') == 'none' ? '' : $headerFixed.css('box-shadow');
+        var fixedStyle = 'collection_widget_fixed tw-shadow-5 tw-z-dropdown lg:tw-px-general-layout-spacing';
+        var fixedLayout = 'tw-max-w-page tw-mx-auto';
+        var scrollTop = $(window).scrollTop();
+        var $collection_widget_wrapper = $('#collection__widget-wrapper');
+
+        if ($.isToPageEnd('{{section.id}}') && !loading && hasMore) {
+          $('body').trigger('track', {eventName: 'scroll_pagination'})
+          $(document).trigger("search",{page:++page});
+        }
+        $collection_widget_wrapper.css('min-height', $collection_widget.outerHeight()+'px');
+
+        // 移动端始终悬浮
+        if (isMobile && (scrollTop >= ($collection_widget_wrapper.offset().top - $headerFixed.outerHeight()))) {
+          $collection_widget_content.addClass(fixedStyle).css({
+            top: getFixedTop()+'px',
+          })
+          $collection_widget.addClass(fixedLayout);
+          isHeaderFixed && $headerFixed.css('box-shadow', 'none');
+        } else {
+          $collection_widget_content.removeClass(fixedStyle).css({top: 'unset',})
+          $collection_widget.removeClass(fixedLayout);
+          // isHeaderFixed && $headerFixed.css('box-shadow', headerBoxShadow);
+        }
+        
+        // 保证PC端左边侧边栏
+        if ($('#collection-filter__wrapper').length) {
+          var stickyTopValue = getFixedTop() + 30;
+          stickyTop = stickyTop == undefined ? stickyTopValue : stickyTop;
+          if (scrollTop + stickyTopValue > $('#collection-filter__wrapper').offset().top) { // is sticky
+            if ($collection_sidebar.height() + stickyTopValue > $(window).height()) { // overflow
+              var stickyBottomValue = $(window).height() - $collection_sidebar.height() - 40;
+              stickyTop -= scrollTop - scrollPosition;
+              stickyTop = Math.min(Math.max(stickyTop, stickyBottomValue), stickyTopValue);
+            } else { // not overflow
+              stickyTop = stickyTopValue;
+            }
+          }
+          scrollPosition = scrollTop;
+          $collection_sidebar.css({top: stickyTop+'px'});
+        }
+      }, 50, 50 ));
+    {% endif %}
+    $(document).off("search.collection").on("search.collection",function(e,extraParams){
+      loading = true;
+      page == 1 ? $.loading.show() : $.loading.show({
+        selector: '#collection_products_loading'
+      });
+      var param_tag = [];
+      $(".tag-active").each(function () {
+        param_tag.indexOf($(this).data('value')) == -1 && param_tag.push($(this).data('value'));
+      });
+      var url = "/collections/"+handle+"?"+$.toQuery($.extend({},params,extraParams,{limit:{{paginate_by}},sort_by:sort_by,tags:param_tag.join(',')}));
+      $.get(url,function(res){
+	   var products = res.data.products || [];
+		if (products.length > 0) {
+            html = window.template('collection-art-tpl', {
+              products: products,
+              filter: params.filter,
+            });
+			$("#collection_products").append(html);
+          }
+		  return;
+	  
+        //var bodyHTML = res.match(/(<body\b[^>]*>)([^<]*(?:(?!<\/body>)<[^<]*)*)(<\/body>)/gi)[0];
+        var $body = $(bodyHTML);
+        var $children = page == 1 ? $body.find("#collection_products").children() : $body.find("#collection_products").children().filter(":not(.top-product)");
+        var $digital = $body.find(".collection_digital");
+        hasMore = !!$children.length;
+        $('#search_end')[!hasMore?'removeClass':'addClass']('tw-hidden');
+        if(page ==1){
+          $("#collection_products").html("");
+          $("#collection__none")[$children.length == 0?"removeClass":"addClass"]("tw-hidden");
+          {% if section.settings.pagination_type == 'digital' %}
+            $(".collection_digital").html($digital.html() || '')
+          {% endif %}
+          !hasMore && $('#search_end')['addClass']('tw-hidden');
+        }
+        $("#collection_products").append($children);
+        // 更新商品数量
+        $('.collection_count').remove();
+        $('.collection__title').after($body.find('.collection_count'));
+        window.history.replaceState(null, '', url.replace(/\&?page=\d+/,""));
+      }).always(function(){
+        loading = false;
+        page == 1 ? $.loading.hide() : $.loading.hide({
+          selector: '#collection_products_loading'
+        });
+        $(document).trigger('product_list.update');
+        $(document).trigger('plugin_currency_update');
+      });
+    }).off('sort.collection').on('sort.collection',function(){
+      $('body').toggleClass('is-fixed-sort');
+      $('#collection-sort__drawer').find('li').removeClass('tw-opacity-40').end().find('li[value='+sort_by+']').addClass('tw-opacity-40');
+    }).off('click.collection').on("click.collection","#collection-sort__drawer li",function(e){
+      if (sort_by == $(this).attr('value')) return;
+      sort_by = $(this).attr('value');
+      $(document).trigger('sort.collection');
+      loading || $(document).trigger("search",{page:(page=1)});
+    }).on("click.collection",".custom-checkbox",function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      var $tagWrapper = $('.collection-filter__item-select[data-tag="'+$(this).parent().data('tag')+'"]')
+      $tagWrapper.find('.custom-checkbox:not([data-value="'+$(this).data('value')+'"])').removeClass('tag-active');
+      $tagWrapper.find('.custom-checkbox[data-value="'+$(this).data('value')+'"]').toggleClass('tag-active');
+      loading || $(document).trigger("search",{page:(page=1)});
+      $(document).trigger('update.remove_btn');
+    }).on("click.collection",".collection-filter-clear",function(){
+      $('.custom-checkbox').removeClass('tag-active');
+      loading || $(document).trigger("search",{page:1});
+      $(document).trigger('update.remove_btn');
+    }).on("click.collection",".collection-filter__switch", function(e){
+      !$('body').hasClass('is-fixed-tags') && $('body').trigger('track', {eventName: 'filter'})
+      $('body').toggleClass('is-fixed-tags');
+      $('#collection-filter__drawer').css({top: getFixedTop()+'px'});
+    }).on('click.collection',".collection-sort-switch",function(e){
+      !$('body').hasClass('is-fixed-sort') && $('body').trigger('track', {eventName: 'sort_by'})
+      $('#collection-sort__drawer').css({top: getFixedTop()+'px'});
+      $(document).trigger('sort.collection');
+    }).off("update.remove_btn").on('update.remove_btn',function(){
+      $('.collection-filter-clear[data-toggle]')[$('.tag-active').length ? 'removeClass': 'addClass']('lg:tw-hidden');
+    }).trigger('update.remove_btn').on('click.collection',"#collection-sort__drawer,#collection-filter__drawer",function(e){
+      if (['collection-sort__drawer','collection-filter__drawer'].indexOf($(e.target).attr('id')) == -1) {
+        e.stopPropagation();
+      }
+    });
+  })
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "collection_detail",
+  "contentType": [
+    "collection"
+  ],
+  "max_blocks": 5,
+  "systemName": {
+    "en-US": "Collection Details",
+    "zh-CN": "专辑详情"
+  },
+  "settings": [
+    {
+      "content": {
+        "zh-CN": "常规设置",
+        "en-US": "General"
+      },
+      "type": "header"
+    },
+    {
+      "type": "select",
+      "id": "spacing",
+      "label": {
+        "en-US": "Space",
+        "zh-CN": "格子间距"
+      },
+      "default": "30px",
+      "options": [
+        {
+          "value": "15px",
+          "label": {
+            "en-US": "15px",
+            "zh-CN": "15px"
+          }
+        },
+        {
+          "value": "20px",
+          "label": {
+            "en-US": "20px",
+            "zh-CN": "20px"
+          }
+        },
+        {
+          "value": "30px",
+          "label": {
+            "en-US": "30px",
+            "zh-CN": "30px"
+          }
+        },
+        {
+          "value": "40px",
+          "label": {
+            "en-US": "40px",
+            "zh-CN": "40px"
+          }
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "step": 1,
+      "max": 6,
+      "min": 2,
+      "label": {
+        "en-US": "Columns",
+        "zh-CN": "商品分栏"
+      },
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "rows",
+      "step": 1,
+      "max": 12,
+      "min": 1,
+      "label": {
+        "zh-CN": "商品行数",
+        "en-US": "Number of rows"
+      },
+      "default": 5
+    },
+    {
+      "type": "select",
+      "id": "pagination_type",
+      "label": {
+        "zh-CN": "分页设置",
+        "en-US": "Pagination settings"
+      },
+      "default": "pull",
+      "options": [
+        {
+          "value": "digital",
+          "label": {
+            "en-US": "Digital paging",
+            "zh-CN": "数字分页"
+          }
+        },
+        {
+          "value": "pull",
+          "label": {
+            "en-US": "Scroll loading",
+            "zh-CN": "滚动加载"
+          }
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "sort_on",
+      "label": {
+        "zh-CN": "开启排序器",
+        "en-US": "Show 'sort by'"
+      },
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "fliter_width",
+      "props": {
+        "type": "number"
+      },
+      "label": {
+        "en-US": "Max width of fliter",
+        "zh-CN": "筛选器最大宽度"
+      },
+      "info": {
+        "en-US": "Only takes effect when sidebar is not activated",
+        "zh-CN": "仅在未激活侧边栏时生效"
+      },
+      "default": ""
+    },
+    {
+      "content": {
+        "zh-CN": "侧边栏",
+        "en-US": "Sidebar"
+      },
+      "type": "header"
+    },
+    {
+      "type": "checkbox",
+      "id": "side_menu_on",
+      "label": {
+        "en-US": "Activate",
+        "zh-CN": "启用"
+      },
+      "default": false
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "visibleOn": "side_menu_on",
+      "label": {
+        "zh-CN": "页内导航",
+        "en-US": "Page navigation"
+      }
+    },
+    {
+      "type": "text",
+      "id": "menu_title",
+      "visibleOn": "side_menu_on",
+      "label": {
+        "en-US": "Heading",
+        "zh-CN": "标题"
+      },
+      "default": "Category"
+    },
+    {
+      "type": "select",
+      "id": "filter_type",
+      "visibleOn": "side_menu_on",
+      "label": {
+        "zh-CN": "筛选器展示方式",
+        "en-US": "Filter style"
+      },
+      "default": "hide",
+      "options": [
+        {
+          "value": "unfold",
+          "label": {
+            "en-US": "Unfold",
+            "zh-CN": "展开"
+          }
+        },
+        {
+          "value": "hide",
+          "label": {
+            "zh-CN": "收缩",
+            "en-US": "Collapsed"
+          }
+        }
+      ]
+    },
+    {
+      "content": {
+        "en-US": "Filter",
+        "zh-CN": "筛选器"
+      },
+      "type": "header"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tag_filter",
+      "name": {
+        "en-US": "Label filter",
+        "zh-CN": "标签筛选"
+      },
+      "info": {
+        "en-US": "Set product label in the background <a href='/admin/products' style='text-decoration: underline;' target='_blank'>product management</a>module",
+        "zh-CN": "商品标签可在后台<a href='/admin/products' style='text-decoration: underline;' target='_blank'>商品管理</a>模块设置"
+      },
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "zh-CN": "标题",
+            "en-US": "Title"
+          },
+          "default": "",
+          "placeholder": {
+            "zh-CN": "输入标题",
+            "en-US": "Enter title"
+          }
+        },
+        {
+          "type": "textarea",
+          "id": "tags",
+          "label": {
+            "en-US": "Labels",
+            "zh-CN": "标签"
+          },
+          "placeholder": {
+            "zh-CN": "示例：Tag1,Tag2,Tag3",
+            "en-US": "Eg: Tag1,Tag2,Tag3"
+          }
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "collection_detail",
+      "cname": {
+        "zh-CN": "专辑详情",
+        "en-US": "Collection"
+      },
+      "category": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "ccategory": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "display": false,
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,10 @@
+<%
+  var freeAmount = ({{settings.cart_settings_postage_value | minus: 0}}-(total_price-discountPrice)).toFixed(2);
+  var rate = (total_price-discountPrice)/{{settings.cart_settings_postage_value | minus: 0}};
+  rate = rate > 1 ? 100 : rate*100;
+%>
+<% include ('cart-postage-art-tpl', {
+  rate: rate,
+  freeAmount: freeAmount,
+  initialValue: initialValue
+}) %>

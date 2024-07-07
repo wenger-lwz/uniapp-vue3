@@ -1,0 +1,175 @@
+{% assign start_idx = 0 %}
+{% assign view_last_idx = view_thumb_size | minus : 1 %}
+{% assign last_idx = view_thumb_size | minus : 1 %}
+{% if product.images.size < view_thumb_size %}
+  {% assign start_idx = 0 %}
+{% else %}
+  {% if initialSlide < view_last_idx %}
+    {% assign start_idx = 0 %}
+  {% else %}
+    {% if initialSlide == last_idx %}
+      {% assign start_idx = product.images.size | minus: view_thumb_size %}
+    {% else %}
+      {% assign start_idx = initialSlide | plus: 1 | minus: view_thumb_size %}
+    {% endif %}
+  {% endif %}
+{% endif %}
+{% assign end_idx = start_idx | plus: view_thumb_size %}
+
+<div class="tw-flex">
+  {% comment %}左部缩略图{% endcomment %}
+  {% if section.settings.gallery_layout == "slide_show_left" and product.images.size > 1 %}
+  <div class="tw-hidden {% unless ajax %} lg:tw-block {% endunless %} tw-flex-shrink-0 tw-w-15 tw-mr-10 product-image__thumbs product-image__thumbs_left" data-start-idx="{{start_idx}}" data-cur-idx="{{initialSlide}}" >
+    {% for item in product.images %}
+      <div class="tw-mb-3 tw-w-full slick-slide product-image__thumbs-item {% if initialSlide == forloop.index0 %} slick-current{% endif %} {% if forloop.index0 < start_idx or forloop.index0 >= end_idx  %} tw-hidden {% endif %} " data-thumb-idx="{{ forloop.index0 }}" >
+        <div class="tw-relative tw-overflow-hidden {%if settings.general_style == 'round'%}tw-rounded{%endif%} product-image__thumb " style="padding-bottom:133.333%">
+          <img class="tw-absolute tw-inset-0 tw-h-full tw-w-full tw-object-cover tw-m-auto tw-block tw-cursor-pointer {%if settings.general_style == 'round'%}tw-rounded{%endif%} {% if forloop.index0 < start_idx or forloop.index0 >= end_idx  %}lazy-{% endif %}lazyload" src="{{shop.default_img}}" data-src="{{item.src | img_url: '{width}x' }}"  data-sizes="auto" alt="{{ item.alt | escape }}">
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <div class="tw-relative tw-flex-grow tw-group">
+  {% comment %}主图幻灯片{% endcomment %}
+    <div class="support-slick tw-overflow-hidden {% if section.settings.gallery_layout == "slide_show_left" %}tw-w-full{% endif %} {%if settings.general_style == 'round'%} tw-rounded-none lg:tw-rounded-lg {%endif%} {% if product.images.size > 1 %} {% if section.settings.gallery_layout == "grid" or ajax or section.settings.gallery_layout == "slide_show_left" %} lg:tw-mx-0 {% else %} lg:tw-mx-15 {% endif %} {% endif %}">
+    {% if product.images.size > 0 %}
+      {% assign sliderHeight = 0 %}
+      {% for item in product.images %}
+        {% assign ratio = item.height | divided_by: item.width %}
+        {% if ratio > sliderHeight %}
+          {% assign sliderHeight = ratio %}
+        {% endif %}
+      {% endfor %}
+      {% assign slidesToShow = 1 %}
+      {% assign mr = 0 %}
+        {% if section.settings.mobile_gallery_layout == "slide_show" %}
+          {% assign slidesToShow = 1.1 %}
+          {% assign mr = 8 %}
+        {% endif %}
+      {% include 'slides', id: section.id, images: product.images, slide: 'product_slide', initialSlide: initialSlide, slidesToShow: slidesToShow, slidesToShowPC: 1 %}
+      <style>
+        .slides-{{section.id}}{ padding-bottom: calc({{sliderHeight | times: 100 | divided_by: slidesToShow | append: '%'}} - {{sliderHeight | times: mr}}px)}
+        @media (min-width: {{settings.breakpoint}}px){
+            {% if section.settings.gallery_layout == "grid" %}
+              .slides-{{section.id}}{padding-bottom:0;}
+              .slides-{{section.id}} .slides-content{position: unset;display: flex;flex-wrap: wrap;transform:none !important}
+              .slides-{{section.id}} .slides-item{display: none; position: unset;transform: none;width: 50%;margin-bottom: 20px;}
+              {% for item in product.images %}
+              .slides-{{section.id}} .slides-item-{{forloop.index0}}{display:block;transform:none !important}
+              {% endfor %}
+            {% else %}
+          .slides-{{section.id}}{padding-bottom: {{sliderHeight | times: 100 | append: '%'}};}
+          .slides-{{section.id}} .slides-content{position: absolute;}
+          .slides-{{section.id}} .slides-item{display:block; position: absolute;width:100%;margin-bottom:0;}
+            {% endif %}
+        }
+      </style>
+    {% else %}
+      {{ 'product-1' | placeholder_svg_tag: 'tw-flex tw-bg-svg tw-fill-svg tw-w-full tw-m-auto tw-w-full tw-h-full' }}
+    {% endif %}
+  </div>
+  <div class="tw-absolute tw--mt-10 tw-left-1/2 tw-transform tw--translate-x-1/2 tw-z-10 tw-text-sm tw-bg-black tw-bg-opacity-50 tw-text-white tw-h-5 tw-leading-5 tw-px-3 lg:tw-hidden {% if product.images.size < 2 %}tw-hidden{% endif %} tw-rounded-full product-image__swiper_bullets">{{initialSlide | plus: 1}} / {{product.images.size}}</div>
+  {% if product.images.size > 1 %}
+    <a href="javascript:;" class="tw-absolute tw-inset-0 tw-right-auto tw-top-1/2 tw-hidden tw-text-btn-bg-color tw-no-underline tw-h-11 tw-w-11 {% if section.settings.gallery_layout == "grid" %} {% else %}lg:group-hover:tw-flex{% endif %} {% if section.settings.gallery_layout == "slide_show_left" %} lg:tw-ml-4 {% endif %} tw-justify-start tw-items-center sep-loaded-slider__button sep-loaded-slider__button-prev slides-{{section.id}}-arrow" data-direction="prev">{% include 'icon_bg_arrow', icon_class: "tw-text-btn-bg-color" %}</a>
+    <a href="javascript:;" class="tw-absolute tw-inset-0 tw-left-auto tw-top-1/2 tw-hidden tw-text-btn-bg-color tw-no-underline tw-h-11 tw-w-11 {% if section.settings.gallery_layout == "grid" %} {% else %}lg:group-hover:tw-flex{% endif %} {% if section.settings.gallery_layout == "slide_show_left" %} lg:tw-mr-4 {% endif %} tw-justify-end tw-items-center sep-loaded-slider__button sep-loaded-slider__button-next slides-{{section.id}}-arrow" data-direction="next">{% include 'icon_bg_arrow',icon_class:"tw-transform tw-rotate-180 tw-text-btn-bg-color" %}</a>
+  {% endif %}
+</div>
+</div>
+{% comment %}底部缩略图{% endcomment %}
+<div class="tw-hidden tw-mx-15  {% if product.images.size > 1 and section.settings.gallery_layout != 'grid' and section.settings.gallery_layout != 'slide_show_left' %} lg:tw-block {% endif %} tw-mt-5 " >
+  <div class="tw-flex tw-flex-wrap product-image__thumbs" data-start-idx="{{start_idx}}" data-cur-idx="{{initialSlide}}" style="margin-left:-10px;margin-right:-10px;">
+    {% for item in product.images %}
+      <div class="slick-slide tw-w-1/6 tw-outline-none  product-image__thumbs-item {% if initialSlide == forloop.index0 %} slick-current{% endif %} {% if forloop.index0 < start_idx or forloop.index0 >= end_idx  %} tw-hidden {% endif %} "  data-thumb-idx="{{ forloop.index0 }}" style="margin-bottom:10px;" >
+        <div style="padding:0 10px;">
+          <div class="tw-relative tw-overflow-hidden {%if settings.general_style == 'round'%}tw-rounded{%endif%} product-image__thumb" style="padding-bottom:100%;" >
+            <img class="tw-absolute tw-inset-0 tw-w-full tw-m-auto tw-block tw-cursor-pointer {%if settings.general_style == 'round'%}tw-rounded{%endif%} lazyload" src="{{shop.default_img}}" data-src="{{item.src | img_url: '{width}x' }}"  data-sizes="auto" alt="{{ item.alt | escape }}">
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% include 'zoomed_slides', product: product %}
+
+{% javascript %}
+  $(function () {
+    {% if product.images.size > 1 %}
+      var mobile_gallery_layout = {{section.settings.mobile_gallery_layout | json}};
+      var gallery_layout = {{section.settings.gallery_layout | json}};
+      var view_thumb_size = {{view_thumb_size}};
+      var size = {{product.images.size}};
+      var $container = $("#product_detail_{{product.id}}");
+      var $slider = $(".slides-{{section.id}}");
+      var w = $(window).width();
+      var $thumbs = $container.find('.product-image__thumbs');
+      var loadNextImg = function(){
+        if (w <= breakpoint && mobile_gallery_layout == "slide_show") {
+          $slider.find('.slides-active').next().find('.lazy-lazyload').removeClass("lazy-lazyload").addClass("lazyload")
+        }
+      }
+      $(window).off("resize.slider slider_refresh.slider").on("resize.slider slider_refresh.slider", $.debounce(function () {
+        w = $(window).width()
+        if (w != $slider.data("_slider_width")) {
+          w > breakpoint && gallery_layout == "grid"
+            ? $slider.find('.lazy-lazyload').removeClass("lazy-lazyload").addClass("lazyload")
+            : $slider.slides();
+          $slider.data("_slider_width", w);
+          loadNextImg();
+          // sticky propverties
+          var $properties = $container.find(".properties");
+          var $image = $container.find(".product-image");
+          var $content = $container.find(".properties-content");
+          $content.length && $content.css({
+            "position": (w > breakpoint && $content.height() < $image.height() && gallery_layout == "grid") ? "sticky" : "",
+            "top": $properties.offset().top
+          });
+        }
+      }, 200)).trigger("slider_refresh.slider");
+      $slider.on('afterChange', loadNextImg);
+      $slider.on('beforeChange', function (event, data) {
+        $('body').trigger('track', {eventName: 'switch_images'});
+        var currentSlide = data.currentSlide;
+        var nextSlide = data.nextSlide;
+        var nextIndex = nextSlide.index;
+        var currentIndex = currentSlide.index;
+        $thumbs.attr("data-cur-idx", nextIndex);
+        $container.find(".product-image__swiper_bullets").html((nextIndex + 1) + " / " + size);
+        var curStartIdx = parseInt($thumbs.attr("data-start-idx"), 10);
+        $thumbs.find(".slick-slide").removeClass("slick-current").eq(nextIndex).addClass("slick-current")
+        // 在视口中不移动视口
+        if (nextIndex >= (curStartIdx + 1) && nextIndex < (curStartIdx + view_thumb_size - 1)) return;
+        // 移动规则 https://jsbin.com/telateg/edit?js,console
+        var startIdx = (function (size, view_size, init_idx, old_idx) {
+          if (size < view_size) return 0;
+          if (old_idx == 0) {
+            if (init_idx < view_size - 1) {
+              return 0;
+            } else if (init_idx == size - 1) {
+              return size - view_size;
+            } else {
+              return init_idx + 2 - view_size;
+            }
+          } else {
+            if (init_idx == 0) {
+              return 0;
+            } else if (init_idx > size - view_size) {
+              return size - view_size;
+            } else {
+              return init_idx - 1;
+            }
+          }
+        })(size, view_thumb_size, nextIndex, nextIndex < currentIndex ? 1 : 0);
+        $thumbs.find(".slick-slide").each(function (i, item) {
+          $(item)[i < startIdx || i >= (startIdx + view_thumb_size) ? "hide" : "show"]();
+          $(item).filter(":not(:hidden)").find(".lazy-lazyload").removeClass("lazy-lazyload").addClass("lazyload");
+        });
+        $thumbs.attr("data-start-idx", startIdx);
+      });
+      $thumbs.on("click", ".slick-slide", function (e) {
+        var idx = parseInt($(e.currentTarget).attr("data-thumb-idx"), 10);
+        $slider.trigger('slidesGoTo', {i: idx});
+      });
+    {% endif %}
+  })
+{% endjavascript %}

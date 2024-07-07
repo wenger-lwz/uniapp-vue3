@@ -1,0 +1,280 @@
+{% raw %}
+<script>
+  (function ($, params) {
+    // 防止回退缓存
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted) {
+        window.location.reload()
+      }
+    });
+
+    $.isSupportWebp = !![].map && document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') == 0;
+    //判断是否为移动端
+    $.isMobile = function () {
+      /* 判断机型与处理 */
+      var u = navigator.userAgent
+      var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; // android终端
+      var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); // ios终端
+      return (isAndroid || isiOS);
+    };
+
+    // 获得对象的key
+    $.getObjKeys = function (obj) {
+      if (obj !== Object(obj)) throw new TypeError('Invalid object');
+      var keys = [];
+      for (var key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          keys[keys.length] = key;
+        }
+      }
+      return keys;
+    };
+    $.globalFinance = function (price, finance, symbol) {
+      return window.template.defaults.imports.finance_money_with_shop_symbol(price);
+    };
+    /* cookie 操作 */
+    $.getCookie = function (sName) {
+      var oCrumbles = document.cookie.split(';');
+      for (var i = 0; i < oCrumbles.length; i++) {
+        var oPair = oCrumbles[i].split('=');
+        var sKey = decodeURIComponent(oPair[0].trim());
+        var sValue = oPair.length > 1 ? oPair[1] : '';
+        if (sKey == sName) {
+          return decodeURIComponent(sValue);
+        }
+      }
+      return '';
+    };
+    $.setCookie = function (sName, sValue, options) {
+      var sCookie = encodeURIComponent(sName) + '=' + encodeURIComponent(sValue);
+      if (options instanceof Date) {
+        options = {
+          expires: options
+        };
+      }
+      options = options || {};
+      if (options.expires) {
+        sCookie += '; expires=' + options.expires.toGMTString();
+      }
+      if (options.path) {
+        sCookie += '; path=' + options.path.toString();
+      }
+      if (options.domain) {
+        sCookie += '; domain=' + options.domain.toString();
+      }
+      if (options.secure) {
+        sCookie += '; secure';
+      }
+      document.cookie = sCookie;
+    };
+    $.delCookie = function (sName, options) {
+      options = options || {};
+      options.expires = new Date();
+      $.setCookie(sName, '', options);
+    };
+
+    // jquery ajax 统一增加请求头
+    $.ajaxSettings.beforeSend = function (xhr) {
+      $.getCookie('CSRF-TOKEN') && xhr.setRequestHeader('X-CSRF-Token', $.getCookie('CSRF-TOKEN'));
+    };
+    //ajax 响应302跳转
+    $.ajaxSetup({
+      global: true,
+      error: function (jqXHR) {
+        if (jqXHR.status == 302) {
+          window.safeHref = jqXHR.getResponseHeader('X-Redirect') || jqXHR.getResponseHeader('Location') || '/account/login?_returnUrl=' + encodeURI(window.location.pathname);
+        }
+      }
+    });
+
+    /* 节流防抖 */
+    $.throttle = function (func, wait, mustRun) {
+      var timeout,
+        startTime = new Date();
+      return function () {
+        var context = this,
+          args = arguments,
+          curTime = new Date();
+        clearTimeout(timeout);
+        // 如果达到了规定的触发时间间隔，触发 handler
+        if (mustRun && curTime - startTime >= mustRun) {
+          func.apply(context, args);
+          startTime = curTime;
+          // 没达到触发间隔，重新设定定时器
+        } else {
+          timeout = setTimeout(func, wait);
+        }
+      };
+    };
+
+    /**
+    * @param fn {Function}   实际要执行的函数
+    * @param delay {Number}  延迟时间，单位是毫秒（ms）
+    * @return {Function}     返回一个“防反跳”了的函数
+    */
+    $.debounce = function (fn, delay) {
+      // 定时器，用来 setTimeout
+      var timer;
+      // 返回一个函数，这个函数会在一个时间区间结束后的 delay 毫秒时执行 fn 函数
+      return function () {
+        // 保存函数调用时的上下文和参数，传递给 fn
+        var context = this;
+        var args = arguments;
+        // 每次这个返回的函数被调用，就清除定时器，以保证不执行 fn
+        clearTimeout(timer);
+        // 当返回的函数被最后一次调用后（也就是用户停止了某个连续的操作），
+        // 再过 delay 毫秒就执行 fn
+        timer = setTimeout(function () {
+          fn.apply(context, args);
+        }, delay);
+      };
+    };
+
+    /**
+    * url query param to object
+    * @param {string} url
+    * @returns {object} query object
+    */
+    $.params = function (url) {
+      url = url || window.location.href;
+      var params = {};
+      url.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (str, key, value) {
+        try {
+          params[key] = decodeURIComponent(value);
+        } catch (e) {
+          params[key] = value;
+        }
+      });
+      return params;
+    };
+
+    /**
+    * object to query params
+    * @param {object} obj
+    * @returns {string} query params
+    */
+    $.toQuery = function (obj) {
+      var result = [];
+      for (var k in obj) {
+        result.push(encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]));
+      }
+      return result.join('&');
+    };
+    /**
+    * replace query params
+    * @param {object} obj  replace obj
+    * @returns {string} new url string
+    */
+    $.replaceQuery = function (obj) {
+      var currentObj = $.params();
+      $.extend(currentObj, obj);
+      return location.origin + location.pathname + '?' + $.toQuery(currentObj);
+    };
+
+    //滚动加载方法
+    $.isToPageEnd = function (id) {
+      var obj = $('[data-section-id=' + id + ']');
+      var scrollTop = $(document).scrollTop(); //滚动条距离顶部的高度
+      var clientHeight = $(window).height(); //当前可视的页面高度
+      var scrollHeight = $(document).height(); //当前页面的总高度
+      // 如果改卡片下面还有卡片或者dom,计算滚动加载需要考虑这个高度
+      var toTop = scrollHeight - (obj.height() + obj.offset().top); //元素到浏览器底部的高度
+      if (scrollTop + clientHeight + toTop + 100 >= scrollHeight) {
+        return true;
+      }
+      return false;
+    };
+
+    // copy 兼容iphone/ipad
+    $.copy2Clipboard = function (text) {
+      var target = document.getElementById('common_copy_input');
+      if (!target) {
+        $('<input>', {
+          id: 'common_copy_input',
+          type: 'text',
+          style: 'position: absolute; left: -99999px'
+        }).appendTo(document.body);
+        target = document.getElementById('common_copy_input');
+      }
+      var $input = $('#common_copy_input');
+      $input.val(text);
+      if (navigator.userAgent.match(/ipad|ipod|iphone/i)) {
+        $input.attr('disabled', true);
+        var editable = target.contentEditable;
+        var readOnly = target.readOnly;
+        target.contentEditable = true;
+        target.readOnly = false;
+        var range = document.createRange();
+        range.selectNodeContents(target);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        target.setSelectionRange(0, 999999);
+        target.contentEditable = editable;
+        target.readOnly = readOnly;
+      } else {
+        $input.select();
+      }
+      document.execCommand('copy');
+      $input.blur();
+    };
+
+    $(function () {
+      // 保证C端加载
+      var env = parseInt(window.SHOP_PARAMS.shop_env);
+      if (!window.safeHref && env == 0) { // if里面的代码针对C端，B端逻辑部分在owl中
+        $.sliceQuery = function (obj, path) {
+          path += path.indexOf('?') === -1 ? '?' : '&';
+          return path + $.toQuery(obj);
+        };
+        Object.defineProperty(window, 'safeHref', {
+          get: function () {
+            return location.href;
+          },
+          set: function (value) {
+            location.href = value;
+          },
+          configurable: true
+        });
+        location.safeReplace = function (value) {
+          location.replace(value);
+        };
+        //b端拦截跳转
+        $(document).on("click", "[data-product-id]:not(.modal)", function (event) {
+          var id = $(event.target).data('product-id');
+          $(document).trigger('xf.common.product.select', {
+            id: id,
+            url: $(event.target).data('product-url'),
+            variantsId: $(event.target).data('product-variants-id'),
+            variants: $(event.target).data('product-variants'),
+            product: $(event.target).data('product')
+          });
+          event.stopPropagation();
+          event.preventDefault();
+          return false;
+        });
+      }
+    })
+
+    // 解决移动端a标签因为hover点击两次的问题
+    document.body.addEventListener('touchstart', function () { });
+
+    $.fn.lazy = function (callback) {
+      if ($(this).hasClass('lazyloaded') || $(this).hasClass('lazyloading')) {
+        callback(); return;
+      }
+      $(this).on('lazybeforeunveil', function (e) {
+        if (e.target != this) return;
+        callback();
+      });
+    }
+
+    /* Bootstrap multiple modals scrollbar fix */
+    $(document).on('hidden.bs.modal', '.modal', function () {
+      $('.modal:visible').length && $(document.body).addClass('modal-open');
+    });
+
+
+  })(window.jQuery, window.SHOP_PARAMS);
+</script>
+{% endraw %}

@@ -1,0 +1,445 @@
+{% assign text = section.settings.text %}
+{% assign slide_button_background_color=section.settings.slide_button_background_color %}
+{% assign slide_text_color=section.settings.slide_text_color %}
+{% assign slide_button_label_color=section.settings.slide_button_label_color %}
+{% assign defaultImg = '/themes/theme1/assets/image/5643xcrree3.png' %}
+<div id="slider{{section.id}}" class="slide_plus sep-slider style_{{section.settings.style}}">
+  {% if section.blocks.size == 0 %}
+    {% assign blocks = '1,2,3' | split: ',' %}
+  {% else %}
+    {% assign blocks = section.blocks %}
+  {% endif %}
+  {% for block in section.blocks %}
+    {% assign src = block.settings.src | default: defaultImg %}
+    {% assign mobile_src = block.settings.mobile_src | default: src %}
+    <div class="slide_plus__image-wrapper">
+      <img src="{{shop.default_img}}" class="{% unless forloop.index0 == 0 %}lazy-{% endunless %}lazyload imglazy slide_plus__image" data-srcs="{{mobile_src | img_url: '{width}' }},{{src | img_url: '{width}' }}" data-sizes="auto" alt="{{images[src].alt | escape}}">
+      {% include 'slider_plus_text_content' sub_title: block.settings.sub_title, title: block.settings.title, slide_cta: block.settings.slide_cta, url: block.settings.url.url, link_type: block.settings.url.type, id: block.id, image_overlay_color: block.settings.image_overlay_color, image_overlay_opacity: block.settings.image_overlay_opacity, text_position:block.settings.text_position, slide_button_label_color:slide_button_label_color,slide_text_color:slide_text_color,slide_button_background_color:slide_button_background_color%}
+    </div>
+  {% endfor %}
+</div>
+<style>
+[data-section-id="{{section.id}}"] {
+  margin-top: -80px;
+}
+@media (max-width:768px){
+  [data-section-id="{{section.id}}"] {
+    margin-top: -54px;
+  }
+}
+[data-section-id='{{section.id}}'] .hero__title{
+    {% assign titleFont = settings.skin_title_font_family %}
+    font-family: {{titleFont.family}},{{titleFont.fallback_families}};
+    font-style: {{titleFont.style}};
+    font-weight: {{titleFont.weight}};
+}
+.navigation-pc__menu-item_on::after,
+  .navigation-pc__menu-item:hover::after {
+    background-color: #fff;
+  }
+  .hero__text-align {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position:relative;
+}
+
+.hero__text-content {
+    position: static;
+    transform: none;
+    padding: 30px;
+    margin:0;
+    color:#fff;
+}
+@media (max-width:768px){
+  .hero__text-content{
+    max-weight:100%;
+  }
+}
+.hero__text-content .btn{
+    background:#fff;
+    color:#000;
+    max-width:20rem;
+}
+[data-section-id='{{section.id}}'] .hero__cta {
+    margin-bottom: 2rem;
+}
+
+[data-section-id='{{section.id}}'] .hero .page-width{
+  padding-bottom:30px;
+  padding-top:30px;
+}
+[data-section-id='{{section.id}}'] .hero__text-align.flex_center {
+    align-items: center;
+    justify-content: center;
+    text-align:center;
+}
+[data-section-id='{{section.id}}'] .hero__text-align.flex_center_left {
+    align-items: center;
+    justify-content: flex-start;
+    text-align:left;
+}
+[data-section-id='{{section.id}}'] .hero__text-align.flex_center_right {
+    align-items: center;
+    justify-content: flex-end;
+    text-align:right;
+}
+[data-section-id='{{section.id}}'] .hero__text-align.flex_bottom_left {
+    align-items: flex-end;
+    justify-content: flex-start;
+    text-align:left;
+}
+[data-section-id='{{section.id}}'] .hero__text-align.flex_bottom_center {
+    align-items: flex-end;
+    justify-content: center;
+    text-align:center;
+}
+[data-section-id='{{section.id}}'] .hero__text-align.flex_bottom_right {
+    align-items: flex-end;
+    justify-content: flex-end;
+    text-align:right;
+}
+</style>
+
+{% javascript %}
+$(function () {
+  var $slider = $("#slider{{section.id}}");
+  $slider.hasClass('slick-initialized') && $slider.slick('destroy');
+  $slider.slick({
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    arrows: false,
+    dots: true,
+    infinite: true,
+    adaptiveHeight: true,
+    touchThreshold: 10,
+    speed: 300,
+    autoplaySpeed:{{ section.settings.delay }},
+    autoplay:{% if section.settings.is_auto_play %}true{%else%}false{%endif%},
+    rtl: document.documentElement.getAttribute("dir") == "rtl"
+  }).on("beforeChange",function (event, slick){
+    $(slick.$slider).find(".lazy-lazyload").removeClass("lazy-lazyload").addClass("lazyload");
+  });
+  {% comment %} 更新slide高度 {% endcomment %}
+  var $slide = $('[data-section-id="{{section.id}}"]');
+  $(window).on('resize', function() {
+    {% comment %} 更新位移 {% endcomment %}
+    {% comment %} 更新banner高度 {% endcomment %}
+    $slide.find('.slide_plus__image').height($(window).height() - ($($slide.prevAll('.shoplaza-section')[0]).find('.header_plus').length ? $('.fast-bar').height() : 0));
+    {% comment %} swiper.update(); {% endcomment %}
+    $(document).trigger('slide__plus_update');
+    updateTransform();
+  });
+  var updateTransform = function (event) {
+    if ($($slide.prevAll('.shoplaza-section')[0]).find('.header_plus').length) {
+      // 上一个卡片是header2,需要位移
+      var height = $('#shoplaza-section-header_plus').outerHeight() + $('.plugin__fixed-div').outerHeight() + $('.plugin__static-div').outerHeight() - $('.fast-bar').outerHeight();
+      $slide.css({
+        marginTop: '-' + height + 'px'
+      })
+    } else {
+      $slide.css({
+        marginTop: 0
+      })
+    }
+  }
+  $(document).on('slide__plus_update', $.throttle(updateTransform));
+  $(window).trigger('resize');
+})
+
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "slide_plus",
+  "max_blocks": 10,
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Settings",
+        "zh-CN": "设置"
+      }
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "en-US": "Auto-change slides",
+        "zh-CN": "自动轮播"
+      },
+      "id": "is_auto_play",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "delay",
+      "label": {
+        "en-US": "Change images every",
+        "zh-CN": "轮播时间"
+      },
+      "default": "3000",
+      "options": [
+        {
+          "value": "2000",
+          "label": {
+            "en-US": "2s",
+            "zh-CN": "2秒"
+          }
+        },
+        {
+          "value": "3000",
+          "label": {
+            "en-US": "3s",
+            "zh-CN": "3秒"
+          }
+        },
+        {
+          "value": "5000",
+          "label": {
+            "en-US": "5s",
+            "zh-CN": "5秒"
+          }
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "slide_text_color",
+      "label": {
+        "zh-CN": "标题&副标题",
+        "en-US": "Heading and subheading"
+      },
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "slide_button_label_color",
+      "label": {
+        "zh-CN": "按钮文案",
+        "en-US": "Button text"
+      },
+      "default": "#0000000"
+    },
+    {
+      "type": "color",
+      "id": "slide_button_background_color",
+      "label": {
+        "zh-CN": "按钮背景",
+        "en-US": "Button background"
+      },
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Content",
+        "zh-CN": "内容"
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": {
+        "en-US": "Image",
+        "zh-CN": "图片"
+      },
+      "disableText": {
+        "zh-CN": "最多添加10个广告，请分别上传PC跟移动的图",
+        "en-US": "Add banners up to 10. Separately upload desktop and mobile images"
+      },
+      "settings": [
+        {
+          "type": "image_picker",
+          "label": {
+            "en-US": "Desktop image",
+            "zh-CN": "PC端图片"
+          },
+          "id": "src",
+          "info": {
+            "zh-CN": "建议尺寸（宽*高）：1920*1080px",
+            "en-US": "Recommended resolution (width * height): 1920*1080px"
+          }
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_src",
+          "label": {
+            "en-US": "Mobile image",
+            "zh-CN": "移动端图片"
+          },
+          "info": {
+            "zh-CN": "建议尺寸（宽*高）：750*1334px",
+            "en-US": "Recommended resolution (width * height): 750*1334px"
+          }
+        },
+        {
+          "type": "color",
+          "id": "image_overlay_color",
+          "label": {
+            "en-US": "Overlay",
+            "zh-CN": "蒙层颜色"
+          },
+          "default": "#212121"
+        },
+        {
+          "type": "range",
+          "id": "image_overlay_opacity",
+          "step": 1,
+          "max": 100,
+          "min": 0,
+          "label": {
+            "en-US": "Opacity",
+            "zh-CN": "蒙层不透明度"
+          },
+          "default": 25,
+          "unit": "%"
+        },
+        {
+          "type": "select",
+          "id": "text_position",
+          "label": {
+            "en-US": "Text and button position",
+            "zh-CN": "文字&按钮位置"
+          },
+          "default": "center",
+          "options": [
+            {
+              "label": {
+                "zh-CN": "中左",
+                "en-US": "Center & left"
+              },
+              "value": "center_left"
+            },
+            {
+              "label": {
+                "en-US": "Center",
+                "zh-CN": "中间"
+              },
+              "value": "center"
+            },
+            {
+              "label": {
+                "zh-CN": "中右",
+                "en-US": "Center & right"
+              },
+              "value": "center_right"
+            },
+            {
+              "label": {
+                "en-US": "Bottom & left",
+                "zh-CN": "下左"
+              },
+              "value": "bottom_left"
+            },
+            {
+              "label": {
+                "en-US": "Bottom & center",
+                "zh-CN": "下中"
+              },
+              "value": "bottom_center"
+            },
+            {
+              "label": {
+                "en-US": "Bottom & right",
+                "zh-CN": "下右"
+              },
+              "value": "bottom_right"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "en-US": "Heading",
+            "zh-CN": "标题"
+          },
+          "default": "Hero Banner",
+          "placeholder": {
+            "zh-CN": "输入标题",
+            "en-US": "Input heading"
+          }
+        },
+        {
+          "type": "text",
+          "id": "sub_title",
+          "label": {
+            "en-US": "Subheading",
+            "zh-CN": "副标题"
+          },
+          "default": "An introductory",
+          "placeholder": {
+            "en-US": "Input subheading",
+            "zh-CN": "输入副标题"
+          }
+        },
+        {
+          "type": "text",
+          "id": "slide_cta",
+          "label": {
+            "en-US": "Button text",
+            "zh-CN": "按钮文字"
+          },
+          "default": "Shop now"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": {
+            "en-US": "Button link",
+            "zh-CN": "按钮链接"
+          },
+          "is_image_link": true
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "slide_plus",
+      "cname": {
+        "en-US": "Slideshow",
+        "zh-CN": "轮播图"
+      },
+      "category": {
+        "en-US": "Material",
+        "zh-CN": "素材"
+      },
+      "ccategory": {
+        "en-US": "Material",
+        "zh-CN": "素材"
+      },
+      "display": true,
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "src": "",
+            "mobile_src": "",
+            "url": "",
+            "image_overlay_color": "#212121",
+            "image_overlay_opacity": 25,
+            "title": "Hero Banner",
+            "sub_title": "An introductory",
+            "slide_cta": "Shop now"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "src": "",
+            "mobile_src": "",
+            "url": "",
+            "image_overlay_color": "#212121",
+            "image_overlay_opacity": 25,
+            "title": "Hero Banner",
+            "sub_title": "An introductory",
+            "slide_cta": "Shop now"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
