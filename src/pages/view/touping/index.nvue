@@ -1,0 +1,86 @@
+<template>
+	<div class="touping">
+		<image class="bg" style="flex: 1;" src="@/static/img/18.png" alt=""/>
+		<sp-equipment v-if="pathUrl" style="width:750rpx;height:1000rpx;position: absolute;z-index: 2;"
+			:params="model"
+			 @equipLoaded="onEquipLoaded"> </sp-equipment>
+<!-- 		<div class="box">
+			<navigator :delta="1" open-type="navigateBack" hover-class="navigator-hover">
+				<text style="color:#fff">返回</text>
+			</navigator>
+		</div> -->
+
+	</div>
+</template>
+
+<script>
+	var spModule = uni.requireNativePlugin("sp-model")
+	export default {
+		name: "index.nvue",
+		data(){
+			return{
+				pathUrl:'',
+				model:{"url":"https://hdl.clfs666.com/live/294_1.flv?sign=b527543e16e4a48dd18d679b5d97200e&t=642be7c6","videoFrame":{"x":0,"y":100,"width":375,"height":260}}
+			}
+			
+		},
+		mounted(){
+			this.syncSp()
+		},
+		onLoad(e){
+			console.log(e);
+			const data = JSON.parse(decodeURIComponent(e.url))
+			console.log(data,24);
+			this.pathUrl=data
+			this.model.url=data
+			this.model=JSON.stringify(this.model)
+		},
+		methods: {
+			toAnchorLiveRoom() {
+				console.log('go to toAnchorLiveRoom');
+				uni.navigateBack();
+				// uni.navigateTo({
+				// 	url: '/pages/view/anchorLiveRoom/index'
+				// });
+			},
+			onEquipLoaded: function(e) {
+				// 原生端传递的数据保存在 e.detail 中
+				console.log("map loaded: " + JSON.stringify(e.detail))
+				if (e.detail.closeView){
+					this.toAnchorLiveRoom()
+					console.log("json")
+				}
+			},
+			syncSp() {
+				spModule.syncSearch({
+					'maxCount': 10
+				})
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.touping {
+		width: 750rpx;
+		flex:1;
+		
+	}
+
+	.bg {
+		position: relative;
+		z-index: 1;
+		top: 0;
+		left: 0;
+		width: 750rpx;
+	
+		
+		
+	}
+
+	.box {
+		padding: 100rpx 20rpx 20rpx 20rpx;
+		position: absolute;
+		width: 750rpx;
+	}
+</style>

@@ -1,0 +1,6 @@
+framework module ScreenProjectionPluginModule {
+  umbrella header "ScreenProjectionPluginModule.h"
+
+  export *
+  module * { export * }
+}

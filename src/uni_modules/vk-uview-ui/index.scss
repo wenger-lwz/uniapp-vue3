@@ -1,0 +1,151 @@
+// 引入公共基础类
+@import "./libs/css/common.scss";
+@import "./libs/css/color.scss";
+
+// 非nvue的样式
+/* #ifndef APP-NVUE */
+@import "./libs/css/style.vue.scss";
+/* #endif */
+
+// nvue的特有样式
+/* #ifdef APP-NVUE */
+@import "./libs/css/style.nvue.scss";
+/* #endif */
+
+// 小程序特有的样式
+/* #ifdef MP */
+@import "./libs/css/style.mp.scss";
+/* #endif */
+
+// H5特有的样式
+/* #ifdef H5 */
+@import "./libs/css/style.h5.scss";
+/* #endif */
+
+.username_level_1 {
+  color: #58c14b;
+}
+
+.username_level_2 {
+  color: #6a63ff;
+}
+
+.username_level_3 {
+  color: #fba422;
+}
+
+.username_level_4 {
+  color: #0088ff;
+}
+
+.username_level_5 {
+  color: #00eaea;
+}
+
+.username_level_6 {
+  color: #6907ff;
+}
+
+.username_level_7 {
+  color: #ff1c84;
+}
+
+.username_level_8 {
+  color: #624aa9;
+}
+
+.username_level_9 {
+  color: #f0d500;
+}
+
+.username_level_10 {
+  color: #fe431d;
+}
+
+.username_level_11 {
+  color: #843504;
+}
+
+.username_level_12 {
+  color: #fc4f5d;
+}
+
+.username_level_13 {
+  color: #8341ff;
+}
+
+.username_level_14 {
+  color: #071eff;
+}
+
+.username_level_15 {
+  color: #0e6c54;
+}
+
+.username_level_16 {
+  color: #cc0000;
+}
+
+.level_1 {
+  background: #58c14b;
+}
+
+.level_2 {
+  background: #6a63ff;
+}
+
+.level_3 {
+  background: #fba422;
+}
+
+.level_4 {
+  background: #0088ff;
+}
+
+.level_5 {
+  background: #00eaea;
+}
+
+.level_6 {
+  background: #6907ff;
+}
+
+.level_7 {
+  background: #ff1c84;
+}
+
+.level_8 {
+  background: #624aa9;
+}
+
+.level_9 {
+  background: #f0d500;
+}
+
+.level_10 {
+  background: #fe431d;
+}
+
+.level_11 {
+  background: #843504;
+}
+
+.level_12 {
+  background: #fc4f5d;
+}
+
+.level_13 {
+  background: #8341ff;
+}
+
+.level_14 {
+  background: #071eff;
+}
+
+.level_15 {
+  background: #0e6c54;
+}
+
+.level_16 {
+  background: #cc0000;
+}

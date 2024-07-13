@@ -1,0 +1,54 @@
+{
+
+	"name": "ScreenProjectionPluginModule",
+
+	"id": "sp-ScreenProjection",
+
+	"version": "1.0.0",
+
+	"description": "投屏",
+
+	"_dp_type": "nativeplugin",
+
+	"_dp_nativeplugin": {
+
+		"ios": {
+
+			"plugins": [
+				
+				{
+				
+					"type": "module",
+				
+					"name": "sp-model",
+				
+					"class": "ScreenProjectionPluginModel"
+				
+				},
+				{
+				
+					"type": "component",
+				
+					"name": "sp-equipment",
+				
+					"class": "ScreenProjectionPluginComponent"
+				
+				}
+
+			],
+
+			"integrateType": "framework",
+
+			"privacies": [
+
+			],
+
+			"resources": [
+
+			]
+
+		}
+
+	}
+
+}

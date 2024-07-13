@@ -1,0 +1,52 @@
+// 颜色
+$theme-color: #FDB104;
+// 宽高（大小自定义）
+@mixin wh($w, $h) {
+  width: $w;
+  height: $h;
+}
+//rpx宽高（值必须是数值类型，不能为auto等）
+@mixin rwh($w, $h) {
+  width: $w * 1rpx;
+  height: $h * 1rpx;
+}
+//flex行居中
+@mixin fc{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+}
+//flex行两头列居中
+@mixin fs{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+//字体过多显示省略号
+@mixin omit($l: 1){
+  overflow : hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: $l;
+  -webkit-box-orient: vertical;
+}
+@keyframes skeleton-loading {
+  0% {
+      background-position: 100% 50%
+  }
+
+  to {
+      background-position: 0 50%
+  }
+}
+@mixin skeletonAni($c1:#f5f5f5, $c2:#DDD, $c3:#f3f3f3, $br: 8rpx) {
+  background: linear-gradient(100deg,$c1 25%, $c2 37%, $c3 63%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+  border-radius: $br;
+}
+$colorList: #58c14b #6a63ff #fba422 #1088ff #33eeee #691eff #fc1c84 #624aa9 #ffde00 #fc2c02 #843504 #fc4e5c #8341ff #071eff #0e6c54 #cc0000;

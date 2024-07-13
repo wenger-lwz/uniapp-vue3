@@ -1,0 +1,183 @@
+<template>
+	<div class="h-52">
+		<video id='myVideo' class="video h-full" :is-live="true" :src="src" autoplay="true" controls="true"
+			direction="-90" danmu-btn="true" enable-danmu="true" :loop="true" muted="false"
+			:enable-progress-gesture="false" :enable-play-gesture="true" show-mute-btn="true" @play="onstart"
+			@pause="onpause" @ended="onfinish" @error="onfail" @waiting="waiting" @timeupdate="timeupdate"
+			@fullscreenchange="fullscreenchange">
+			<cover-view @click="goBack" class="text-white -mt-4 z-10 absolute top-8 left-0 p-5">
+				返回</cover-view>
+			<cover-view @click="toTouPing" class="text-white -mt-4 z-10 absolute top-8 right-0 p-5">
+				投屏</cover-view></video>
+		<!-- 		<button class="btn" @click="play">播放</button>
+		<button class="btn" @click="pause">暂停</button>
+		<button class="btn" @click="seek">跳转到指定位置</button>
+		<button class="btn" @click="stop">停止</button>
+		<button class="btn" @click="fullScreen">全屏</button>
+		<button class="btn" @click="exitFullScreen">退出全屏</button>
+		<button class="btn" @click="playbackRate">设置倍速</button>
+		<button class="btn" @click="sendDanmu">发送弹幕</button> -->
+
+
+		<uni-popup ref="popup" type="bottom">
+			<view class="toupingcontent bg-white absolute bottom-0  w-full">
+				<dc-testmap style="width:750px;height:300px" url="https:asdasd.sad.asd.m3u8"
+					@mapLoaded="onMapLoaded"></dc-testmap>
+			</view>
+		</uni-popup>
+	</div>
+</template>
+
+<script>
+	export default {
+		props: {
+			model: {
+				type: Object
+			}
+		},
+		data() {
+			return {
+				// danMuList: [{
+				// 	text: '要显示的文本1',
+				// 	color: '#FF0000',
+				// 	// time: 1,
+				// 	// showTp: false
+				// }, {
+				// 	text: '要显示的文本2',
+				// 	color: '#FF0000',
+				// 	// time: 2,
+				// 	// showTp: false
+				// }],
+				context: {},
+				timer: 0
+			}
+		},
+		computed: {
+			src() {
+				return this.model.pullm3u8
+			}
+		},
+		mounted() {
+			this.context = uni.createVideoContext("myVideo");
+			this.timer = setTimeout(() => {
+				this.context.exitFullScreen();
+			}, 1000)
+		},
+		beforeDestroy() {
+			if (this.timer) {
+				clearTimeout(this.timer)
+			}
+		},
+		methods: {
+			goBack(){
+				uni.switchTab({
+					url: `/pages/view/anchor/index`
+				});
+			},
+			addDanMu(e) {
+				this.context = uni.createVideoContext("myVideo");
+				this.context.sendDanmu({
+					text: e,
+					color: '#FF0000'
+				});
+			},
+			toTouPing() {
+				// this.$refs.popup.open('bottom')
+				uni.navigateTo({
+					url: `/pages/view/touping/index?url=${encodeURIComponent(JSON.stringify(this.model.pullm3u8))}`
+				});
+			},
+			onMapLoaded: function(e) {
+				// 原生端传递的数据保存在 e.detail 中
+				// console.log("map loaded: "+JSON.stringify(e.detail))
+			},
+			onstart(e) {
+				// console.log("onstart:" + JSON.stringify(e));
+				// this.showTp=true
+			},
+			onpause(e) {
+				// console.log("onpause:" + JSON.stringify(e));
+				// this.showTp=true
+			},
+			onfinish(e) {
+				// console.log("onfinish:" + JSON.stringify(e));
+			},
+			onfail(e) {
+				// console.log("onfail:" + JSON.stringify(e));
+			},
+			fullscreenchange(e) {
+				// console.log("fullscreenchange:" + JSON.stringify(e));
+			},
+			waiting(e) {
+				// console.log("waiting:" + JSON.stringify(e));
+			},
+			timeupdate(e) {
+				// console.log("timeupdate:" + JSON.stringify(e));
+			},
+
+			play() {
+				// console.log(103,'play');
+				this.context.play();
+			},
+			pause() {
+				// console.log(103,'pause');
+				this.context.pause();
+			},
+			seek() {
+				// console.log(103,'seek');
+				// this.context.seek(20);
+			},
+			stop() {
+				// console.log(103,'stop');
+				this.context.stop();
+			},
+			fullScreen() {
+				console.log(103, 'fullScreen');
+				this.context.requestFullScreen({
+					direction: 90
+				});
+			},
+			exitFullScreen() {
+				console.log(103, 'exitFullScreen');
+				this.context.exitFullScreen();
+			},
+			sendDanmu() {
+				this.context.sendDanmu({
+					text: '要显示的弹幕文本',
+					color: '#FF0000'
+				});
+
+			},
+			playbackRate() {
+				// console.log(103,'playbackRate');
+				this.context.playbackRate(2);
+			}
+		}
+	}
+</script>
+
+<style>
+	.video {
+		width: 750rpx;
+		/* #ifdef H5 */
+		width: 100%;
+		/* #endif */
+		background-color: #808080;
+	}
+
+	.btn {
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+
+	/deep/.uni-video-touping {
+		width: 20px;
+		height: 20px;
+		background-color: aqua;
+		margin: 0 5px
+	}
+
+	.toupingcontent {
+		height: 70vh;
+	}
+</style>
